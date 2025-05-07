@@ -32,6 +32,37 @@
     .card-red {
       background-color: #f9a2a2;
     }
+
+    /* เส้นขอบรอบนอกของตาราง */
+    .table {
+      border: 2px solid #dee2e6; /* เส้นขอบรอบตาราง */
+    }
+
+    /* เส้นขอบใต้หัวข้อ */
+    .table .profile {
+      border-bottom: 2px solid #dee2e6; /* เส้นขอบใต้หัวข้อ */
+      text-align: center; /* จัดกลางหัวข้อ */
+    }
+
+    /* ลบเส้นขอบในเซลล์ */
+    .table td {
+      border: none; /* ไม่มีเส้นขอบในเซลล์ */
+    }
+
+    /* จัดรูปภาพให้เป็นวงกลม และให้ครอบคลุมพื้นที่ */
+    .profile-image {
+      width: 40px;
+      height: 40px;
+      object-fit: cover; /* ให้รูปภาพครอบคลุมพื้นที่โดยไม่เพี้ยน */
+      border-radius: 50%;
+    }
+
+    /* จัดให้อยู่ตรงกลาง */
+    .profile-cell {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
   </style>
 </head>
 
@@ -47,7 +78,6 @@
 
   <div class="container-fluid">
     <div class="row">
-
       <!-- Sidebar -->
       <div class="col-md-2 sidebar">
         <a href="#">ข้อมูลพนักงาน</a>
@@ -56,11 +86,12 @@
         <a href="#">การประเมินผล</a>
         <a href="#">ผู้สมัครงาน</a>
       </div>
-
+  
       <!-- Main Content -->
 
     </div>
   </div>
+  
 
   <!-- Bootstrap 5 JS (ออฟไลน์) -->
   <script src="libs/bootstrap/js/bootstrap.bundle.min.js"></script>
