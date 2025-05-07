@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>WorkSter Dashboard</title>
+  <!-- Bootstrap 5 CSS (ออฟไลน์) -->
+  <link href="libs/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://kit.fontawesome.com/a62630f63f.js" crossorigin="anonymous"></script>
+  <style>
+    .sidebar {
+      background-color: #f8f9fa;
+      min-height: 100vh;
+      padding-top: 20px;
+    }
+    .sidebar a {
+      display: block;
+      padding: 10px 20px;
+      color: #000;
+      text-decoration: none;
+    }
+    .sidebar a:hover {
+      background-color: #e2e6ea;
+      border-radius: 5px;
+    }
+    .card-green {
+      background-color: #a7f9a2;
+    }
+    .card-yellow {
+      background-color: #f9f59a;
+    }
+    .card-red {
+      background-color: #f9a2a2;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Header -->
+  <nav class="navbar navbar-dark" style="background-color: #1E56A0; padding: 10px;">
+    <div class="container-fluid">
+      <span class="navbar-brand mb-0 h1 fs-4">WorkSter</span>
+      <span class="text-white fs-3"><i class="fa-solid fa-circle-user" style="color: #ffffff;"></i></span>
+    </div>
+  </nav>
+
+  <div class="container-fluid">
+    <div class="row">
+
+      <!-- Sidebar -->
+      <div class="col-md-2 sidebar">
+        <a href="#">ข้อมูลพนักงาน</a>
+        <a href="#">รายการทำงานลา</a>
+        <a href="#">จัดการเงินเดือน</a>
+        <a href="#">การประเมินผล</a>
+        <a href="#">ผู้สมัครงาน</a>
+      </div>
+
+     <!-- Main Content -->
+<div class="col-md-10 p-4">
+    <h4 class="fw-bold">การประเมินผล</h4>
+
+    <div class="card shadow-sm">
+        <div class="card-header bg-light text-center position-relative">
+          <a href="#" class="position-absolute start-0 top-50 translate-middle-y ms-3 text-dark">
+            <i class="fa-solid fa-angle-left"></i>
+          </a>
+          <h5 class="text-center ">แบบฟอร์มการประเมิน</h5>
+        </div>
+      
+
+  <div class="card-body px-5">
+    <div class="mb-4 text-start">
+      <p><strong>ชื่อ - สกุล:</strong> เที่ยว ปิด</p>
+      <p><strong>ตำแหน่ง:</strong> IT Support</p>
+      <p><strong>เกณฑ์การประเมิน:</strong></p>
+    </div>
+
+    
+
+    <table class="table table-bordered text-center align-middle">
+      <thead class="table-light">
+        <tr>
+          <th class="text-center">หัวข้อการประเมิน</th>
+          <th>ค่าน้ำหนัก</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tbody>
+            <!-- ข้อ 1 -->
+            <tr>
+              <td class="text-start">
+                <strong>ข้อที่ 1 ความสามารถในการเรียนรู้งาน</strong>
+                <span class="d-block ms-0 mb-2">คำตอบ</span>
+                <div class="form-check ms-3">
+                  <input class="form-check-input" type="radio" name="q1" id="q1_1">
+                  <label class="form-check-label d-flex justify-content-between" for="q1_1" style="width: 100%;">
+                    <span>ดีมาก</span> <span>(20 คะแนน)</span>
+                  </label>
+                </div>
+                <div class="form-check ms-3">
+                  <input class="form-check-input" type="radio" name="q1" id="q1_2">
+                  <label class="form-check-label d-flex justify-content-between" for="q1_2" style="width: 100%;">
+                    <span>ดี</span> <span>(15 คะแนน)</span>
+                  </label>
+                </div>
+                <div class="form-check ms-3">
+                  <input class="form-check-input" type="radio" name="q1" id="q1_3">
+                  <label class="form-check-label d-flex justify-content-between" for="q1_3" style="width: 100%;">
+                    <span>พอใช้</span> <span>(10 คะแนน)</span>
+                  </label>
+                </div>
+                <div class="form-check ms-3">
+                  <input class="form-check-input" type="radio" name="q1" id="q1_4">
+                  <label class="form-check-label d-flex justify-content-between" for="q1_4" style="width: 100%;">
+                    <span>ควรปรับปรุง</span> <span>(5 คะแนน)</span>
+                  </label>
+                </div>
+              </td>
+              <td>20</td>
+            </tr>
+          
+            <!-- ข้อ 2 -->
+            <tr>
+              <td class="text-start">
+                <strong>ข้อที่ 2 ข้อปฏิบัติและการปฏิบัติตามกฎ/ข้อบังคับ</strong>
+                <span class="d-block ms-0 mb-2">คำตอบ</span>
+                <div class="form-check ms-3">
+                  <input class="form-check-input" type="radio" name="q2" id="q2_1">
+                  <label class="form-check-label d-flex justify-content-between" for="q2_1" style="width: 100%;">
+                    <span>ดีมาก</span> <span>(20 คะแนน)</span>
+                  </label>
+                </div>
+                <div class="form-check ms-3">
+                  <input class="form-check-input" type="radio" name="q2" id="q2_2">
+                  <label class="form-check-label d-flex justify-content-between" for="q2_2" style="width: 100%;">
+                    <span>ดี</span> <span>(15 คะแนน)</span>
+                  </label>
+                </div>
+                <div class="form-check ms-3">
+                  <input class="form-check-input" type="radio" name="q2" id="q2_3">
+                  <label class="form-check-label d-flex justify-content-between" for="q2_3" style="width: 100%;">
+                    <span>พอใช้</span> <span>(10 คะแนน)</span>
+                  </label>
+                </div>
+                <div class="form-check ms-3">
+                  <input class="form-check-input" type="radio" name="q2" id="q2_4">
+                  <label class="form-check-label d-flex justify-content-between" for="q2_4" style="width: 100%;">
+                    <span>ควรปรับปรุง</span> <span>(5 คะแนน)</span>
+                  </label>
+                </div>
+              </td>
+              <td>20</td>
+            </tr>
+          
+            <!-- ข้อ 3 -->
+            <tr>
+              <td class="text-start">
+                <strong>ข้อที่ 3 ความรับผิดชอบต่องานที่ทำ</strong>
+                <span class="d-block ms-0 mb-2">คำตอบ</span>
+                <div class="form-check ms-3">
+                  <input class="form-check-input" type="radio" name="q3" id="q3_1">
+                  <label class="form-check-label d-flex justify-content-between" for="q3_1" style="width: 100%;">
+                    <span>ดีมาก</span> <span>(20 คะแนน)</span>
+                  </label>
+                </div>
+                <div class="form-check ms-3">
+                  <input class="form-check-input" type="radio" name="q3" id="q3_2">
+                  <label class="form-check-label d-flex justify-content-between" for="q3_2" style="width: 100%;">
+                    <span>ดี</span> <span>(15 คะแนน)</span>
+                  </label>
+                </div>
+                <div class="form-check ms-3">
+                  <input class="form-check-input" type="radio" name="q3" id="q3_3">
+                  <label class="form-check-label d-flex justify-content-between" for="q3_3" style="width: 100%;">
+                    <span>พอใช้</span> <span>(10 คะแนน)</span>
+                  </label>
+                </div>
+                <div class="form-check ms-3">
+                  <input class="form-check-input" type="radio" name="q3" id="q3_4">
+                  <label class="form-check-label d-flex justify-content-between" for="q3_4" style="width: 100%;">
+                    <span>ควรปรับปรุง</span> <span>(5 คะแนน)</span>
+                  </label>
+                </div>
+              </td>
+              <td>20</td>
+            </tr>
+          
+            <!-- ข้อ 4 -->
+            <tr>
+              <td class="text-start">
+                <strong>ข้อที่ 4 การทำงานร่วมกับผู้อื่น</strong>
+                <span class="d-block ms-0 mb-2">คำตอบ</span>
+                <div class="form-check ms-3">
+                  <input class="form-check-input" type="radio" name="q4" id="q4_1">
+                  <label class="form-check-label d-flex justify-content-between" for="q4_1" style="width: 100%;">
+                    <span>ดีมาก</span> <span>(20 คะแนน)</span>
+                  </label>
+                </div>
+                <div class="form-check ms-3">
+                  <input class="form-check-input" type="radio" name="q4" id="q4_2">
+                  <label class="form-check-label d-flex justify-content-between" for="q4_2" style="width: 100%;">
+                    <span>ดี</span> <span>(15 คะแนน)</span>
+                  </label>
+                </div>
+                <div class="form-check ms-3">
+                  <input class="form-check-input" type="radio" name="q4" id="q4_3">
+                  <label class="form-check-label d-flex justify-content-between" for="q4_3" style="width: 100%;">
+                    <span>พอใช้</span> <span>(10 คะแนน)</span>
+                  </label>
+                </div>
+                <div class="form-check ms-3">
+                  <input class="form-check-input" type="radio" name="q4" id="q4_4">
+                  <label class="form-check-label d-flex justify-content-between" for="q4_4" style="width: 100%;">
+                    <span>ควรปรับปรุง</span> <span>(5 คะแนน)</span>
+                  </label>
+                </div>
+              </td>
+              <td>20</td>
+            </tr>
+          
+            <!-- ข้อ 5 -->
+            <tr>
+              <td class="text-start">
+                <strong>ข้อที่ 5 ความสามารถในการแก้ปัญหาเฉพาะหน้า</strong>
+                <span class="d-block ms-0 mb-2">คำตอบ</span>
+                <div class="form-check ms-3">
+                  <input class="form-check-input" type="radio" name="q5" id="q5_1">
+                  <label class="form-check-label d-flex justify-content-between" for="q5_1" style="width: 100%;">
+                    <span>ดีมาก</span> <span>(20 คะแนน)</span>
+                  </label>
+                </div>
+                <div class="form-check ms-3">
+                  <input class="form-check-input" type="radio" name="q5" id="q5_2">
+                  <label class="form-check-label d-flex justify-content-between" for="q5_2" style="width: 100%;">
+                    <span>ดี</span> <span>(15 คะแนน)</span>
+                  </label>
+                </div>
+                <div class="form-check ms-3">
+                  <input class="form-check-input" type="radio" name="q5" id="q5_3">
+                  <label class="form-check-label d-flex justify-content-between" for="q5_3" style="width: 100%;">
+                    <span>พอใช้</span> <span>(10 คะแนน)</span>
+                  </label>
+                </div>
+                <div class="form-check ms-3">
+                  <input class="form-check-input" type="radio" name="q5" id="q5_4">
+                  <label class="form-check-label d-flex justify-content-between" for="q5_4" style="width: 100%;">
+                    <span>ควรปรับปรุง</span> <span>(5 คะแนน)</span>
+                  </label>
+                </div>
+              </td>
+              <td>20</td>
+            </tr>
+          </tbody>
+          
+      </tbody>
+      <tfoot>
+        <tr class="table-light">
+          <td class="text-center pe-4"><strong class="me-3">คะแนนรวม</strong></td>
+          <td class="text-center"><strong>100</strong></td>
+        </tr>
+      </tfoot>
+      
+    </table>
+
+    <div class="text-end mt-4">
+      <td><button class="btn btn-primary rounded-pill px-3">ประเมินผล</button></td>
+    </div>
+  </div>
+</div>
+  
+
+    </div>
+  </div>
+
+  <!-- Bootstrap 5 JS (ออฟไลน์) -->
+  <script src="libs/bootstrap/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
