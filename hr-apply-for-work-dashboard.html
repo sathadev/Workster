@@ -170,13 +170,40 @@
     </div>
   
     <!-- การสัมภาษณ์ Tab -->
-    <div class="tab-pane fade" id="interview" role="tabpanel">
-        <div class="border rounded p-3 shadow-sm">
-      
+<div class="tab-pane fade" id="interview" role="tabpanel">
+  <div class="border rounded p-3 shadow-sm">
+    
+    <!-- ฟอร์มการสัมภาษณ์ -->
+    <form>
+      <div class="mb-3">
+        <label for="interviewDate" class="form-label">วันที่สัมภาษณ์</label>
+        <input type="date" class="form-control" id="interviewDate" required>
+      </div>
 
-      
-        </div>
-    </div>
+      <div class="mb-3">
+        <label for="interviewTime" class="form-label">เวลา</label>
+        <input type="time" class="form-control" id="interviewTime" required>
+      </div>
+
+      <div class="mb-3">
+        <label for="interviewLocation" class="form-label">สถานที่/Google Meet</label>
+        <input type="text" class="form-control" id="interviewLocation" placeholder="ระบุสถานที่หรือลิงก์ Google Meet" required>
+      </div>
+
+      <div class="mb-3">
+        <label for="interviewNotes" class="form-label">หมายเหตุ</label>
+        <textarea class="form-control" id="interviewNotes" rows="4" placeholder="กรอกหมายเหตุเพิ่มเติม..." required></textarea>
+      </div>
+
+      <div class="d-flex justify-content-end gap-2">
+        <button type="submit" class="btn btn-success px-4">บันทึก</button>
+        <button type="reset" class="btn btn-danger px-4">ยกเลิก</button>
+      </div>
+    </form>
+
+  </div>
+</div>
+
   
     <!-- ประเมินผลสัมภาษณ์ Tab -->
     <div class="tab-pane fade" id="evaluation" role="tabpanel">
