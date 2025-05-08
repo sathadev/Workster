@@ -195,7 +195,7 @@
             <div class="col-4">HR</div>
             <div class="col-2 text-end">
                 <button type="button" class="btn btn-success">ผ่าน</button>
-                <button type="button" class="btn btn-danger">ไม่ผ่าน</button>
+                <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#confirmRejectModal">ไม่ผ่าน</button>
             </div>
           </div>
       
@@ -205,7 +205,8 @@
             <div class="col-4">IT Support</div>
             <div class="col-2 text-end">
               <button type="button" class="btn btn-success">ผ่าน</button>
-              <button type="button" class="btn btn-danger">ไม่ผ่าน</button>
+              <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#confirmRejectModal">ไม่ผ่าน</button>
+
             </div>
           </div>
       
@@ -213,8 +214,36 @@
     </div>
 </div>
 
+<!-- Modal ยืนยันการลบ -->
+<div class="modal fade" id="confirmRejectModal" tabindex="-1" aria-labelledby="confirmRejectModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content text-center p-4" style="max-width: 500px; margin: auto;">
+      <div class="modal-body" style="min-height: 180px; display: flex; flex-direction: column; justify-content: center;">
+        <p class="fs-5 fw-bold mb-4">ระบบจะทำการลบข้อมูลผู้สัมภาษณ์</p>
+        <div class="d-flex justify-content-center gap-3">
+          <button type="button" class="btn btn-danger px-4" id="confirmRejectBtn">ยืนยัน</button>
+          <button type="button" class="btn btn-secondary px-4" data-bs-dismiss="modal">ยกเลิก</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
 
   <!-- Bootstrap 5 JS (ออฟไลน์) -->
   <script src="libs/bootstrap/js/bootstrap.bundle.min.js"></script>
+  <script>
+    document.getElementById('confirmRejectBtn').addEventListener('click', function () {
+      // ตัวอย่าง: ส่งข้อมูลไป backend หรือเอาไว้ลบจาก DOM
+      console.log("กดปุ่มยืนยันลบผู้สัมภาษณ์");
+      
+      // ซ่อน modal
+      const modal = bootstrap.Modal.getInstance(document.getElementById('confirmRejectModal'));
+      modal.hide();
+    });
+  </script>
+  
 </body>
 </html>
