@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>WorkSter Dashboard</title>
+  <!-- Bootstrap 5 CSS (ออฟไลน์) -->
+  <link href="libs/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://kit.fontawesome.com/a62630f63f.js" crossorigin="anonymous"></script>
+  <style>
+    .sidebar {
+      background-color: #f8f9fa;
+      min-height: 100vh;
+      padding-top: 20px;
+    }
+    .sidebar a {
+      display: block;
+      padding: 10px 20px;
+      color: #000;
+      text-decoration: none;
+    }
+    .sidebar a:hover {
+      background-color: #e2e6ea;
+      border-radius: 5px;
+    }
+    .card-green {
+      background-color: #a7f9a2;
+    }
+    .card-yellow {
+      background-color: #f9f59a;
+    }
+    .card-red {
+      background-color: #f9a2a2;
+    }
+
+    /* เส้นขอบรอบนอกของตาราง */
+    .table {
+      border: 2px solid #dee2e6; /* เส้นขอบรอบตาราง */
+    }
+
+    /* เส้นขอบใต้หัวข้อ */
+    .table .profile {
+      border-bottom: 2px solid #dee2e6; /* เส้นขอบใต้หัวข้อ */
+      text-align: center; /* จัดกลางหัวข้อ */
+    }
+
+    /* ลบเส้นขอบในเซลล์ */
+    .table td {
+      border: none; /* ไม่มีเส้นขอบในเซลล์ */
+    }
+
+    /* จัดรูปภาพให้เป็นวงกลม และให้ครอบคลุมพื้นที่ */
+    .profile-image {
+      width: 40px;
+      height: 40px;
+      object-fit: cover; /* ให้รูปภาพครอบคลุมพื้นที่โดยไม่เพี้ยน */
+      border-radius: 50%;
+    }
+
+    /* จัดให้อยู่ตรงกลาง */
+    .profile-cell {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .center-message-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh; /* ใช้ความสูงของหน้าจอ */
+}
+
+.center-message {
+  text-align: center;
+  font-size: 20px; /* ขนาดตัวอักษรที่ใหญ่ขึ้น */
+  font-weight: bold;
+  line-height: 1.2; /* ให้ระยะห่างระหว่างบรรทัดพอเหมาะ */
+  padding: 10px; /* เพิ่ม padding เพื่อให้ดูไม่แออัด */
+}
+
+    
+  </style>
+</head>
+
+<body>
+
+  <!-- Header -->
+<nav class="navbar navbar-dark" style="background-color: #1E56A0; padding: 10px;">
+    <div class="container-fluid">
+      <span class="navbar-brand mb-0 h1 fs-4">WorkSter</span>
+      <span class="text-white fs-3"><i class="fa-solid fa-circle-user" style="color: #ffffff;"></i></span>
+    </div>
+  </nav>
+  
+ 
+<!-- ข้อความ "พิจารณาเข้ารับงาน" -->
+<div class="center-message-container">
+    <div class="center-message">
+        พิจารณาเข้ารับงาน
+    </div>
+  </div>
+
+    </div>
+  </div>
+  
+
+  <!-- Bootstrap 5 JS (ออฟไลน์) -->
+  <script src="libs/bootstrap/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
