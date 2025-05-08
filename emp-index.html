@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>WorkSter Dashboard</title>
+  <!-- Bootstrap 5 CSS (ออฟไลน์) -->
+  <link href="libs/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://kit.fontawesome.com/a62630f63f.js" crossorigin="anonymous"></script>
+  <style>
+    .sidebar {
+      background-color: #f8f9fa;
+      min-height: 100vh;
+      padding-top: 20px;
+    }
+    .sidebar a {
+      display: block;
+      padding: 10px 20px;
+      color: #000;
+      text-decoration: none;
+    }
+    .sidebar a:hover {
+      background-color: #e2e6ea;
+      border-radius: 5px;
+    }
+    .card-green {
+      background-color: #a7f9a2;
+    }
+    .card-yellow {
+      background-color: #f9f59a;
+    }
+    .card-red {
+      background-color: #f9a2a2;
+    }
+
+    /* เส้นขอบรอบนอกของตาราง */
+    .table {
+      border: 2px solid #dee2e6; /* เส้นขอบรอบตาราง */
+    }
+
+    /* เส้นขอบใต้หัวข้อ */
+    .table .profile {
+      border-bottom: 2px solid #dee2e6; /* เส้นขอบใต้หัวข้อ */
+      text-align: center; /* จัดกลางหัวข้อ */
+    }
+
+    /* ลบเส้นขอบในเซลล์ */
+    .table td {
+      border: none; /* ไม่มีเส้นขอบในเซลล์ */
+    }
+
+    /* จัดรูปภาพให้เป็นวงกลม และให้ครอบคลุมพื้นที่ */
+    .profile-image {
+      width: 40px;
+      height: 40px;
+      object-fit: cover; /* ให้รูปภาพครอบคลุมพื้นที่โดยไม่เพี้ยน */
+      border-radius: 50%;
+    }
+
+    /* จัดให้อยู่ตรงกลาง */
+    .profile-cell {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Header -->
+  <nav class="navbar navbar-dark" style="background-color: #1E56A0; padding: 10px;">
+    <div class="container-fluid">
+      <span class="navbar-brand mb-0 h1 fs-4">WorkSter</span>
+      <span class="text-white fs-3"><i class="fa-solid fa-circle-user" style="color: #ffffff;"></i></span>
+    </div>
+  </nav>
+
+  <div class="container-fluid">
+    <div class="row">
+      <!-- Sidebar -->
+      <div class="col-md-2 sidebar">
+        <a href="#">ข้อมูลพนักงาน</a>
+        <a href="#">รายการทำงานลา</a>
+        <a href="#">จัดการเงินเดือน</a>
+        <a href="#">การประเมินผล</a>
+        <a href="#">ผู้สมัครงาน</a>
+      </div>
+  
+<!-- Main Content -->
+<div class="col-md-10 p-4">
+    <h4>บันทึกเวลา เข้า/ออก งาน</h4>
+  
+    <!-- Card เวลาเข้างาน -->
+    <div class="card my-3">
+      <div class="card-body d-flex justify-content-between align-items-center">
+        <div>
+          <h5 class="fw-bold mb-1">เวลาเข้างาน</h5>
+          <p class="fs-5 mb-0">08 : 30</p>
+        </div>
+        <button class="btn btn-primary">เช็คอิน</button>
+      </div>
+    </div>
+  
+    <!-- Card เวลาออกงาน -->
+    <div class="card my-3">
+      <div class="card-body d-flex justify-content-between align-items-center">
+        <div>
+          <h5 class="fw-bold mb-1">เวลาออกงาน</h5>
+          <p class="fs-5 mb-0">ยังไม่ถึงเวลาเลิกงาน</p>
+        </div>
+        <button class="btn btn-primary">เช็คเอ้าท์</button>
+      </div>
+    </div>
+  </div>
+  
+  
+    </div>
+  </div>
+  
+
+  <!-- Bootstrap 5 JS (ออฟไลน์) -->
+  <script src="libs/bootstrap/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
