@@ -82,49 +82,75 @@
   
       <!-- ส่วนแสดงรายละเอียดการสัมภาษณ์ -->
 
-        <h5 class="text-center">พิจารณาเข้ารับงาน</h5>
-        <div class="text-end">
-          <button type="button" class="btn-close" aria-label="Close"></button>
-        </div>
+<div class="container mt-5">
+  <div class="row justify-content-center">
+    <div class="col-md-8 border p-4 rounded shadow-sm position-relative">
 
-        <div class="container mt-4">
-          <div class="row">   
-            <!-- ฟอร์ม -->
-            <div class="col-md-8">
-              <form>
-                <div class="row mb-2">
-                  <div class="col-md-3">ตำแหน่งที่สมัคร :</div>
-                  <div class="col-md-9"><input type="text" class="form-control"></div>
-                </div>
-                <div class="row mb-2">
-                  <div class="col-md-3">เงินเดือน :</div>
-                  <div class="col-md-9"><input type="text" class="form-control"></div>
-                </div>
-                <div class="row mb-2">
-                  <div class="col-md-3">วันที่เริ่มงาน :</div>
-                  <div class="col-md-9"><input type="date" class="form-control"></div>
-                </div>
-                <div class="row mb-2">
-                  <div class="col-md-3">สวัสดิการณ์ :</div>
-                  <div class="col-md-6">สิทธ์ประกันสังคม
-                      โบนัสประจำปี 1-6 เดือน
-                      ตรวจสุขภาพประจำปี
-                      วันหยุดนักขัตฤกษ์ และวันหยุดพิเศษบริษัท
-                      ท่องเที่ยวประจำปี
-                      กองทุนสำรองเลี้ยงชีพ</div>
-                </div>
-              </form>
-            </div>
-            <br>
+      <h5 class="text-center mb-4">พิจารณาเข้ารับงาน</h5>
+
+      <form>
+        <div class="mb-3 row">
+          <label class="col-sm-3 col-form-label">ตำแหน่งที่สมัคร :</label>
+          <div class="col-sm-9">
+            <input type="text" class="form-control" value="IT Support" readonly>
           </div>
         </div>
-        
-        <div class="d-flex justify-content-end">
-          <button type="submit" class="btn btn-success ms-2">รับข้อเสนอ</button>
-          <button type="submit" class="btn btn-danger ms-2" data-bs-toggle="modal" data-bs-target="#confirmRejectModal">ปฏิเสธข้อเสนอ</button>
+
+        <div class="mb-3 row">
+          <label class="col-sm-3 col-form-label">เงินเดือน :</label>
+          <div class="col-sm-9">
+            <input type="text" class="form-control" value="20,000" readonly>
+          </div>
         </div>
 
-     
+        <div class="mb-3 row">
+          <label class="col-sm-3 col-form-label">วันที่เริ่มงาน :</label>
+          <div class="col-sm-9">
+            <input type="text" class="form-control" value="30/2/2560" readonly>
+          </div>
+        </div>
+
+        <div class="mb-3 row">
+          <label class="col-sm-3 col-form-label">สวัสดิการ :</label>
+          <div class="col-sm-9">
+            <ul class="mb-0">
+              <li>สิทธิประกันสังคม</li>
+              <li>โบนัสประจำปี 1 - 6 เดือน</li>
+              <li>ตรวจสุขภาพประจำปี</li>
+              <li>วันหยุดนักขัตฤกษ์ และวันหยุดพิเศษบริษัท</li>
+              <li>ท่องเที่ยวประจำปี</li>
+              <li>กองทุนสำรองเลี้ยงชีพ</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- ปุ่มด้านขวาล่าง -->
+        <div class="d-flex justify-content-end mt-4">
+          <button type="submit" class="btn btn-success me-2">ตอบรับ</button>
+          <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#confirmRejectModal">ปฏิเสธ</button>
+          
+        </div>
+      </form>
+
+    </div>
+  </div>
+</div>
+
+<!-- Modal ยืนยันการปฏิเสธ -->
+<div class="modal fade" id="confirmRejectModal" tabindex="-1" aria-labelledby="confirmRejectModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content text-center p-4" style="max-width: 500px; margin: auto;">
+      <div class="modal-body" style="min-height: 180px; display: flex; flex-direction: column; justify-content: center;">
+        <p class="fs-5 fw-bold mb-4">ระบบจะทำการลบข้อมูล</p>
+        <div class="d-flex justify-content-center gap-3">
+          <button type="button" class="btn btn-danger px-4" id="confirmRejectBtn">ยืนยัน</button>
+          <button type="button" class="btn btn-secondary px-4" data-bs-dismiss="modal">ยกเลิก</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
 
     </div>
   </div>
