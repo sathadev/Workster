@@ -32,56 +32,44 @@
     .card-red {
       background-color: #f9a2a2;
     }
-    .custom-table {
-    border-collapse: separate;
-    border-spacing: 0;
-    border: 1px solid #dee2e6;
-    border-radius: 10px;
-    overflow: hidden;
-  }
 
-  .custom-table thead {
-    background-color: #1E56A0;
-    color: #ffffff;
-  }
+    /* เส้นขอบรอบนอกของตาราง */
+    .table {
+      border: 2px solid #dee2e6; /* เส้นขอบรอบตาราง */
+    }
 
-  .custom-table th,
-  .custom-table td {
-    vertical-align: middle;
-    text-align: center;
-    padding: 20px 15px;
-    border-top: 1px solid #dee2e6;
-  }
+    /* เส้นขอบใต้หัวข้อ */
+    .table .profile {
+      border-bottom: 2px solid #dee2e6; /* เส้นขอบใต้หัวข้อ */
+      text-align: center; /* จัดกลางหัวข้อ */
+    }
 
-  .custom-table thead th {
-    border-top: none;
-  }
+    /* ลบเส้นขอบในเซลล์ */
+    .table td {
+      border: none; /* ไม่มีเส้นขอบในเซลล์ */
+    }
 
-  .custom-table th:first-child {
-    border-top-left-radius: 10px;
-  }
+    /* จัดรูปภาพให้เป็นวงกลม และให้ครอบคลุมพื้นที่ */
+    .profile-image {
+      width: 40px;
+      height: 40px;
+      object-fit: cover; /* ให้รูปภาพครอบคลุมพื้นที่โดยไม่เพี้ยน */
+      border-radius: 50%;
+    }
 
-  .custom-table th:last-child {
-    border-top-right-radius: 10px;
-  }
-
-  .custom-table tr:last-child td:first-child {
-    border-bottom-left-radius: 10px;
-  }
-
-  .custom-table tr:last-child td:last-child {
-    border-bottom-right-radius: 10px;
-  }
-
-  .custom-table .btn {
-    padding: 6px 16px;
-    font-size: 14px;
-  }
+    /* จัดให้อยู่ตรงกลาง */
+    .profile-cell {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .table td ,.table th{
+      border: none; /* ไม่มีเส้นขอบในเซลล์ */
+    }
   </style>
 </head>
 
 <body>
-
   <!-- Header -->
   <nav class="navbar navbar-dark" style="background-color: #1E56A0; padding: 10px;">
     <div class="container-fluid">
@@ -92,7 +80,6 @@
 
   <div class="container-fluid">
     <div class="row">
-
       <!-- Sidebar -->
       <div class="col-md-2 sidebar">
         <a href="#">ข้อมูลพนักงาน</a>
@@ -101,22 +88,19 @@
         <a href="#">การประเมินผล</a>
         <a href="#">ผู้สมัครงาน</a>
       </div>
-      
 
- <!-- Main Content -->
-<div class="col-md-10 p-4">
-    <h4 class="fw-bold">การประเมินผล</h4>
-  
-    <div class="input-group mb-3 w-50">
-        <input type="text" class="form-control" placeholder="ค้นหา" aria-label="ค้นหา">
-        <span class="input-group-text"><i class="fa-solid fa-magnifying-glass"></i></span>
-      </div>
-  
-      <div class="table-responsive">
+      <!-- Main Content -->
+      <div class="col-md-10 p-4">
+        <h4 class="fw-bold">การประเมินผล</h4>
+
+        <div class="input-group mb-3 w-50">
+          <input type="text" class="form-control" placeholder="ค้นหา" aria-label="ค้นหา">
+          <span class="input-group-text"><i class="fa-solid fa-magnifying-glass"></i></span>
+        </div>
+
         <table class="table table-hover table-bordered text-center align-middle">
           <thead class="table-light">
             <tr>
-      
               <th>ชื่อ - สกุล</th>
               <th>ตำแหน่ง</th>
               <th>การประเมินผล</th>
@@ -151,57 +135,8 @@
           </tbody>
         </table>
       </div>
-      
-      <style>
-        .profile-image {
-          width: 50px;
-          height: 50px;
-          object-fit: cover;
-          border-radius: 50%;
-        }
-      
-        .table thead th {
-          vertical-align: middle;
-        }
-      
-        .table tbody td {
-          vertical-align: middle;
-        }
-      
-        .btn-primary {
-          font-size: 14px;
-        }
-      </style>
-      
     </div>
-    
-    <style>
-      .custom-evaluation-table thead {
-        background-color: #f1f1f1;
-        font-weight: 600;
-      }
-    
-      .custom-evaluation-table th, 
-      .custom-evaluation-table td {
-        padding: 16px 12px;
-        vertical-align: middle;
-      }
-    
-      .custom-evaluation-table .btn {
-        font-size: 14px;
-      }
-    
-      /* เพิ่มการจัดรูปแบบปุ่ม */
-      .custom-evaluation-table .btn-primary {
-        background-color: #007bff;
-        border-color: #007bff;
-      }
-    
-      .custom-evaluation-table .btn-primary:hover {
-        background-color: #0056b3;
-        border-color: #004085;
-      }
-    </style>
+  </div>
 
   <!-- Bootstrap 5 JS (ออฟไลน์) -->
   <script src="libs/bootstrap/js/bootstrap.bundle.min.js"></script>

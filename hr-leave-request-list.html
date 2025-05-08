@@ -32,51 +32,40 @@
     .card-red {
       background-color: #f9a2a2;
     }
-    .custom-table {
-    border-collapse: separate;
-    border-spacing: 0;
-    border: 1px solid #dee2e6;
-    border-radius: 10px;
-    overflow: hidden;
-  }
 
-  .custom-table thead {
-    background-color: #1E56A0;
-    color: #ffffff;
-  }
+    /* เส้นขอบรอบนอกของตาราง */
+    .table {
+      border: 2px solid #dee2e6; /* เส้นขอบรอบตาราง */
+    }
 
-  .custom-table th,
-  .custom-table td {
-    vertical-align: middle;
-    text-align: center;
-    padding: 20px 15px;
-    border-top: 1px solid #dee2e6;
-  }
+    /* เส้นขอบใต้หัวข้อ */
+    .table .profile {
+      border-bottom: 2px solid #dee2e6; /* เส้นขอบใต้หัวข้อ */
+      text-align: center; /* จัดกลางหัวข้อ */
+    }
 
-  .custom-table thead th {
-    border-top: none;
-  }
+    /* ลบเส้นขอบในเซลล์ */
+    .table td {
+      border: none; /* ไม่มีเส้นขอบในเซลล์ */
+    }
 
-  .custom-table th:first-child {
-    border-top-left-radius: 10px;
-  }
+    /* จัดรูปภาพให้เป็นวงกลม และให้ครอบคลุมพื้นที่ */
+    .profile-image {
+      width: 40px;
+      height: 40px;
+      object-fit: cover; /* ให้รูปภาพครอบคลุมพื้นที่โดยไม่เพี้ยน */
+      border-radius: 50%;
+    }
 
-  .custom-table th:last-child {
-    border-top-right-radius: 10px;
-  }
-
-  .custom-table tr:last-child td:first-child {
-    border-bottom-left-radius: 10px;
-  }
-
-  .custom-table tr:last-child td:last-child {
-    border-bottom-right-radius: 10px;
-  }
-
-  .custom-table .btn {
-    padding: 6px 16px;
-    font-size: 14px;
-  }
+    /* จัดให้อยู่ตรงกลาง */
+    .profile-cell {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .table td ,.table th{
+      border: none; /* ไม่มีเส้นขอบในเซลล์ */
+    }
   </style>
 </head>
 
@@ -108,7 +97,7 @@
   <h4 class="fw-bold">รายการคำขอลา</h4>
 
   <div class="table-responsive">
-    <table class="table custom-table text-center">
+    <table class="table table-hover table-bordered text-center align-middle">
       <thead class="table-light">
         <tr>
           <th>ชื่อ - สกุล</th>
