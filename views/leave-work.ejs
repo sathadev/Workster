@@ -1,0 +1,55 @@
+<%- include('partials/header') %>
+<%- include('partials/navbar') %>
+
+<div class="col-md-10 p-4">
+    <h4 class="fw-bold">รายการคำขอลา</h4>
+  
+    <div class="table-responsive">
+      <table class="table table-hover table-bordered text-center align-middle">
+        <thead class="table-light">
+          <tr>
+            <th>ชื่อ - สกุล</th>
+            <th>ตำแหน่ง</th>
+            <th>หมายเหตุ</th>
+            <th class="text-center">ดำเนินการ</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>แดง แป๊ด</td>
+            <td>HR</td>
+            <td>
+              <div>ขอลา งานวันที่ <strong>5-8 เมษายน 2568</strong></div>
+              <div>เนื่องจาก ไปทำธุระต่างจังหวัด</div>
+            </td>
+            <td>
+              <div class="d-flex justify-content-center gap-2">
+                <button type="button" class="btn btn-success">อนุมัติ</button>
+                <button type="button" class="btn btn-danger">ไม่อนุมัติ</button>
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td>เขียว ปืด</td>
+            <td>IT Support</td>
+            <td>
+              <div>ขอลา งานวันที่ <strong>16 เมษายน 2568</strong></div>
+              <div>เนื่องจาก ไปทำธุระต่างจังหวัด</div>
+            </td>
+            <td>
+              <div class="d-flex justify-content-center gap-2">
+                <button type="button" class="btn btn-success">อนุมัติ</button>
+                <button type="button" class="btn btn-danger">ไม่อนุมัติ</button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  
+
+
+
+
+<%- include('partials/footer') %>

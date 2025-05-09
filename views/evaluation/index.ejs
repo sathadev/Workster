@@ -1,0 +1,50 @@
+<%- include('../partials/header') %>
+<%- include('../partials/navbar') %>
+
+<div class="col-md-10 p-4">
+    <h4 class="fw-bold">การประเมินผล</h4>
+
+    <div class="input-group mb-3 w-50">
+      <input type="text" class="form-control" placeholder="ค้นหา" aria-label="ค้นหา">
+      <span class="input-group-text"><i class="fa-solid fa-magnifying-glass"></i></span>
+    </div>
+
+    <table class="table table-hover table-bordered text-center align-middle">
+      <thead class="table-light">
+        <tr>
+          <th>ชื่อ - สกุล</th>
+          <th>ตำแหน่ง</th>
+          <th>การประเมินผล</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>พลพิพรรธน์ธัชปรีชาญูดล มหานุศรธรรมาม</td>
+          <td>ประธานบริษัท</td>
+          <td><button class="btn btn-primary rounded-pill px-3" onclick="window.location='evaluation/form'" style="cursor: pointer;">ประเมินผล</button></td>
+        </tr>
+        <tr>
+          <td>ศรัณยาภรณ์พักต์ศิลาถา มหานุศรธรรมาม</td>
+          <td>เลขาธิการบริษัท</td>
+          <td><button class="btn btn-primary rounded-pill px-3" onclick="window.location='evaluation/form'" style="cursor: pointer;">ประเมินผล</button></td>
+        </tr>
+        <tr>
+          <td>กลกรเทพศิริบุญลอมหงคลชัย มหานุศรธรรมาม</td>
+          <td>รองประธานบริษัท</td>
+          <td><button class="btn btn-primary rounded-pill px-3" onclick="window.location='evaluation/form'" style="cursor: pointer;">ประเมินผล</button></td>
+        </tr>
+        <tr>
+          <td>แดง แป๊ด</td>
+          <td>HR</td>
+          <td><button class="btn btn-primary rounded-pill px-3" onclick="window.location='evaluation/form'" style="cursor: pointer;">ประเมินผล</button></td>
+        </tr>
+        <tr>
+          <td>เขียว ปืด</td>
+          <td>IT Support</td>
+          <td><button class="btn btn-primary rounded-pill px-3" onclick="window.location='evaluation/form'" style="cursor: pointer;">ประเมินผล</button></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  
+<%- include('../partials/footer') %>

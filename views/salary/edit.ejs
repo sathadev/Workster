@@ -1,0 +1,57 @@
+<%- include('../partials/header') %>
+<%- include('../partials/navbar') %>
+
+<div class="col-md-10 p-4">
+    <div class="card p-4">
+        <h5 class="text-center">รายละเอียดเงินเดือน</h5>
+      <div class="text-end">
+        <button type="button" class="btn-close" aria-label="Close"></button>
+      </div>
+
+      <div class="container mt-4">
+        <div class="row">   
+          <!-- ฟอร์ม -->
+          <div class="col-md-8">
+            <form>
+              <div class="row mb-2">
+                <div class="col-md-3">ชื่อ - สกุล :</div>
+                <div class="col-md-9"><input type="text" class="form-control"></div>
+              </div>
+              <div class="row mb-2">
+                <div class="col-md-3">เงินเดือนพื้นฐาน :</div>
+                <div class="col-md-9"><input type="text" class="form-control"></div>
+              </div>
+              <div class="row mb-2">
+                <div class="col-md-3">ค่าล่วงเวลา (OT) :</div>
+                <div class="col-md-9"><input type="email" class="form-control"></div>
+              </div>
+              <div class="row mb-2">
+                <div class="col-md-3">โบนัส :</div>
+                <div class="col-md-9"><input type="tel" class="form-control"></div>
+              </div>
+              <div class="row mb-2">
+                <div class="col-md-3">หัก สาย/ขาดงาน :</div>
+                <div class="col-md-9"><input type="text" class="form-control"></div>
+              </div>
+              <div class="row mb-2">
+                <div class="col-md-3">อื่นๆ :</div>
+                <div class="col-md-9"><input type="text" class="form-control"></div>
+              </div>
+              <div class="row mb-2">
+                <div class="col-md-3">รวมสุทธิ :</div>
+                <div class="col-md-9"><input type="text" class="form-control"></div>
+              </div>
+            </form>
+          </div>
+      
+        </div>
+      </div>
+        <div class="d-flex justify-content-end">
+          <button type="submit" class="btn btn-success ms-2 " onclick="window.location='/salary'" style="cursor: pointer;">อัพเดท</button>
+        </div>
+      </form>
+
+    </div>
+  </div>
+
+<%- include('../partials/footer') %>

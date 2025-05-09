@@ -1,0 +1,56 @@
+<%- include('../partials/header') %>
+<%- include('../partials/navbar') %>
+
+<div class="col-md-10 mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h4 class="fw-bold">พนักงาน</h4>
+      <button class="btn btn-outline-secondary" onclick="window.location='employee/add'" style="cursor: pointer;">
+        <i class="fa-solid fa-plus"></i> บันทึกข้อมูลพนักงานใหม่
+      </button>
+    </div>
+
+    <div class="input-group mb-3 w-50">
+      <input type="text" class="form-control" placeholder="ค้นหา" aria-label="ค้นหา">
+      <span class="input-group-text"><i class="fa-solid fa-magnifying-glass"></i></span>
+    </div>
+
+    <table class="table table-hover table-bordered text-center align-middle">
+      <thead class="table-light">
+        <tr>
+          <th class="profile">โปรไฟล์</th>
+          <th>ชื่อ - สกุล</th>
+          <th>ตำแหน่ง</th>
+        </tr>
+      </thead>
+      <tbody>
+        
+        <tr onclick="window.location='employee/view'" style="cursor: pointer;">
+          <td class="profile-cell"><img src="images/profile1.png" class="profile-image" alt="โปรไฟล์"></td>
+          <td>พลพักธประจักษ์ปรีชาบูล มหานุศรธาราม</td>
+          <td>ประธานบริษัท</td>
+        </tr>
+        <tr onclick="window.location='employee/view'" style="cursor: pointer;">
+          <td class="profile-cell"><img src="images/profile1.png" class="profile-image" alt="โปรไฟล์"></td>
+          <td>ศรีษานุครณพักต์สถาน มหานุศรธาราม</td>
+          <td>เลขาธิการบริษัท</td>
+        </tr>
+        <tr onclick="window.location='employee/view'" style="cursor: pointer;">
+          <td class="profile-cell"><img src="images/profile1.png" class="profile-image" alt="โปรไฟล์"></td>
+          <td>กุลกรนทพศิรบุตคลองค์ชัย มหานุศรธาราม</td>
+          <td>รองประธานบริษัท</td>
+        </tr>
+        <tr onclick="window.location='employee/view'" style="cursor: pointer;">
+          <td class="profile-cell"><img src="images/profile1.png" class="profile-image" alt="โปรไฟล์"></td>
+          <td>แดง แป๊ด</td>
+          <td>HR</td>
+        </tr>
+        <tr onclick="window.location='employee/view'" style="cursor: pointer;">
+          <td class="profile-cell"><img src="images/profile1.png" class="profile-image" alt="โปรไฟล์"></td>
+          <td>เขียว ปืด</td>
+          <td>IT Support</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+<%- include('../partials/footer') %>

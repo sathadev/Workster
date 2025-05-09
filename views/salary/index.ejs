@@ -1,0 +1,38 @@
+<%- include('../partials/header') %>
+<%- include('../partials/navbar') %>
+<div class="col-md-10 mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h4 class="fw-bold">จัดการเงินเดือน</h4>
+    </div>
+
+    <div class="input-group mb-3 w-50">
+      <input type="text" class="form-control" placeholder="ค้นหา" aria-label="ค้นหา">
+      <span class="input-group-text"><i class="fa-solid fa-magnifying-glass"></i></span>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-hover table-bordered text-center align-middle">
+        <thead class="table-light">
+          <tr>
+            <th>ชื่อ - สกุล</th>
+            <th>ตำแหน่ง</th>
+            <th>เงินเดือน</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr onclick="window.location='salary/edit'" style="cursor: pointer;">
+            <td>แดง แป๊ด</td>
+            <td>HR</td>
+            <td>30,000</td>
+          </tr>
+          <tr onclick="window.location='salary/edit'" style="cursor: pointer;">
+            <td>เขียว ปืด</td>
+            <td>IT Support</td>
+            <td>35,000</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+<%- include('../partials/footer') %>

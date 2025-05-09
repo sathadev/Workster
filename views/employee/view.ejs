@@ -1,0 +1,99 @@
+<%- include('../partials/header') %>
+<%- include('../partials/navbar') %>
+<div class="col-md-10 p-4">
+    <div class="card p-4">
+
+      <div class="text-end">
+        <button type="button" class="btn-close" aria-label="Close"></button>
+      </div>
+
+      <div class="container mt-4">
+        <div class="row">
+      
+          <!-- รูปโปรไฟล์ -->
+          <div class="col-md-4 d-flex justify-content-center mb-4">
+            <div style="position: relative; width: 120px; height: 120px;">
+              <img id="profileImage" src="images/profile1.png" alt="Profile"
+                   class="rounded-circle border"
+                   style="width: 120px; height: 120px; object-fit: cover;">
+
+              <input type="file" id="fileInput" style="display: none;" accept="image/*" onchange="previewImage(event)">
+            </div>
+          </div>
+      
+          <!-- ฟอร์ม -->
+          <div class="col-md-8">
+              <div class="row mb-2">
+                <div class="col-md-3">ชื่อ - สกุล :</div>
+                <div class="col-md-9">สฐาปณา สุวรรณกาศ</div>
+              </div>
+              <div class="row mb-2">
+                <div class="col-md-3">ตำแหน่ง :</div>
+                <div class="col-md-9">Dev</div>
+              </div>
+              <div class="row mb-2">
+                <div class="col-md-3">Email :</div>
+                <div class="col-md-9">s@gmail</div>
+              </div>
+              <div class="row mb-2">
+                <div class="col-md-3">เบอร์โทร :</div>
+                <div class="col-md-9">0953917466</div>
+              </div>
+              <div class="row mb-2">
+                <div class="col-md-3">ที่อยู่ :</div>
+                <div class="col-md-9">ไม่บอก</div>
+              </div>
+              <div class="row mb-2">
+                <div class="col-md-3">วันเกิด :</div>
+                <div class="col-md-9">27/11/2003</div>
+              </div>
+              <div class="row mb-2">
+                <div class="col-md-3">วันที่เริ่มงาน :</div>
+                <div class="col-md-9">20/7/2022</div>
+              </div>
+        
+
+          </div>
+      
+    <h4 class="fw-bold">ลงงานทั้งหมด</h4>     
+    <div class="row">
+        <div class="col-md-4 mb-3">
+          <div class="card card-green">
+            <div class="card-body">
+              <h5 class="card-title">มาตรงเวลา</h5>
+              <h1 class="text-end">2</h1>
+              <p class="card-text text-end">ครั้ง</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4 mb-3">
+          <div class="card card-yellow">
+            <div class="card-body">
+              <h5 class="card-title">มาสาย</h5>
+              <h1 class="text-end">3</h1>
+              <p class="card-text text-end">ครั้ง</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4 mb-3">
+          <div class="card card-red">
+            <div class="card-body">
+              <h5 class="card-title">ขาด/ลา</h5>
+              <h1 class="text-end">94</h1>
+              <p class="card-text text-end">ครั้ง</p>
+            </div>
+          </div>
+        </div>
+      </div>
+        </div>
+      </div>
+      <p class="fw-bold text-danger fs-6">ลาป่วยได้อีก 20 วัน ลากิจ/ขาดงานได้อีก 1 วัน</p>   
+        <div class="d-flex justify-content-end">
+          <button type="submit" class="btn btn-warning ms-2 " onclick="window.location='/employee/edit'" style="cursor: pointer;">อัพเดท</button>
+          <button type="submit" class="btn btn-danger ms-2">ลบทั้งหมด</button>
+        </div>
+      </form>
+
+    </div>
+  </div>
+<%- include('../partials/footer') %>

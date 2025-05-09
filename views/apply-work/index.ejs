@@ -1,0 +1,219 @@
+<%- include('../partials/header') %>
+<style>.tab-header-wrapper {
+    display: flex;
+    border: 1px solid #dee2e6;
+    border-radius: 5px 5px 0 0;
+    overflow: hidden;
+    background-color: #f8f9fa;
+  }
+  
+  .tab-header-wrapper .nav-link {
+    flex: 1;
+    text-align: center;
+    border-right: 1px solid #dee2e6;
+    border-radius: 0;
+    background-color: #f8f9fa;
+    color: #000000;
+    font-weight: 500;
+    padding: 12px 0;
+    font-size: 16px;
+  }
+  
+  .tab-header-wrapper .nav-link:last-child {
+    border-right: none;
+  }
+  
+  .tab-header-wrapper .nav-link.active {
+    background-color: #ffffff;
+    font-weight: bold;
+    border-bottom: 2px solid #ffffff;
+  }
+  
+  
+  /* ปรับระยะภายในเซลล์ */
+  .table th, .table td {
+    vertical-align: middle;
+    padding: 12px 16px;
+    font-size: 14px;
+  }
+  
+  /* ปุ่มฟ้าเหมือนในภาพ */
+  .btn-info-light {
+    background-color: #0d6efd;
+    color: white;
+    font-size: 14px;
+    border-radius: 20px;
+    padding: 4px 16px;
+    border: none;
+    transition: background-color 0.3s ease;
+  }
+  
+  .btn-info-light:hover {
+    background-color: #0b5ed7;
+  }
+  
+  /* ขอบกล่อง content ให้ดูเหมือนในภาพ */
+  .tab-content-box {
+    border: 1px solid #dee2e6;
+    border-top: none;
+    border-radius: 0 0 5px 5px;
+    background-color: #ffffff;
+    padding: 20px;
+  }
+  button {
+    border: none;
+    outline: none;
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+  </style>
+<%- include('../partials/navbar') %>
+
+<div class="col-md-10 p-4">
+    <h5><strong>ผู้สมัครงาน</strong></h5>
+  
+    <!-- Tabs Header แบบกรอบหัวตาราง -->
+<div class="tab-header-wrapper mt-3" id="applicantTabs" role="tablist">
+    <button class="nav-link active" id="applicants-tab" data-bs-toggle="tab" data-bs-target="#applicants" type="button" role="tab">ผู้สมัครงาน</button>
+    <button class="nav-link" id="interview-tab" data-bs-toggle="tab" data-bs-target="#interview" type="button" role="tab">การสัมภาษณ์</button>
+    <button class="nav-link" id="evaluation-tab" data-bs-toggle="tab" data-bs-target="#evaluation" type="button" role="tab">ประเมินผลสัมภาษณ์</button>
+  </div>
+  
+  
+   <!-- Tab Content -->
+<div class="tab-content tab-content-box" id="applicantTabsContent">
+    <!-- ผู้สมัครงาน Tab -->
+    <div class="tab-pane fade show active" id="applicants" role="tabpanel">
+        <div class="border rounded p-3 shadow-sm">
+      
+          <!-- หัวตาราง -->
+          <div class="row fw-bold bg-light py-2 px-2 rounded mb-2 ">
+            <div class="col-6">ชื่อ - สกุล</div>
+            <div class="col-4">ตำแหน่งที่สมัคร</div>
+            <div class="col-2 text-end"></div>
+          </div>
+      
+          <!-- แถวผู้สมัครคนที่ 1 -->
+          <div class="row align-items-center py-2 border-top px-2">
+            <div class="col-6">อนุชาปัญญาสถิตย์สภาสถาบันชย มหานุธรรมาธาราม</div>
+            <div class="col-4">HR</div>
+            <div class="col-2 text-end">
+              <button class="btn btn-info-light" onclick="window.location='apply-work/view'" style="cursor: pointer;">ดูข้อมูลเพิ่มเติม</button>
+            </div>
+          </div>
+      
+          <!-- แถวผู้สมัครคนที่ 2 -->
+          <div class="row align-items-center py-2 border-top px-2">
+            <div class="col-6">หมู อู๊ดๆๆ</div>
+            <div class="col-4">IT Support</div>
+            <div class="col-2 text-end">
+              <button class="btn btn-info-light">ดูข้อมูลเพิ่มเติม</button>
+            </div>
+          </div>
+      
+        </div>
+    </div>
+  
+    <!-- การสัมภาษณ์ Tab -->
+<div class="tab-pane fade" id="interview" role="tabpanel">
+  <div class="border rounded p-3 shadow-sm">
+    
+    <!-- ฟอร์มการสัมภาษณ์ -->
+    <form>
+      <div class="mb-3">
+        <label for="interviewDate" class="form-label">วันที่สัมภาษณ์</label>
+        <input type="date" class="form-control" id="interviewDate" required>
+      </div>
+
+      <div class="mb-3">
+        <label for="interviewTime" class="form-label">เวลา</label>
+        <input type="time" class="form-control" id="interviewTime" required>
+      </div>
+
+      <div class="mb-3">
+        <label for="interviewLocation" class="form-label">สถานที่/Google Meet</label>
+        <input type="text" class="form-control" id="interviewLocation" placeholder="ระบุสถานที่หรือลิงก์ Google Meet" required>
+      </div>
+
+      <div class="mb-3">
+        <label for="interviewNotes" class="form-label">หมายเหตุ</label>
+        <textarea class="form-control" id="interviewNotes" rows="4" placeholder="กรอกหมายเหตุเพิ่มเติม..." required></textarea>
+      </div>
+
+      <div class="d-flex justify-content-end gap-2">
+        <button type="submit" class="btn btn-success px-4">บันทึก</button>
+        <button type="reset" class="btn btn-danger px-4">ยกเลิก</button>
+      </div>
+    </form>
+
+  </div>
+</div>
+
+  
+    <!-- ประเมินผลสัมภาษณ์ Tab -->
+    <div class="tab-pane fade" id="evaluation" role="tabpanel">
+        <div class="border rounded p-3 shadow-sm">
+      
+          <!-- หัวตาราง -->
+          <div class="row fw-bold bg-light py-2 px-2 rounded mb-2 ">
+            <div class="col-6">ชื่อ - สกุล</div>
+            <div class="col-4">ตำแหน่งที่สัมภาษณ์</div>
+            <div class="col-2 text-end"></div>
+          </div>
+      
+          <!-- แถวประเมินผลสัมภาษณ์คนที่ 1 -->
+          <div class="row align-items-center py-2 border-top px-2">
+            <div class="col-6">อนุชาปัญญาสถิตย์สภาสถาบันชย มหานุธรรมาธาราม</div>
+            <div class="col-4">HR</div>
+            <div class="col-2 text-end">
+                <button type="button" class="btn btn-success">ผ่าน</button>
+                <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#confirmRejectModal">ไม่ผ่าน</button>
+            </div>
+          </div>
+      
+          <!-- แถวประเมินผลสัมภาษณ์คนที่ 2 -->
+          <div class="row align-items-center py-2 border-top px-2">
+            <div class="col-6">หมู อู๊ดๆๆ</div>
+            <div class="col-4">IT Support</div>
+            <div class="col-2 text-end">
+              <button type="button" class="btn btn-success">ผ่าน</button>
+              <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#confirmRejectModal">ไม่ผ่าน</button>
+
+            </div>
+          </div>
+      
+        </div>
+    </div>
+</div>
+
+<!-- Modal ยืนยันการลบ -->
+<div class="modal fade" id="confirmRejectModal" tabindex="-1" aria-labelledby="confirmRejectModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content text-center p-4" style="max-width: 500px; margin: auto;">
+      <div class="modal-body" style="min-height: 180px; display: flex; flex-direction: column; justify-content: center;">
+        <p class="fs-5 fw-bold mb-4">ระบบจะทำการลบข้อมูลผู้สัมภาษณ์</p>
+        <div class="d-flex justify-content-center gap-3">
+          <button type="button" class="btn btn-danger px-4" id="confirmRejectBtn">ยืนยัน</button>
+          <button type="button" class="btn btn-secondary px-4" data-bs-dismiss="modal">ยกเลิก</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<script src="libs/bootstrap/js/bootstrap.bundle.min.js"></script>
+<script>
+  document.getElementById('confirmRejectBtn').addEventListener('click', function () {
+    // ตัวอย่าง: ส่งข้อมูลไป backend หรือเอาไว้ลบจาก DOM
+    console.log("กดปุ่มยืนยันลบผู้สัมภาษณ์");
+    
+    // ซ่อน modal
+    const modal = bootstrap.Modal.getInstance(document.getElementById('confirmRejectModal'));
+    modal.hide();
+  });
+</script>
+<%- include('../partials/footer') %>
