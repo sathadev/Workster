@@ -2,6 +2,12 @@ const express = require('express');
 const path = require('path');
 const app = express();
 
+// Add these lines
+
+app.use(express.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
+app.use(express.json()); // for parsing application/json
+
+
 // ใช้ EJS เป็น view engine
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));

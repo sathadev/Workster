@@ -23,32 +23,14 @@
         </tr>
       </thead>
       <tbody>
-        
-        <tr onclick="window.location='employee/view'" style="cursor: pointer;">
-          <td class="profile-cell"><img src="images/profile1.png" class="profile-image" alt="โปรไฟล์"></td>
-          <td>พลพักธประจักษ์ปรีชาบูล มหานุศรธาราม</td>
-          <td>ประธานบริษัท</td>
+        <% employees.forEach(emp => { %>
+        <tr onclick="window.location='/employee/view/<%= emp.emp_id %>'" style="cursor: pointer;">
+          <td class="profile-cell"><img src="data:image/jpeg;base64,<%= Buffer.from(emp.emp_pic).toString('base64') %>" class="profile-image" alt="โปรไฟล์"></td>
+          <td><%= emp.emp_name %> </td>
+          <td><%= emp.emp_jobpos %></td>
         </tr>
-        <tr onclick="window.location='employee/view'" style="cursor: pointer;">
-          <td class="profile-cell"><img src="images/profile1.png" class="profile-image" alt="โปรไฟล์"></td>
-          <td>ศรีษานุครณพักต์สถาน มหานุศรธาราม</td>
-          <td>เลขาธิการบริษัท</td>
-        </tr>
-        <tr onclick="window.location='employee/view'" style="cursor: pointer;">
-          <td class="profile-cell"><img src="images/profile1.png" class="profile-image" alt="โปรไฟล์"></td>
-          <td>กุลกรนทพศิรบุตคลองค์ชัย มหานุศรธาราม</td>
-          <td>รองประธานบริษัท</td>
-        </tr>
-        <tr onclick="window.location='employee/view'" style="cursor: pointer;">
-          <td class="profile-cell"><img src="images/profile1.png" class="profile-image" alt="โปรไฟล์"></td>
-          <td>แดง แป๊ด</td>
-          <td>HR</td>
-        </tr>
-        <tr onclick="window.location='employee/view'" style="cursor: pointer;">
-          <td class="profile-cell"><img src="images/profile1.png" class="profile-image" alt="โปรไฟล์"></td>
-          <td>เขียว ปืด</td>
-          <td>IT Support</td>
-        </tr>
+        <% }) %>
+  
       </tbody>
     </table>
   </div>

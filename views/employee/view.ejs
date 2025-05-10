@@ -13,7 +13,7 @@
           <!-- รูปโปรไฟล์ -->
           <div class="col-md-4 d-flex justify-content-center mb-4">
             <div style="position: relative; width: 120px; height: 120px;">
-              <img id="profileImage" src="images/profile1.png" alt="Profile"
+              <img id="profileImage" src="data:image/jpeg;base64,<%= Buffer.from(employee.emp_pic).toString('base64') %>" alt="Profile"
                    class="rounded-circle border"
                    style="width: 120px; height: 120px; object-fit: cover;">
 
@@ -25,31 +25,31 @@
           <div class="col-md-8">
               <div class="row mb-2">
                 <div class="col-md-3">ชื่อ - สกุล :</div>
-                <div class="col-md-9">สฐาปณา สุวรรณกาศ</div>
+                <div class="col-md-9"><%= employee.emp_name %></div>
               </div>
               <div class="row mb-2">
                 <div class="col-md-3">ตำแหน่ง :</div>
-                <div class="col-md-9">Dev</div>
+                <div class="col-md-9"><%= employee.emp_jobpos %></div>
               </div>
               <div class="row mb-2">
                 <div class="col-md-3">Email :</div>
-                <div class="col-md-9">s@gmail</div>
+                <div class="col-md-9"><%= employee.emp_email %></div>
               </div>
               <div class="row mb-2">
                 <div class="col-md-3">เบอร์โทร :</div>
-                <div class="col-md-9">0953917466</div>
+                <div class="col-md-9"><%= employee.emp_tel %></div>
               </div>
               <div class="row mb-2">
                 <div class="col-md-3">ที่อยู่ :</div>
-                <div class="col-md-9">ไม่บอก</div>
+                <div class="col-md-9"><%= employee.emp_address %></div>
               </div>
               <div class="row mb-2">
                 <div class="col-md-3">วันเกิด :</div>
-                <div class="col-md-9">27/11/2003</div>
+                <div class="col-md-9"></div>
               </div>
               <div class="row mb-2">
                 <div class="col-md-3">วันที่เริ่มงาน :</div>
-                <div class="col-md-9">20/7/2022</div>
+                <div class="col-md-9"></div>
               </div>
         
 
@@ -89,8 +89,10 @@
       </div>
       <p class="fw-bold text-danger fs-6">ลาป่วยได้อีก 20 วัน ลากิจ/ขาดงานได้อีก 1 วัน</p>   
         <div class="d-flex justify-content-end">
-          <button type="submit" class="btn btn-warning ms-2 " onclick="window.location='/employee/edit'" style="cursor: pointer;">อัพเดท</button>
-          <button type="submit" class="btn btn-danger ms-2">ลบทั้งหมด</button>
+          <button type="submit" class="btn btn-warning ms-2 " onclick="window.location='/employee/view/<%= employee.emp_id %>'" style="cursor: pointer;">อัพเดท</button>
+          <form action="/employee/delete/<%= employee.emp_id %>" method="POST" style="display:inline;">
+            <button type="submit" class="btn btn-danger ms-2">ลบ</button>
+          </form>
         </div>
       </form>
 
