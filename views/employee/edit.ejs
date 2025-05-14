@@ -1,17 +1,16 @@
 <%- include('../partials/header') %>
-  <%- include('../partials/navbar') %>
+<%- include('../partials/navbar') %>
 
-    <div class="col-md-10 p-4">
-      <div class="card p-4">
-
-        <div class="text-end">
-          <button type="button" class="btn-close" aria-label="Close"></button>
-        </div>
-
-        <div class="container mt-4">
-          <div class="row">
-
-            <!-- รูปโปรไฟล์ -->
+<div class="col-md-10 p-4">
+  <div class="card p-4">
+    <div class="text-end">
+      <button type="button" class="btn-close" aria-label="Close"></button>
+    </div>
+    <div class="container mt-4">
+      <div class="row">
+        <!-- ฟอร์ม -->
+        <div class="col-md-8">
+          <form action="/employee/edit/<%= employee.emp_id %>" method="POST" enctype="multipart/form-data">
             <div class="col-md-4 d-flex justify-content-center mb-4">
               <div style="position: relative; width: 120px; height: 120px;">
                 <img id="profileImage"
@@ -27,55 +26,48 @@
                   <i class="fa-solid fa-plus text-white"></i>
                 </div>
 
-                <input type="file" id="fileInput" style="display: none;" accept="image/*"
+                <input name="emp_pic" type="file" id="fileInput" style="display: none;" accept="image/*"
                   onchange="previewImage(event)">
               </div>
             </div>
-
-            <!-- ฟอร์ม -->
-            <div class="col-md-8">
-              <form method="POST" action="/employee/edit/<%= employee.emp_id %>">
-                <div class="row mb-2">
-                  <div class="col-md-3">ชื่อ - สกุล :</div>
-                  <div class="col-md-9"><input value="<%= employee.emp_name %>" type="text" class="form-control" name="emp_name"></div>
-                </div>
-                <div class="row mb-2">
-                  <div class="col-md-3">ตำแหน่ง :</div>
-                  <div class="col-md-9"><input value="<%= employee.emp_jobpos %>" type="text" class="form-control" name="emp_jobpos"></div>
-                </div>
-                <div class="row mb-2">
-                  <div class="col-md-3">Email :</div>
-                  <div class="col-md-9"><input value="<%= employee.emp_email %>" type="email" class="form-control" name="emp_email"></div>
-                </div>
-                <div class="row mb-2">
-                  <div class="col-md-3">เบอร์โทร :</div>
-                  <div class="col-md-9"><input value="<%= employee.emp_tel %>" type="tel" class="form-control" name="emp_tel"></div>
-                </div>
-                <div class="row mb-2">
-                  <div class="col-md-3">ที่อยู่ :</div>
-                  <div class="col-md-9"><input value="<%= employee.emp_address %>" type="text" class="form-control" name="emp_address"></div>
-                </div>
-                <div class="d-flex justify-content-end">
-                  <button type="submit" class="btn btn-success ms-2" style="cursor: pointer;">ยืนยัน</button>
-                </div>
-              </form>
-              
+            <div class="row mb-2">
+              <div class="col-md-3">ชื่อ - สกุล :</div>
+              <div class="col-md-9"><input value="<%= employee.emp_name %>" type="text" class="form-control" name="emp_name"></div>
             </div>
-
-          </div>
+            <div class="row mb-2">
+              <div class="col-md-3">ตำแหน่ง :</div>
+              <div class="col-md-9"><input value="<%= employee.emp_jobpos %>" type="text" class="form-control" name="emp_jobpos"></div>
+            </div>
+            <div class="row mb-2">
+              <div class="col-md-3">Email :</div>
+              <div class="col-md-9"><input value="<%= employee.emp_email %>" type="email" class="form-control" name="emp_email"></div>
+            </div>
+            <div class="row mb-2">
+              <div class="col-md-3">เบอร์โทร :</div>
+              <div class="col-md-9"><input value="<%= employee.emp_tel %>" type="tel" class="form-control" name="emp_tel"></div>
+            </div>
+            <div class="row mb-2">
+              <div class="col-md-3">ที่อยู่ :</div>
+              <div class="col-md-9"><input value="<%= employee.emp_address %>" type="text" class="form-control" name="emp_address"></div>
+            </div>
+            <div class="d-flex justify-content-end">
+              <button type="submit" class="btn btn-success ms-2" style="cursor: pointer;">ยืนยัน</button>
+            </div>
+          </form>
         </div>
-        </form>
-
       </div>
     </div>
+  </div>
+</div>
 
-    <script>
-      function previewImage(event) {
-        const reader = new FileReader();
-        reader.onload = function () {
-          document.getElementById('profileImage').src = reader.result;
-        }
-        reader.readAsDataURL(event.target.files[0]);
-      }
-    </script>
-    <%- include('../partials/footer') %>
+<script>
+  function previewImage(event) {
+    const reader = new FileReader();
+    reader.onload = function () {
+      document.getElementById('profileImage').src = reader.result;
+    }
+    reader.readAsDataURL(event.target.files[0]);
+  }
+</script>
+
+<%- include('../partials/footer') %>

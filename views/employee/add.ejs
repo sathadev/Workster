@@ -2,23 +2,20 @@
 <%- include('../partials/navbar') %>
 
 <div class="col-md-10 p-4">
-    <div class="card p-4">
+  <div class="card p-4">
+    <div class="text-end">
+      <button type="button" class="btn-close" aria-label="Close"></button>
+    </div>
 
-      <div class="text-end">
-        <button type="button" class="btn-close" aria-label="Close"></button>
-      </div>
-
-      <div class="container mt-4">
+    <div class="container mt-4">
+      <form action="/employee/add" method="POST" enctype="multipart/form-data">
         <div class="row">
-      
           <!-- รูปโปรไฟล์ -->
           <div class="col-md-4 d-flex justify-content-center mb-4">
             <div style="position: relative; width: 120px; height: 120px;">
               <img id="profileImage" src="images/profile-placeholder.png" alt="Profile"
                    class="rounded-circle border"
                    style="width: 120px; height: 120px; object-fit: cover;">
-      
-              <!-- ปุ่ม + มุมขวาล่าง -->
               <div onclick="document.getElementById('fileInput').click();"
                    style="position: absolute; bottom: 0; right: 0;
                           background-color: #1E56A0; border-radius: 50%;
@@ -27,64 +24,63 @@
                           cursor: pointer; border: 2px solid #fff;">
                 <i class="fa-solid fa-plus text-white"></i>
               </div>
-      
-              <input type="file" id="fileInput" style="display: none;" accept="image/*" onchange="previewImage(event)">
+              <input type="file" name="emp_pic" id="fileInput" style="display: none;" accept="image/*" onchange="previewImage(event)">
             </div>
           </div>
-      
-          <!-- ฟอร์ม -->
+
+          <!-- ฟอร์มข้อมูล -->
           <div class="col-md-8">
-            <form action="/employee/add" method="POST">
-              <div class="row mb-2">
-                <div class="col-md-3">ชื่อ - สกุล :</div>
-                <div class="col-md-9"><input type="text" name="emp_name" class="form-control"></div>
-              </div>
-              <div class="row mb-2">
-                <div class="col-md-3">ตำแหน่ง :</div>
-                <div class="col-md-9"><input type="text" name="emp_jobpos" class="form-control"></div>
-              </div>
-              <div class="row mb-2">
-                <div class="col-md-3">Email :</div>
-                <div class="col-md-9"><input type="email" name="emp_email" class="form-control"></div>
-              </div>
-              <div class="row mb-2">
-                <div class="col-md-3">เบอร์โทร :</div>
-                <div class="col-md-9"><input type="tel" name="emp_tel" class="form-control"></div>
-              </div>
-              <div class="row mb-2">
-                <div class="col-md-3">ที่อยู่ :</div>
-                <div class="col-md-9"><input type="text" name="emp_address" class="form-control"></div>
-              </div>
-              <div class="row mb-2">
-                <div class="col-md-3">วันเกิด :</div>
-                <div class="col-md-9"><input type="date" name="emp_birthday" class="form-control"></div>
-              </div>
-              <div class="row mb-2">
-                <div class="col-md-3">Username :</div>
-                <div class="col-md-9"><input type="text" name="emp_username" class="form-control"></div>
-              </div>
-              <div class="row mb-3">
-                <div class="col-md-3">Password :</div>
-                <div class="col-md-9"><input type="password" name="emp_password" class="form-control"></div>
-              </div>
-              <div class="d-flex justify-content-end">
-                <button type="reset" class="btn btn-secondary">ล้างข้อมูล</button>
-                <button type="submit" class="btn btn-success ms-2">ยืนยัน</button>
-              </div>
-            </form>
-            
+            <div class="row mb-2">
+              <div class="col-md-3">ชื่อ - สกุล :</div>
+              <div class="col-md-9"><input type="text" name="emp_name" class="form-control"></div>
+            </div>
+            <div class="row mb-2">
+              <div class="col-md-3">ตำแหน่ง :</div>
+              <div class="col-md-9"><input type="text" name="emp_jobpos" class="form-control"></div>
+            </div>
+            <div class="row mb-2">
+              <div class="col-md-3">Email :</div>
+              <div class="col-md-9"><input type="email" name="emp_email" class="form-control"></div>
+            </div>
+            <div class="row mb-2">
+              <div class="col-md-3">เบอร์โทร :</div>
+              <div class="col-md-9"><input type="tel" name="emp_tel" class="form-control"></div>
+            </div>
+            <div class="row mb-2">
+              <div class="col-md-3">ที่อยู่ :</div>
+              <div class="col-md-9"><input type="text" name="emp_address" class="form-control"></div>
+            </div>
+            <div class="row mb-2">
+              <div class="col-md-3">วันเกิด :</div>
+              <div class="col-md-9"><input type="date" name="emp_birthday" class="form-control"></div>
+            </div>
+            <div class="row mb-2">
+              <div class="col-md-3">Username :</div>
+              <div class="col-md-9"><input type="text" name="emp_username" class="form-control"></div>
+            </div>
+            <div class="row mb-3">
+              <div class="col-md-3">Password :</div>
+              <div class="col-md-9"><input type="password" name="emp_password" class="form-control"></div>
+            </div>
+            <div class="d-flex justify-content-end">
+              <button type="reset" class="btn btn-secondary">ล้างข้อมูล</button>
+              <button type="submit" class="btn btn-success ms-2">ยืนยัน</button>
+            </div>
           </div>
-      
-        </div>
-      </div>
-        <div class="d-flex justify-content-end">
-          <button type="button" class="btn btn-primary">ตั้งข้อมูลจากฐานข้อมูลเดิม</button>
-          <button type="submit" class="btn btn-success ms-2">ยืนยัน</button>
         </div>
       </form>
-
     </div>
   </div>
+</div>
 
+<script>
+  function previewImage(event) {
+    const reader = new FileReader();
+    reader.onload = function(){
+      document.getElementById('profileImage').src = reader.result;
+    }
+    reader.readAsDataURL(event.target.files[0]);
+  }
+</script>
 
 <%- include('../partials/footer') %>

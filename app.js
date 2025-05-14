@@ -17,7 +17,7 @@ app.use(express.static('public'));
 
 // นำเข้า route
 const indexRoute = require('./routes/indexRoute');
-const EmpRoute = require('./routes/EmpRoute');
+const EmpRoute = require('./routes/employeeRoutes');
 const HrRoute = require('./routes/HrRoute');
 
 // ใช้ routes
