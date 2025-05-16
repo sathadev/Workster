@@ -76,6 +76,10 @@
     text-decoration: none; 
     color: inherit;        
 }
+.dropdown-toggle::after {
+  display: none;
+}
+
 
 
 
@@ -85,12 +89,21 @@
 <body>
 
   <!-- Header -->
-  <nav class="navbar navbar-dark" style="background-color: #1E56A0; padding: 10px;">
-    <div class="container-fluid">
-      <span class="navbar-brand mb-0 h1 fs-4"><a href="/">WorkSter</a></span>
-      <span class="text-white fs-3"><i class="fa-solid fa-circle-user" style="color: #ffffff;"></i></span>
-    </div>
-  </nav>
+<nav class="navbar navbar-dark" style="background-color: #1E56A0; padding: 10px;">
+  <div class="container-fluid">
+    <span class="navbar-brand mb-0 h1 fs-4"><a href="/">WorkSter</a></span>
 
+    <!-- Dropdown Profile -->
+    <div class="dropdown">
+      <a class="text-white fs-3 dropdown-toggle no-caret" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+        <i class="fa-solid fa-circle-user" style="color: #ffffff;"></i>
+      </a>
+      <ul class="dropdown-menu dropdown-menu-end">
+        <li><a class="dropdown-item" href="#">Log out</a></li>
+      </ul>
+    </div>
+  </div>
+</nav>
   <div class="container-fluid">
     <div class="row">
+      
