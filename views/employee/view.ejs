@@ -103,13 +103,30 @@
           <form action="/employee/edit/<%= employee.emp_id %>" method="get" style="display:inline;">
             <button type="submit" class="btn btn-warning ms-2 " style="cursor: pointer;">อัพเดท</button>
           </form>
-
-          <form action="/employee/delete/<%= employee.emp_id %>" method="POST" style="display:inline;">
-            <button type="submit" class="btn btn-danger ms-2">ลบ</button>
-          </form>
+          <button type="submit" class="btn btn-danger ms-2" data-bs-toggle="modal"
+            data-bs-target="#confirmRejectModal">ลบ</button>
         </div>
         </form>
 
+      </div>
+    </div>
+
+    <!-- Modal ยืนยันการปฏิเสธ -->
+    <div class="modal fade" id="confirmRejectModal" tabindex="-1" aria-labelledby="confirmRejectModalLabel"
+      aria-hidden="true">
+      <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content text-center p-4" style="max-width: 500px; margin: auto;">
+          <div class="modal-body"
+            style="min-height: 180px; display: flex; flex-direction: column; justify-content: center;">
+            <p class="fs-5 fw-bold mb-4">ระบบจะทำการลบข้อมูล</p>
+            <div class="d-flex justify-content-center gap-3">
+              <form action="/employee/delete/<%= employee.emp_id %>" method="POST" style="display:inline;">
+                <button type="submit" class="btn btn-danger px-4" id="confirmRejectBtn">ยืนยัน</button>
+              </form>
+              <button type="button" class="btn btn-secondary px-4" data-bs-dismiss="modal">ยกเลิก</button>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
     <%- include('../partials/footer') %>

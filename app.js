@@ -1,27 +1,36 @@
 const express = require('express');
 const path = require('path');
+const session = require('express-session');
+
 const app = express();
 
-// Add these lines
+// parse body
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
 
-app.use(express.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
-app.use(express.json()); // for parsing application/json
+// session middleware ต้องมาก่อน routes
+app.use(session({
+  secret: 'secretKey12345',
+  resave: false,
+  saveUninitialized: true
+}));
 
-
-// ใช้ EJS เป็น view engine
+// view engine และ static
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
-
-// ใช้ static ไฟล์จาก public เช่น CSS, รูป
 app.use(express.static('public'));
 
-// นำเข้า route
+// routes
+const authRoute = require('./routes/authRoute');
 const indexRoute = require('./routes/indexRoute');
+
 const EmpRoute = require('./routes/employeeRoutes');
 const HrRoute = require('./routes/HrRoute');
 
 // ใช้ routes
 app.use('/', indexRoute,EmpRoute,HrRoute); 
+app.use('/', authRoute);
+
 
 app.listen(3000, () => {
   console.log('Server started at http://localhost:3000');
