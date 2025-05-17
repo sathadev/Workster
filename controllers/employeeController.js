@@ -1,6 +1,8 @@
 const Employee = require('../models/employeeModel');
+const Jobpos = require('../models/jobposModel');
 const multer = require('multer');
 const upload = multer();  // กำหนดให้ multer ใช้สำหรับรับไฟล์
+const bcrypt = require('bcrypt');
 
 // แสดงรายชื่อพนักงานทั้งหมด
 exports.list = (req, res) => {
@@ -30,23 +32,37 @@ exports.view = (req, res) => {
 
 // แสดงฟอร์มแก้ไขข้อมูลพนักงาน
 exports.editForm = (req, res) => {
-  Employee.getById(req.params.id, (err, results) => {
+  const empId = req.params.id;
+
+  Employee.getById(empId, (err, empResults) => {
     if (err) {
       console.error('Database error:', err);
       return res.status(500).send('Database error');
     }
-    if (!results.length) {
-      console.error('Employee not found');
-      return res.status(404).send('Not found');
+    if (!empResults.length) {
+      return res.status(404).send('Employee not found');
     }
-    res.render('employee/edit', { employee: results[0] });
+
+    Jobpos.getAll((err, positions) => {
+      if (err) {
+        console.error('Error loading positions:', err);
+        return res.status(500).send('Error loading positions');
+      }
+
+      res.render('employee/edit', {
+        employee: empResults[0],
+        positions: positions  // ส่ง positions ไปด้วย
+      });
+    });
   });
 };
+
+
 
 // อัปเดตข้อมูลพนักงาน
 exports.update = (req, res) => {
   const data = req.body;
-  const emp_id = req.params.id;
+  const emp_id = req.params.id; 
 
   // ดึงข้อมูลพนักงานเดิมก่อน เพื่อใช้รูปเดิมถ้าไม่ได้อัปโหลดใหม่
   Employee.getById(emp_id, (err, results) => {
@@ -79,27 +95,41 @@ exports.update = (req, res) => {
 
 // แสดงฟอร์มเพิ่มพนักงาน
 exports.addForm = (req, res) => {
-  res.render('employee/add');
+  Jobpos.getAll((err, positions) => {
+    if (err) return res.status(500).send('Error loading positions');
+    res.render('employee/add', { positions, employee: null });  // ส่ง employee: null
+  });
 };
 
-// สร้างพนักงานใหม่
+
+
 exports.create = upload.single('emp_pic'); // Middleware สำหรับไฟล์
-exports.createHandler = (req, res) => {
+
+exports.createHandler = async (req, res) => {
   const data = req.body;
   const emp_pic = req.file ? req.file.buffer : null;
 
-  const fullData = {
-    ...data,
-    emp_pic
-  };
+  try {
+    // เข้ารหัสรหัสผ่านก่อน
+    const hashedPassword = await bcrypt.hash(data.emp_password, 10); // 10 คือ salt rounds
 
-  Employee.create(fullData, (err, result) => {
-    if (err) {
-      console.error('Create error:', err.message || err);
-      return res.status(500).send('Create error: ' + (err.message || err));
-    }
-    res.redirect('/employee');
-  });
+    const fullData = {
+      ...data,
+      emp_password: hashedPassword, // แทนที่ด้วยรหัสผ่านที่ถูกเข้ารหัสแล้ว
+      emp_pic
+    };
+
+    Employee.create(fullData, (err, result) => {
+      if (err) {
+        console.error('Create error:', err.message || err);
+        return res.status(500).send('Create error: ' + (err.message || err));
+      }
+      res.redirect('/employee');
+    });
+  } catch (err) {
+    console.error('Hashing error:', err.message || err);
+    res.status(500).send('Error hashing password');
+  }
 };
 
 // ลบพนักงาน

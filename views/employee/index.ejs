@@ -27,7 +27,7 @@
         <tr onclick="window.location='/employee/view/<%= emp.emp_id %>'" style="cursor: pointer;">
           <td class="profile-cell"><img src="data:image/jpeg;base64,<%= Buffer.from(emp.emp_pic).toString('base64') %>" class="profile-image" alt="โปรไฟล์"></td>
           <td><%= emp.emp_name %> </td>
-          <td><%= emp.emp_jobpos %></td>
+          <td><%= emp.jobpos_name %></td>
         </tr>
         <% }) %>
   
