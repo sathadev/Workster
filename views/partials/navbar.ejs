@@ -1,8 +1,22 @@
 <div class="col-md-2 sidebar">
+    <% if (user) { %>
+  <% if (user.jobpos_id === 1||user.jobpos_id === 2 ||user.jobpos_id === 3 ) { %>  <!-- สมมุติ 1 = Admin -->
     <a href="/employee">ข้อมูลพนักงาน</a>
     <a href="/leave-work">รายการทำงานลา</a>
     <a href="/salary">จัดการเงินเดือน</a>
     <a href="/evaluation">การประเมินผล</a>
     <a href="/position">ตำแหน่งงาน</a>
     <a href="/apply-work">ผู้สมัครงาน</a>
+    <a href="#">ข้อมูลส่วนตัว</a>
+    <a href="#">แจ้งลางาน</a>
+  <% } else if (user.jobpos_id === 4) { %> <!-- สมมุติ 2 = หัวหน้า -->
+    <a href="#">ข้อมูลส่วนตัว</a>
+    <a href="#">แจ้งลางาน</a>
+   <% } else { %> <!-- คนทั่วไป -->
+    <a href="/leave-work">รายการทำงานลา</a>
+  <% } %>
+<% } else { %> <!-- ถ้ายังไม่ได้ login -->
+  <a href="/login">เข้าสู่ระบบ</a>
+<% } %>
+
   </div>

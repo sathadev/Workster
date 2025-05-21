@@ -20,6 +20,11 @@ app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 app.use(express.static('public'));
 
+app.use((req, res, next) => {
+  res.locals.user = req.session.user;
+  next();
+});
+
 // routes
 const authRoute = require('./routes/authRoute');
 const indexRoute = require('./routes/indexRoute');
@@ -27,6 +32,9 @@ const indexRoute = require('./routes/indexRoute');
 const EmpRoute = require('./routes/employeeRoutes');
 const HrRoute = require('./routes/HrRoute');
 const PosRoute = require('./routes/posRoute');
+const leaveworkRoute = require('./routes/leaveworkRoute');
+
+
 
 // ใช้ routes
 app.use('/', indexRoute);
@@ -35,7 +43,7 @@ app.use('/', HrRoute);
 app.use('/', PosRoute);
 app.use('/', authRoute);
 
-app.use('/', authRoute);
+app.use('/', leaveworkRoute);
 
 
 app.listen(3000, () => {

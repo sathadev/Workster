@@ -1,10 +1,6 @@
 const express = require('express');
 const router = express.Router();
 
-router.get('/leave-work', (req, res) => {
-  res.render('leave-work'); 
-});
-
 router.get('/salary', (req, res) => {
     res.render('salary/index'); 
   });
