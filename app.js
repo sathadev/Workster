@@ -26,9 +26,10 @@ const indexRoute = require('./routes/indexRoute');
 
 const EmpRoute = require('./routes/employeeRoutes');
 const HrRoute = require('./routes/HrRoute');
+const PosRoute = require('./routes/position');
 
 // ใช้ routes
-app.use('/', indexRoute,EmpRoute,HrRoute); 
+app.use('/', indexRoute,EmpRoute,HrRoute,PosRoute); 
 app.use('/', authRoute);
 
 
