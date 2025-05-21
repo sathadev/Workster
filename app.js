@@ -5,7 +5,7 @@ const session = require('express-session');
 const app = express();
 
 // parse body
-app.use(express.urlencoded({ extended: true }));
+app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 
 // session middleware ต้องมาก่อน routes

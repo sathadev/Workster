@@ -1,11 +1,10 @@
-<%- include('partials/header') %>
-<%- include('partials/navbar') %>
+<%- include('../partials/header') %>
+<%- include('../partials/navbar') %>
 
 <div class="col-md-10 mt-4">
-  <h5 class="fw-bold">รายชื่อตำแหน่ง ..................</h5>
-  <p class="fw-bold">รายการพนักงาน</p>
+  <h5 class="fw-bold">ตำแหน่ง: <%= jobpos.jobpos_name %></h5>
+  <p class="fw-bold">รายชื่อพนักงานในตำแหน่งนี้</p>
 
-  <!-- ตารางรายชื่อพนักงานแบบเดิมแต่ขนาดเล็กลงและชิดซ้าย -->
   <div style="max-width: 300px;">
     <table class="table table-hover text-center align-middle">
       <thead class="table-light">
@@ -14,12 +13,18 @@
         </tr>
       </thead>
       <tbody>
-        <tr><td>แดง เปิด</td></tr>
-        <tr><td>เขียว ปิด</td></tr>
+        <% if (employees.length > 0) { %>
+          <% employees.forEach(emp => { %>
+            <tr>
+              <td><%= emp.emp_name %></td>
+            </tr>
+          <% }) %>
+        <% } else { %>
+          <tr><td colspan="1">ไม่พบข้อมูลพนักงาน</td></tr>
+        <% } %>
       </tbody>
     </table>
   </div>
 </div>
 
-
-<%- include('partials/footer') %>
+<%- include('../partials/footer') %>

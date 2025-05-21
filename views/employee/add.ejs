@@ -38,12 +38,14 @@
                   <div class="col-md-9">
 
                     <select name="jobpos_id" class="form-control">
+                      <option value="">-- เลือกตำแหน่ง --</option>
                       <% positions.forEach(pos=> { %>
-                        <option value="เลือกตำแหน่ง" <%=employee && employee.jobpos_id==pos.jobpos_id
-                          ? 'selected' : '' %> >
+                        <option value="<%= pos.jobpos_id %>" <%=employee && employee.jobpos_id==pos.jobpos_id
+                          ? 'selected' : '' %>>
                           <%= pos.jobpos_name %>
                         </option>
                         <% }) %>
+
                     </select>
                   </div>
                 </div>

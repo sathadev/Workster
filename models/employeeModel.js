@@ -11,6 +11,7 @@ const Employee = {
     db.query(query, callback);
   },
 
+  // ดึงข้อมูลพนักงานตาม id
   getById: (id, callback) => {
     const query = `
       SELECT e.*, j.jobpos_name 
@@ -19,6 +20,15 @@ const Employee = {
       WHERE e.emp_id = ?
     `;
     db.query(query, [id], callback);
+  },
+
+  // ดึงพนักงานตามตำแหน่ง
+  getByJobposId: (jobposId, callback) => {
+    const query = `
+      SELECT * FROM employee 
+      WHERE jobpos_id = ?
+    `;
+    db.query(query, [jobposId], callback);
   },
 
   // เพิ่มพนักงานใหม่
@@ -32,11 +42,10 @@ const Employee = {
 
       // ถ้าอีเมลไม่ซ้ำ ก็ทำการเพิ่มข้อมูลพนักงานใหม่
       const query = `
-  INSERT INTO employee (emp_name, jobpos_id, emp_email, emp_tel, emp_address, emp_username, emp_password, emp_pic)
-  VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-`;
+        INSERT INTO employee (emp_name, jobpos_id, emp_email, emp_tel, emp_address, emp_username, emp_password, emp_pic)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+      `;
       db.query(query, [emp_name, jobpos_id, emp_email, emp_tel, emp_address, emp_username, emp_password, emp_pic], callback);
-
     });
   },
 
@@ -44,10 +53,10 @@ const Employee = {
   update: (id, data, callback) => {
     const { emp_name, jobpos_id, emp_email, emp_tel, emp_address, emp_pic } = data;
     const query = `
-  UPDATE employee 
-  SET emp_name = ?, jobpos_id = ?, emp_email = ?, emp_tel = ?, emp_address = ?, emp_pic = ? 
-  WHERE emp_id = ?
-`;
+      UPDATE employee 
+      SET emp_name = ?, jobpos_id = ?, emp_email = ?, emp_tel = ?, emp_address = ?, emp_pic = ? 
+      WHERE emp_id = ?
+    `;
     db.query(query, [emp_name, jobpos_id, emp_email, emp_tel, emp_address, emp_pic, id], callback);
   },
 
