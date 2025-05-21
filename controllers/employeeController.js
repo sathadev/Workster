@@ -142,3 +142,18 @@ exports.delete = (req, res) => {
     res.redirect('/employee');
   });
 };
+exports.viewProfile = (req, res) => {
+  const empId = req.session.user.emp_id;
+
+  Employee.getById(empId, (err, results) => {
+    if (err) {
+      console.error('Database error:', err);
+      return res.status(500).send('Database error');
+    }
+    if (!results.length) {
+      console.error('Employee not found');
+      return res.status(404).send('Not found');
+    }
+    res.render('employee/view', { employee: results[0] });
+  });
+};

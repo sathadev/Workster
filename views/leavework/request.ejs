@@ -1,0 +1,48 @@
+<%- include('../partials/header') %>
+<%- include('../partials/navbar') %>
+<div class="col-md-10 p-4">
+        <h4>แจ้งขอลางาน</h4>
+        <p class="text-danger text-end">ลาป่วยได้อีก 20 วัน ลากิจ/ขาดงานได้อีก 1 วัน</p>
+      
+        <div class="card p-4">
+          <form>
+            <div class="row mb-3">
+              <label class="col-md-2 col-form-label">วันที่เริ่มลา</label>
+              <div class="col-md-4">
+                <input type="date" class="form-control">
+              </div>
+            </div>
+      
+            <div class="row mb-3">
+              <label class="col-md-2 col-form-label">วันที่สิ้นสุดการลา</label>
+              <div class="col-md-4">
+                <input type="date" class="form-control">
+              </div>
+            </div>
+      
+            <div class="row mb-3">
+              <label class="col-md-2 col-form-label">ประเภทการลา</label>
+              <div class="col-md-4">
+                <select class="form-select">
+                  <option value="">-- เลือกประเภทการลา --</option>
+                  <option value="sick">ลาป่วย</option>
+                  <option value="personal">ลากิจ</option>
+                  <option value="absent">ขาดงาน</option>
+                </select>
+              </div>
+            </div>
+      
+            <div class="row mb-3">
+              <label class="col-md-2 col-form-label">เหตุผลการลา</label>
+              <div class="col-md-6">
+                <textarea class="form-control" rows="4"></textarea>
+              </div>
+            </div>
+      
+            <div class="text-end">
+              <button type="submit" class="btn btn-success">ยืนยัน</button>
+            </div>
+          </form>
+        </div>
+      </div>
+<%- include('../partials/footer') %>      
