@@ -42,13 +42,14 @@
       </table>
 
     </div>
-    <form action="/position/add" method="POST">
-      <div class="modal fade" id="addPositionModal" tabindex="-1" aria-labelledby="addPositionModalLabel"
-        aria-hidden="true">
-        <div class="modal-dialog modal-lg modal-dialog-centered">
-          <div class="modal-content text-center p-4" style="max-width: 500px; margin: auto; border-radius: 25px;">
-            <div class="modal-body"
-              style="min-height: 200px; display: flex; flex-direction: column; justify-content: center;">
+    <!-- ปรับใหม่ -->
+    <div class="modal fade" id="addPositionModal" tabindex="-1" aria-labelledby="addPositionModalLabel"
+      aria-hidden="true">
+      <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content text-center p-4" style="max-width: 500px; margin: auto; border-radius: 25px;">
+          <div class="modal-body"
+            style="min-height: 200px; display: flex; flex-direction: column; justify-content: center;">
+            <form action="/position/add" method="POST">
               <p class="fs-5 fw-bold mb-4">กรอกชื่อตำแหน่งที่ต้องการเพิ่ม</p>
 
               <div class="mb-4 px-4">
@@ -61,10 +62,11 @@
                 <button type="button" class="btn btn-secondary px-4" style="background-color: #c4c4c4; border: none;"
                   data-bs-dismiss="modal">ยกเลิก</button>
               </div>
-            </div>
+            </form>
           </div>
         </div>
       </div>
-    </form>
+    </div>
+
 
     <%- include('../partials/footer') %>
