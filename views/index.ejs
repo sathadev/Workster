@@ -7,7 +7,9 @@
     <h3 class="mb-4 fs-4">ยินดีต้อนรับ <%= user.emp_name %>!</h3>
     <h3 class="mb-4 fs-4" >วันที่ 24 เมษายน 2568</h3>
     <h4>บันทึกเวลา เข้า/ออก งาน</h4>
-     <div class="card my-3">
+  
+    <!-- Card เวลาเข้างาน -->
+    <div class="card my-3">
       <div class="card-body d-flex justify-content-between align-items-center">
         <div>
           <h5 class="fw-bold mb-1">เวลาเข้างาน</h5>
@@ -27,6 +29,7 @@
         <button class="btn btn-primary">เช็คเอ้าท์</button>
       </div>
     </div>
+    
     <div class="row mb-4">
       <div class="col-md-5 mb-3">
         <div class="card">
@@ -77,9 +80,7 @@
         </div>
       </div>
     </div>
-
-
-   
+    
   </div>
     
     <% } else if (user.jobpos_id === 4) { %> <!-- สมมุติ 2 = หัวหน้า -->

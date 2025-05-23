@@ -103,8 +103,14 @@
           <form action="/employee/edit/<%= employee.emp_id %>" method="get" style="display:inline;">
             <button type="submit" class="btn btn-warning ms-2 " style="cursor: pointer;">อัพเดท</button>
           </form>
-          <button type="submit" class="btn btn-danger ms-2" data-bs-toggle="modal"
-            data-bs-target="#confirmRejectModal">ลบ</button>
+          <% if (user) { %>
+            <% if (user.jobpos_id===1||user.jobpos_id===2 ||user.jobpos_id===3 ) { %> <!-- สมมุติ 1 = Admin -->
+              <button type="submit" class="btn btn-danger ms-2" data-bs-toggle="modal"
+                data-bs-target="#confirmRejectModal">ลบ</button>
+              
+                <% } %>
+              <% } %>
+
         </div>
         </form>
 
