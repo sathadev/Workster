@@ -6,6 +6,27 @@
   <% if (user.jobpos_id === 1||user.jobpos_id === 2 ||user.jobpos_id === 3 ) { %>  <!-- สมมุติ 1 = Admin -->
     <h3 class="mb-4 fs-4">ยินดีต้อนรับ <%= user.emp_name %>!</h3>
     <h3 class="mb-4 fs-4" >วันที่ 24 เมษายน 2568</h3>
+    <h4>บันทึกเวลา เข้า/ออก งาน</h4>
+     <div class="card my-3">
+      <div class="card-body d-flex justify-content-between align-items-center">
+        <div>
+          <h5 class="fw-bold mb-1">เวลาเข้างาน</h5>
+          <p class="fs-5 mb-0">08 : 30</p>
+        </div>
+        <button class="btn btn-primary">เช็คอิน</button>
+      </div>
+    </div>
+  
+    <!-- Card เวลาออกงาน -->
+    <div class="card my-3">
+      <div class="card-body d-flex justify-content-between align-items-center">
+        <div>
+          <h5 class="fw-bold mb-1">เวลาออกงาน</h5>
+          <p class="fs-5 mb-0">ยังไม่ถึงเวลาเลิกงาน</p>
+        </div>
+        <button class="btn btn-primary">เช็คเอ้าท์</button>
+      </div>
+    </div>
     <div class="row mb-4">
       <div class="col-md-5 mb-3">
         <div class="card">
@@ -56,29 +77,9 @@
         </div>
       </div>
     </div>
-    <h4>บันทึกเวลา เข้า/ออก งาน</h4>
-  
-    <!-- Card เวลาเข้างาน -->
-    <div class="card my-3">
-      <div class="card-body d-flex justify-content-between align-items-center">
-        <div>
-          <h5 class="fw-bold mb-1">เวลาเข้างาน</h5>
-          <p class="fs-5 mb-0">08 : 30</p>
-        </div>
-        <button class="btn btn-primary">เช็คอิน</button>
-      </div>
-    </div>
-  
-    <!-- Card เวลาออกงาน -->
-    <div class="card my-3">
-      <div class="card-body d-flex justify-content-between align-items-center">
-        <div>
-          <h5 class="fw-bold mb-1">เวลาออกงาน</h5>
-          <p class="fs-5 mb-0">ยังไม่ถึงเวลาเลิกงาน</p>
-        </div>
-        <button class="btn btn-primary">เช็คเอ้าท์</button>
-      </div>
-    </div>
+
+
+   
   </div>
     
     <% } else if (user.jobpos_id === 4) { %> <!-- สมมุติ 2 = หัวหน้า -->
