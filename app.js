@@ -33,6 +33,7 @@ const EmpRoute = require('./routes/employeeRoutes');
 const HrRoute = require('./routes/HrRoute');
 const PosRoute = require('./routes/posRoute');
 const leaveworkRoute = require('./routes/leaveworkRoute');
+const salaryRoutes = require('./routes/salaryRoute');
 
 
 
@@ -42,7 +43,7 @@ app.use('/', EmpRoute);
 app.use('/', HrRoute);
 app.use('/', PosRoute);
 app.use('/', authRoute);
-
+app.use('/', salaryRoutes);
 app.use('/', leaveworkRoute);
 
 

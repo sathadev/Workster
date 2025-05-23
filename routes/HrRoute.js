@@ -1,9 +1,6 @@
 const express = require('express');
 const router = express.Router();
 
-router.get('/salary', (req, res) => {
-    res.render('salary/index'); 
-  });
 router.get('/salary/edit', (req, res) => {
     res.render('salary/edit'); 
   });
