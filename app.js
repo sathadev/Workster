@@ -10,9 +10,10 @@ app.use(express.json());
 
 // session middleware ต้องมาก่อน routes
 app.use(session({
-  secret: 'secretKey12345',
+  secret: 'mySecretKey123',  // ตั้งค่าเป็น string อะไรก็ได้
   resave: false,
-  saveUninitialized: true
+  saveUninitialized: true,
+  cookie: { maxAge: 60 * 60 * 1000 }  // อยู่ได้ 1 ชั่วโมง
 }));
 
 // view engine และ static
