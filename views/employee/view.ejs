@@ -56,11 +56,12 @@
               </div>
               <div class="row mb-2">
                 <div class="col-md-3">วันเกิด :</div>
-                <div class="col-md-9"></div>
+                <div class="col-md-9"><%= employee.emp_birthday.toISOString().slice(0, 10) %></div>
+                
               </div>
               <div class="row mb-2">
                 <div class="col-md-3">วันที่เริ่มงาน :</div>
-                <div class="col-md-9"></div>
+                <div class="col-md-9"><%= employee.emp_startwork.toISOString().slice(0, 10) %></div>
               </div>
 
 

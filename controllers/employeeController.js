@@ -111,12 +111,13 @@ exports.createHandler = async (req, res) => {
 
   try {
     // เข้ารหัสรหัสผ่านก่อน
-    const hashedPassword = await bcrypt.hash(data.emp_password, 10); // 10 คือ salt rounds
+    const hashedPassword = await bcrypt.hash(data.emp_password, 10);
 
     const fullData = {
       ...data,
-      emp_password: hashedPassword, // แทนที่ด้วยรหัสผ่านที่ถูกเข้ารหัสแล้ว
-      emp_pic
+      emp_password: hashedPassword,
+      emp_pic,
+      emp_birthday: data.emp_birthday
     };
 
     Employee.create(fullData, (err, result) => {
@@ -131,6 +132,7 @@ exports.createHandler = async (req, res) => {
     res.status(500).send('Error hashing password');
   }
 };
+
 
 // ลบพนักงาน
 exports.delete = (req, res) => {

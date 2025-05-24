@@ -33,21 +33,22 @@ const Employee = {
 
   // เพิ่มพนักงานใหม่
   create: (data, callback) => {
-    const { emp_name, jobpos_id, emp_email, emp_tel, emp_address, emp_username, emp_password, emp_pic } = data;
+  const { emp_name, jobpos_id, emp_email, emp_tel, emp_address, emp_username, emp_password, emp_pic, emp_birthday } = data;
 
-    // ตรวจสอบว่าอีเมลมีอยู่แล้วในระบบหรือไม่
-    db.query('SELECT * FROM employee WHERE emp_email = ?', [emp_email], (err, results) => {
-      if (err) return callback(err);
-      if (results.length > 0) return callback(new Error('Email is already registered.'));
+  // ตรวจสอบว่าอีเมลมีอยู่แล้วในระบบหรือไม่
+  db.query('SELECT * FROM employee WHERE emp_email = ?', [emp_email], (err, results) => {
+    if (err) return callback(err);
+    if (results.length > 0) return callback(new Error('Email is already registered.'));
 
-      // ถ้าอีเมลไม่ซ้ำ ก็ทำการเพิ่มข้อมูลพนักงานใหม่
-      const query = `
-        INSERT INTO employee (emp_name, jobpos_id, emp_email, emp_tel, emp_address, emp_username, emp_password, emp_pic)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-      `;
-      db.query(query, [emp_name, jobpos_id, emp_email, emp_tel, emp_address, emp_username, emp_password, emp_pic], callback);
-    });
-  },
+    // ถ้าอีเมลไม่ซ้ำ ก็ทำการเพิ่มข้อมูลพนักงานใหม่
+    const query = `
+      INSERT INTO employee 
+      (emp_name, jobpos_id, emp_email, emp_tel, emp_address, emp_username, emp_password, emp_pic, emp_birthday, emp_startwork)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())
+    `;
+    db.query(query, [emp_name, jobpos_id, emp_email, emp_tel, emp_address, emp_username, emp_password, emp_pic, emp_birthday], callback);
+  });
+},
 
   // อัปเดตข้อมูลพนักงาน
   update: (id, data, callback) => {
