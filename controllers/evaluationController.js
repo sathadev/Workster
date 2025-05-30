@@ -67,10 +67,12 @@ exports.showEvaluationById = (req, res) => {
       return res.status(404).send('ไม่พบข้อมูลการประเมิน');
     }
 
-    employeeModel.getById(evaluation.emp_id, (err2, employee) => {
-      if (err2 || !employee) {
+    employeeModel.getById(evaluation.emp_id, (err2, employeeResults) => {
+      if (err2 || !employeeResults || employeeResults.length === 0) {
         return res.status(404).send('ไม่พบข้อมูลพนักงาน');
       }
+
+      const employee = employeeResults[0];
 
       res.render('evaluation/result', { evaluation, employee });
     });

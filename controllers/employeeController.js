@@ -49,9 +49,25 @@ exports.editForm = (req, res) => {
         return res.status(500).send('Error loading positions');
       }
 
-      res.render('employee/edit', {
-        employee: empResults[0],
-        positions: positions  // ส่ง positions ไปด้วย
+      // เช็คว่ามีคนครองตำแหน่งประธานบริษัทอยู่ไหม
+      Employee.getByJobposName(chairmanJobName, (err, chairmanEmployees) => {
+        if (err) {
+          console.error('Error checking chairman:', err);
+          return res.status(500).send('Error checking chairman');
+        }
+
+        // ถ้ามีคนครองตำแหน่งนี้ และไม่ใช่คนที่เราจะแก้ ให้ตัด 'ประธานบริษัท' ออก
+        if (chairmanEmployees.length > 0) {
+          positions = positions.filter(pos => {
+            if (pos.jobpos_name !== chairmanJobName) return true;
+            return chairmanEmployees[0].emp_id === empId;
+          });
+        }
+
+        res.render('employee/edit', {
+          employee: empResults[0],
+          positions: positions
+        });
       });
     });
   });
@@ -94,10 +110,25 @@ exports.update = (req, res) => {
 
 
 // แสดงฟอร์มเพิ่มพนักงาน
+// ตั้งค่าชื่อตำแหน่งประธานบริษัทไว้ใช้ทุกที่
+const chairmanJobName = 'ประธานบริษัท';
+
+// แสดงฟอร์มเพิ่มพนักงาน
 exports.addForm = (req, res) => {
   Jobpos.getAll((err, positions) => {
     if (err) return res.status(500).send('Error loading positions');
-    res.render('employee/add', { positions, employee: null });  // ส่ง employee: null
+
+    // เช็คว่ามีคนครองตำแหน่งประธานบริษัทหรือยัง
+    Employee.getByJobposName(chairmanJobName, (err, chairmanEmployees) => {
+      if (err) return res.status(500).send('Error checking chairman');
+
+      // ถ้ามีคนครองอยู่แล้ว กรองเอาตำแหน่ง 'ประธานบริษัท' ออก
+      if (chairmanEmployees.length > 0) {
+        positions = positions.filter(pos => pos.jobpos_name !== chairmanJobName);
+      }
+
+      res.render('employee/add', { positions, employee: null });
+    });
   });
 };
 

@@ -77,7 +77,17 @@ const Employee = {
   // ลบพนักงาน
   delete: (id, callback) => {
     db.query('DELETE FROM employee WHERE emp_id = ?', [id], callback);
-  }
+  },
+
+  getByJobposName: (jobposName, callback) => {
+  const query = `
+    SELECT e.* FROM employee e
+    JOIN jobpos j ON e.jobpos_id = j.jobpos_id
+    WHERE j.jobpos_name = ?
+  `;
+  db.query(query, [jobposName], callback);
+},
+
 };
 
 module.exports = Employee;

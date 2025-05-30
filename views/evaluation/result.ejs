@@ -2,8 +2,9 @@
 <%- include('../partials/navbar') %>
 
 <div class="col-md-10 p-4">
-  <h4 class="fw-bold">ผลการประเมินของ <%= employee.emp_name %></h4>
+  <h4 class="fw-bold">ผลการประเมินของ: <%= employee.emp_name %></h4>
   <p><strong>ตำแหน่ง:</strong> <%= employee.jobpos_name %></p>
+  <p><a href="/evaluation">หน้าหลัก</a> / <a href="/evaluation/history">ประวัติการประเมิน</a> / ผลการประเมิน </p>
 
   <% if (evaluation.length === 0) { %>
     <p>ยังไม่มีผลการประเมิน</p>
