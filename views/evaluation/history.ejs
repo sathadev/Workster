@@ -1,0 +1,52 @@
+<%- include('../partials/header') %>
+<%- include('../partials/navbar') %>
+
+<div class="col-md-10 p-4">
+  <h4 class="fw-bold">การประเมินผล</h4>
+
+  <div class="input-group mb-3 w-50">
+    <input type="text" class="form-control" placeholder="ค้นหา" aria-label="ค้นหา" id="searchInput">
+    <span class="input-group-text"><i class="fa-solid fa-magnifying-glass"></i></span>
+  </div>
+
+  <table class="table table-hover table-bordered text-center align-middle" id="evaluationTable">
+    <thead class="table-light">
+      <tr>
+        <th>วันที่ประเมิน</th>
+        <th>ชื่อ - สกุล</th>
+        <th>คะแนนรวม</th>
+        <th>การประเมินผล</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% evaluations.forEach(evaluation => { %>
+      <tr>
+        <td><%= new Date(evaluation.create_at).toLocaleDateString('th-TH') %></td>
+        <td><%= evaluation.emp_name %></td>
+        <td><%= evaluation.evaluatework_totalscore %></td>
+        <td>
+          <a href="/evaluation/result/<%= evaluation.evaluatework_id %>" class="btn btn-primary rounded-pill px-3">ผลการประเมิน</a>
+        </td>
+      </tr>
+      <% }) %>
+    </tbody>
+  </table>
+</div>
+
+<%- include('../partials/footer') %>
+
+<script>
+  // ฟังก์ชันค้นหาง่าย ๆ บน client side
+  document.getElementById('searchInput').addEventListener('keyup', function() {
+    const filter = this.value.toLowerCase();
+    const rows = document.querySelectorAll('#evaluationTable tbody tr');
+    rows.forEach(row => {
+      const name = row.cells[1].textContent.toLowerCase();
+      if(name.includes(filter)) {
+        row.style.display = '';
+      } else {
+        row.style.display = 'none';
+      }
+    });
+  });
+</script>

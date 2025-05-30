@@ -35,6 +35,7 @@ const HrRoute = require('./routes/HrRoute');
 const PosRoute = require('./routes/posRoute');
 const leaveworkRoute = require('./routes/leaveworkRoute');
 const salaryRoutes = require('./routes/salaryRoute');
+const evaluationRoute = require('./routes/evaluationRoute');
 
 
 
@@ -46,6 +47,7 @@ app.use('/', PosRoute);
 app.use('/', authRoute);
 app.use('/', salaryRoutes);
 app.use('/', leaveworkRoute);
+app.use('/', evaluationRoute);
 
 
 app.listen(3000, () => {

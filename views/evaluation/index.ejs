@@ -4,7 +4,7 @@
 <div class="col-md-10 p-4">
         <div class="d-flex justify-content-between align-items-center mb-3">
         <h4 class="fw-bold">การประเมินผล</h4>
-          <button class="btn btn-outline-secondary">
+          <button class="btn btn-outline-secondary" onclick="window.location='/evaluation/history'">
             <i class="fa-plus"></i> ประวัติการประเมิน
           </button>
         </div>
@@ -23,33 +23,21 @@
           <th>การประเมินผล</th>
         </tr>
       </thead>
-      <tbody>
-        <tr>
-          <td>พลพิพรรธน์ธัชปรีชาญูดล มหานุศรธรรมาม</td>
-          <td>ประธานบริษัท</td>
-          <td><button class="btn btn-primary rounded-pill px-3" onclick="window.location='evaluation/form'" style="cursor: pointer;">ประเมินผล</button></td>
-        </tr>
-        <tr>
-          <td>ศรัณยาภรณ์พักต์ศิลาถา มหานุศรธรรมาม</td>
-          <td>เลขาธิการบริษัท</td>
-          <td><button class="btn btn-primary rounded-pill px-3" onclick="window.location='evaluation/form'" style="cursor: pointer;">ประเมินผล</button></td>
-        </tr>
-        <tr>
-          <td>กลกรเทพศิริบุญลอมหงคลชัย มหานุศรธรรมาม</td>
-          <td>รองประธานบริษัท</td>
-          <td><button class="btn btn-primary rounded-pill px-3" onclick="window.location='evaluation/form'" style="cursor: pointer;">ประเมินผล</button></td>
-        </tr>
-        <tr>
-          <td>แดง แป๊ด</td>
-          <td>HR</td>
-          <td><button class="btn btn-primary rounded-pill px-3" onclick="window.location='evaluation/form'" style="cursor: pointer;">ประเมินผล</button></td>
-        </tr>
-        <tr>
-          <td>เขียว ปืด</td>
-          <td>IT Support</td>
-          <td><button class="btn btn-primary rounded-pill px-3" onclick="window.location='evaluation/form'" style="cursor: pointer;">ประเมินผล</button></td>
-        </tr>
-      </tbody>
+<tbody>
+  <% employees.forEach(emp => { %>
+    <tr>
+      <td><%= emp.emp_name %></td>
+      <td><%= emp.jobpos_name %></td>
+      <td>
+        <button class="btn btn-primary rounded-pill px-3"
+                onclick="window.location='/evaluation/form?id=<%= emp.emp_id %>'">
+          ประเมินผล
+        </button>
+      </td>
+    </tr>
+  <% }) %>
+</tbody>
+
     </table>
   </div>
   

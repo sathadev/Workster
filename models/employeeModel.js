@@ -2,6 +2,19 @@ const db = require('../config/db');  // เชื่อมต่อกับฐ�
 
 const Employee = {
   // ดึงข้อมูลพนักงานทั้งหมด
+   getAllEvaluations: (callback) => {
+    const sql = `
+      SELECT e.create_at, emp.emp_name, e.evaluatework_totalscore, emp.emp_id
+      FROM evaluatework e
+      JOIN employee emp ON e.emp_id = emp.emp_id
+      ORDER BY e.create_at DESC
+    `;
+
+    db.query(sql, (err, results) => {
+      if (err) return callback(err);
+      callback(null, results);
+    });
+  },
   getAll: (callback) => {
     const query = `
       SELECT e.*, j.jobpos_name 
