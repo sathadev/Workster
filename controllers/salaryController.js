@@ -80,6 +80,7 @@ exports.update = function(req, res) {
     res.redirect('/salary');
   });
 };
+
 exports.viewSelfSalary = function(req, res) {
   const empId = req.session.emp_id; // หรือจาก req.user.emp_id แล้วแต่ระบบ auth
 
@@ -100,5 +101,4 @@ exports.viewSelfSalary = function(req, res) {
     res.render('salary/view', { employee: result });
   });
 };
-
 

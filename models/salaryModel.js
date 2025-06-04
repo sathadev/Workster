@@ -63,7 +63,14 @@ exports.getSalaryByEmpId = function(empId, callback) {
       COALESCE(s.salary_allowance, 0) as salary_allowance,
       COALESCE(s.salary_bonus, 0) as salary_bonus,
       COALESCE(s.salary_ot, 0) as salary_ot,
-      COALESCE(s.salary_deduction, 0) as salary_deduction
+      COALESCE(s.salary_deduction, 0) as salary_deduction,
+      (
+        COALESCE(s.salary_base, 0) +
+        COALESCE(s.salary_allowance, 0) +
+        COALESCE(s.salary_bonus, 0) +
+        COALESCE(s.salary_ot, 0) -
+        COALESCE(s.salary_deduction, 0)
+      ) AS total_salary
     FROM employee e
     LEFT JOIN salary s ON e.emp_id = s.emp_id
     WHERE e.emp_id = ?
@@ -74,6 +81,7 @@ exports.getSalaryByEmpId = function(empId, callback) {
     callback(null, results[0]);
   });
 };
+
 
 exports.updateSalary = function(empId, data, callback) {
   const sql = `
