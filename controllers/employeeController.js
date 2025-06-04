@@ -167,14 +167,21 @@ exports.createHandler = async (req, res) => {
 
 // ลบพนักงาน
 exports.delete = (req, res) => {
-  Employee.delete(req.params.id, (err) => {
+  const empIdToDelete = parseInt(req.params.id);
+  const loggedInEmpId = req.session.user.emp_id;
+
+  if (empIdToDelete === loggedInEmpId) {
+    return res.status(403).send('คุณไม่สามารถลบตัวเองได้');
+  }
+
+  Employee.delete(empIdToDelete, (err) => {
     if (err) {
-      console.error('Delete error:', err.message || err);
-      return res.status(500).send('Delete error: ' + (err.message || err));
+      return res.status(500).send('ไม่สามารถลบพนักงานได้');
     }
     res.redirect('/employee');
   });
 };
+
 exports.viewProfile = (req, res) => {
   const empId = req.session.user.emp_id;
 

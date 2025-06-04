@@ -8,7 +8,7 @@ exports.showEvaluationPage = (req, res) => {
     if (err) {
       return res.status(500).send("Database error");
     }
-    res.render('evaluation/index', { employees });
+    res.render('evaluation/index', { employees ,  currentUserId: req.session.emp_id });
   });
 };
 
