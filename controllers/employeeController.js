@@ -3,6 +3,9 @@ const Jobpos = require('../models/jobposModel');
 const multer = require('multer');
 const upload = multer();  // กำหนดให้ multer ใช้สำหรับรับไฟล์
 const bcrypt = require('bcrypt');
+const fs = require('fs');
+const path = require('path');
+
 
 // แสดงรายชื่อพนักงานทั้งหมด
 exports.list = (req, res) => {
@@ -138,10 +141,14 @@ exports.create = upload.single('emp_pic'); // Middleware สำหรับไ�
 
 exports.createHandler = async (req, res) => {
   const data = req.body;
-  const emp_pic = req.file ? req.file.buffer : null;
+  let emp_pic = req.file ? req.file.buffer : null;
 
   try {
-    // เข้ารหัสรหัสผ่านก่อน
+    if (!emp_pic) {
+      const defaultImagePath = path.join(__dirname, '../public/images/profile.jpg');
+      emp_pic = fs.readFileSync(defaultImagePath); // โหลดรูป default มาเป็น buffer
+    }
+
     const hashedPassword = await bcrypt.hash(data.emp_password, 10);
 
     const fullData = {
@@ -159,8 +166,8 @@ exports.createHandler = async (req, res) => {
       res.redirect('/employee');
     });
   } catch (err) {
-    console.error('Hashing error:', err.message || err);
-    res.status(500).send('Error hashing password');
+    console.error('Error:', err.message || err);
+    res.status(500).send('Error occurred: ' + (err.message || err));
   }
 };
 
