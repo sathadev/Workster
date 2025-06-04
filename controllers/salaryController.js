@@ -80,4 +80,25 @@ exports.update = function(req, res) {
     res.redirect('/salary');
   });
 };
+exports.viewSelfSalary = function(req, res) {
+  const empId = req.session.emp_id; // หรือจาก req.user.emp_id แล้วแต่ระบบ auth
+
+  if (!empId) {
+    return res.status(401).send('กรุณาเข้าสู่ระบบ');
+  }
+
+  SalaryModel.getSalaryByEmpId(empId, (err, result) => {
+    if (err) {
+      console.error('Fetch salary error:', err);
+      return res.status(500).send('เกิดข้อผิดพลาด');
+    }
+
+    if (!result) {
+      return res.status(404).send('ไม่พบข้อมูลเงินเดือนของคุณ');
+    }
+
+    res.render('salary/view', { employee: result });
+  });
+};
+
 
