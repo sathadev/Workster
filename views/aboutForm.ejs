@@ -1,0 +1,120 @@
+<%- include('partials/header') %>
+<%- include('partials/navbar') %>
+
+<div class="col-md-10 p-4">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h4 class="fw-bold">ตั้งค่าข้อมูลบริษัท</h4>
+  </div>
+
+  <p><a href="/settings">หน้าหลัก</a> / ตั้งค่าบริษัท</p>
+
+  <div class="card p-4">
+    <h5 class="text-center">ข้อมูลการตั้งค่าบริษัท</h5>
+
+<% if (!edit) { %>
+  <form>
+<% } else { %>
+  <form action="/about/update" method="POST">
+<% } %>
+
+  <% const dis = edit ? '' : 'disabled'; %>
+
+  <div class="mb-3">
+    <label>เวลาเข้างาน</label>
+    <input type="time" name="startwork" class="form-control" value="<%= about.startwork || '' %>" <%= dis %> >
+  </div>
+
+  <div class="mb-3">
+    <label>เวลาเลิกงาน</label>
+    <input type="time" name="endwork" class="form-control" value="<%= about.endwork || '' %>" <%= dis %> >
+  </div>
+
+  <div class="mb-3">
+    <label>เวลาสาย (นาที)</label>
+    <input type="number" name="about_late" class="form-control" value="<%= about.about_late || 0 %>" <%= dis %> >
+  </div>
+
+  <div class="mb-3">
+    <label>วันลาป่วย (วัน)</label>
+    <input type="number" name="about_sickleave" class="form-control" value="<%= about.about_sickleave || 0 %>" <%= dis %> >
+  </div>
+
+  <div class="mb-3">
+    <label>วันลากิจ (วัน)</label>
+    <input type="number" name="about_personalleave" class="form-control" value="<%= about.about_personalleave || 0 %>" <%= dis %> >
+  </div>
+
+  <div class="mb-3">
+    <label>วันลาพักผ่อนประจำปี (วัน)</label>
+    <input type="number" name="about_annualleave" class="form-control" value="<%= about.about_annualleave || 0 %>" <%= dis %> >
+  </div>
+
+  <div class="mb-3">
+    <label>วันลาคลอดบุตร (วัน)</label>
+    <input type="number" name="about_maternityleave" class="form-control" value="<%= about.about_maternityleave || 0 %>" <%= dis %> >
+  </div>
+
+  <div class="mb-3">
+    <label>วันลาเพื่อเลี้ยงดูบุตร (วัน)</label>
+    <input type="number" name="about_childcareleave" class="form-control" value="<%= about.about_childcareleave || 0 %>" <%= dis %> >
+  </div>
+
+  <div class="mb-3">
+    <label>วันลาไปช่วยเหลือภริยาคลอดบุตร (วัน)</label>
+    <input type="number" name="about_paternityleave" class="form-control" value="<%= about.about_paternityleave || 0 %>" <%= dis %> >
+  </div>
+
+  <div class="mb-3">
+    <label>วันลาไปรับราชการทหาร (วัน)</label>
+    <input type="number" name="about_militaryleave" class="form-control" value="<%= about.about_militaryleave || 0 %>" <%= dis %> >
+  </div>
+
+  <div class="mb-3">
+    <label>วันลาบวช (วัน)</label>
+    <input type="number" name="about_ordinationleave" class="form-control" value="<%= about.about_ordinationleave || 0 %>" <%= dis %> >
+  </div>
+
+  <div class="mb-3">
+    <label>วันลาเพื่อทำหมัน (วัน)</label>
+    <input type="number" name="about_sterilizationleave" class="form-control" value="<%= about.about_sterilizationleave || 0 %>" <%= dis %> >
+  </div>
+
+  <div class="mb-3">
+    <label>วันลาฝึกอบรม (วัน)</label>
+    <input type="number" name="about_trainingleave" class="form-control" value="<%= about.about_trainingleave || 0 %>" <%= dis %> >
+  </div>
+
+  <div class="mb-3">
+    <label>วันลาเพื่อจัดการศพ (วัน)</label>
+    <input type="number" name="about_funeralleave" class="form-control" value="<%= about.about_funeralleave || 0 %>" <%= dis %> >
+  </div>
+
+  <div class="mb-3">
+    <label>วันที่ทำงาน</label><br>
+    <% 
+      const workDaysArr = about.work_days ? about.work_days.split(',') : [];
+      const allDays = ['จันทร์','อังคาร','พุธ','พฤหัสบดี','ศุกร์','เสาร์','อาทิตย์'];
+    %>
+    <% allDays.forEach(day => { %>
+      <div class="form-check form-check-inline">
+        <input class="form-check-input" type="checkbox" name="work_days" value="<%= day %>" 
+          <%= workDaysArr.includes(day) ? 'checked' : '' %>
+          <%= dis %> >
+        <label class="form-check-label"><%= day %></label>
+      </div>
+    <% }) %>
+  </div>
+
+  <% if (edit) { %>
+    <button type="submit" class="btn btn-success">บันทึก</button>
+    <a href="/about" class="btn btn-secondary">ยกเลิก</a>
+  <% } else { %>
+    <a href="/about?edit=true" class="btn btn-primary">แก้ไข</a>
+  <% } %>
+
+</form>
+
+  </div>
+</div>
+
+<%- include('partials/footer') %>
