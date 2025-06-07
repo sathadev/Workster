@@ -63,12 +63,13 @@
         </div>
 
         <h4 class="fw-bold mt-4">ลงงานทั้งหมด</h4>
+
         <div class="row">
           <div class="col-md-4 mb-3">
             <div class="card card-green">
               <div class="card-body">
                 <h5 class="card-title">มาตรงเวลา</h5>
-                <h1 class="text-end">2</h1>
+                <h1 class="text-end"><%= attendanceSummary.ontimeCheckin || 0 %> </h1>
                 <p class="card-text text-end">ครั้ง</p>
               </div>
             </div>
@@ -77,7 +78,7 @@
             <div class="card card-yellow">
               <div class="card-body">
                 <h5 class="card-title">มาสาย</h5>
-                <h1 class="text-end">3</h1>
+                <h1 class="text-end"> <%= attendanceSummary.lateCheckin || 0 %></h1>
                 <p class="card-text text-end">ครั้ง</p>
               </div>
             </div>
@@ -92,7 +93,9 @@
             </div>
           </div>
         </div>
+        
       </div>
+
     </div>
 
     <p class="fw-bold text-danger fs-6">ลาป่วยได้อีก 20 วัน ลากิจ/ขาดงานได้อีก 1 วัน</p>

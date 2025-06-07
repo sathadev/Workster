@@ -1,5 +1,7 @@
 const Employee = require('../models/employeeModel');
 const Jobpos = require('../models/jobposModel');
+const Attendance = require('../models/attendanceModel');  // ปรับ path ตามโครงสร้างโปรเจกต์คุณ
+
 const multer = require('multer');
 const upload = multer();  // กำหนดให้ multer ใช้สำหรับรับไฟล์
 const bcrypt = require('bcrypt');
@@ -20,7 +22,9 @@ exports.list = (req, res) => {
 
 // แสดงรายละเอียดพนักงาน
 exports.view = (req, res) => {
-  Employee.getById(req.params.id, (err, results) => {
+  const empId = req.params.id;
+
+  Employee.getById(empId, (err, results) => {
     if (err) {
       console.error('Database error:', err);
       return res.status(500).send('Database error');
@@ -29,9 +33,34 @@ exports.view = (req, res) => {
       console.error('Employee not found');
       return res.status(404).send('Not found');
     }
-    res.render('employee/view', { employee: results[0] });
+
+    Attendance.getCountSummary(empId, (err, attendanceCounts) => {
+      if (err) {
+        console.error('Attendance count error:', err);
+        return res.status(500).send('Attendance count error');
+      }
+
+      // แปลงผลลัพธ์ให้ง่ายขึ้น เช่น
+      const summary = {
+        ontimeCheckIn: 0,
+        lateCheckIn: 0,
+        ontimeCheckOut: 0,
+        lateCheckOut: 0
+      };
+
+      attendanceCounts.forEach(row => {
+        const key = row.attendance_status + row.attendance_type.charAt(0).toUpperCase() + row.attendance_type.slice(1);
+        summary[key] = row.count;
+      });
+
+      res.render('employee/view', {
+        employee: results[0],
+        attendanceSummary: summary
+      });
+    });
   });
 };
+
 
 // แสดงฟอร์มแก้ไขข้อมูลพนักงาน
 exports.editForm = (req, res) => {
@@ -201,6 +230,35 @@ exports.viewProfile = (req, res) => {
       console.error('Employee not found');
       return res.status(404).send('Not found');
     }
-    res.render('employee/view', { employee: results[0] });
+
+    Attendance.getCountSummary(empId, (err, attendanceCounts) => {
+      if (err) {
+        console.error('Attendance count error:', err);
+        return res.status(500).send('Attendance count error');
+      }
+
+      // แปลง attendanceCounts เป็น object camelCase keys
+      const attendanceSummary = {
+        ontimeCheckin: 0,
+        lateCheckin: 0,
+        ontimeCheckout: 0,
+        lateCheckout: 0,
+      };
+
+      attendanceCounts.forEach(item => {
+        const status = item.attendance_status.toLowerCase();
+        const type = item.attendance_type.toLowerCase();
+
+        if (status === 'ontime' && type === 'checkin') attendanceSummary.ontimeCheckin = item.count;
+        else if (status === 'late' && type === 'checkin') attendanceSummary.lateCheckin = item.count;
+        else if (status === 'ontime' && type === 'checkout') attendanceSummary.ontimeCheckout = item.count;
+        else if (status === 'late' && type === 'checkout') attendanceSummary.lateCheckout = item.count;
+      });
+
+      res.render('employee/view', {
+        employee: results[0],
+        attendanceSummary
+      });
+    });
   });
 };
