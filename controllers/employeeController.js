@@ -255,7 +255,7 @@ exports.viewProfile = (req, res) => {
         else if (status === 'late' && type === 'checkout') attendanceSummary.lateCheckout = item.count;
       });
 
-      res.render('employee/view', {
+      res.render('employee/profile', {
         employee: results[0],
         attendanceSummary
       });

@@ -1,26 +1,23 @@
 <div class="col-md-2 sidebar">
-    <% if (user) { %>
-  <% if (user.jobpos_id === 1||user.jobpos_id === 2 ||user.jobpos_id === 3 ) { %>  
-    <a href="/employee">ข้อมูลพนักงาน</a>
-    <a href="/leave-work">รายการทำงานลา</a>
-    <a href="/salary">จัดการเงินเดือน</a>
-    <a href="/evaluation">การประเมินผล</a>
-    <a href="/position">ตำแหน่งงาน</a>
-    <a href="/apply-work">ผู้สมัครงาน</a>
+  <% if (user) { %>
+    <% if (user.jobpos_id === 1 || user.jobpos_id === 2 || user.jobpos_id === 3) { %>
+      <h5>รายการ HR</h5>
+      <a href="/employee">ข้อมูลพนักงาน</a>
+      <a href="/leave-work">รายการทำงานลา</a>
+      <a href="/salary">จัดการเงินเดือน</a>
+      <a href="/evaluation">การประเมินผล</a>
+      <a href="/position">ตำแหน่งงาน</a>
+      <a href="/apply-work">ผู้สมัครงาน</a>
+      <a href="/about">ตั้งค่าบริษัท</a>
+    <% } %>
+
+    <h5>รายการ พนักงาน</h5>
     <a href="/profile">ข้อมูลส่วนตัว</a>
     <a href="/request">แจ้งลางาน</a>
     <a href="/salary/me">ดูข้อมูลเงินเดือน</a>
-    <a href="/about">ตั้งค่าบริษัท</a>
-    
-    <% } else if (user.jobpos_id === 4) { %> 
-      <a href="/profile">ข้อมูลส่วนตัว</a>
-      <a href="/request">แจ้งลางาน</a>
-      <a href="/salary/me">ดูข้อมูลเงินเดือน</a>
-   <% } else { %> <!-- คนทั่วไป -->
-    <a href="/leave-work">รายการทำงานลา</a>
-  <% } %>
-<% } else { %> <!-- ถ้ายังไม่ได้ login -->
-  <a href="/login">เข้าสู่ระบบ</a>
-<% } %>
 
-  </div>
+  <% } else { %>
+    <h5>กรุณาเข้าสู่ระบบ</h5>
+    <a href="/login">เข้าสู่ระบบ</a>
+  <% } %>
+</div>
