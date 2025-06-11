@@ -43,3 +43,28 @@ exports.getLeaveByEmpId = (emp_id, callback) => {
   const sql = `SELECT * FROM leavework WHERE emp_id = ? ORDER BY leavework_daterequest DESC`;
   db.query(sql, [emp_id], callback);
 };
+
+// New function to get all leave types
+exports.getAllLeaveTypes = (callback) => {
+  const sql = `SELECT * FROM leaveworktype ORDER BY leaveworktype_name ASC`;
+  db.query(sql, (err, results) => {
+    if (err) return callback(err, null);
+    callback(null, results);
+  });
+};
+
+// Add this function to your existing exports in leavework.js
+// ... โค้ดเดิมในไฟล์โมเดลการลาของคุณ ...
+
+exports.getApprovedLeaveCountByEmpId = (emp_id, callback) => {
+  const sql = `
+    SELECT COUNT(*) AS approved_leave_count
+    FROM leavework
+    WHERE emp_id = ? AND leavework_status = 'approved'
+  `;
+  db.query(sql, [emp_id], (err, results) => {
+    if (err) return callback(err, null);
+    // ส่งค่า count กลับไป
+    callback(null, results[0].approved_leave_count);
+  });
+};

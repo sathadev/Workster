@@ -64,15 +64,16 @@ const Employee = {
 },
 
   // อัปเดตข้อมูลพนักงาน
-  update: (id, data, callback) => {
-    const { emp_name, jobpos_id, emp_email, emp_tel, emp_address, emp_pic } = data;
-    const query = `
-      UPDATE employee 
-      SET emp_name = ?, jobpos_id = ?, emp_email = ?, emp_tel = ?, emp_address = ?, emp_pic = ? 
+// อัปเดตข้อมูลพนักงาน
+update: (id, data, callback) => {
+  const { emp_name, jobpos_id, emp_email, emp_tel, emp_address, emp_pic } = data;
+  const query = `
+      UPDATE employee
+      SET emp_name = ?, jobpos_id = ?, emp_email = ?, emp_tel = ?, emp_address = ?, emp_pic = ?
       WHERE emp_id = ?
     `;
-    db.query(query, [emp_name, jobpos_id, emp_email, emp_tel, emp_address, emp_pic, id], callback);
-  },
+  db.query(query, [emp_name, jobpos_id, emp_email, emp_tel, emp_address, emp_pic, id], callback);
+},
 
   // ลบพนักงาน
   delete: (id, callback) => {

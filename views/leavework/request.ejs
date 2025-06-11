@@ -7,8 +7,7 @@
 
   <div class="card p-4 mb-4">
     <form action="/request" method="POST">
-     <input type="hidden" name="emp_id" value="<%= emp_id %>">
-
+      <input type="hidden" name="emp_id" value="<%= emp_id %>">
 
       <div class="row mb-3">
         <label class="col-md-2 col-form-label">วันที่เริ่มลา</label>
@@ -29,9 +28,11 @@
         <div class="col-md-4">
           <select name="leaveworktype_id" class="form-select" required>
             <option value="">-- เลือกประเภทการลา --</option>
-            <option value="1">ลาป่วย</option>
-            <option value="2">ลากิจ</option>
-            <option value="3">ขาดงาน</option>
+            <% if (leaveTypes && leaveTypes.length > 0) { %>
+              <% leaveTypes.forEach(function(type) { %>
+                <option value="<%= type.leaveworktype_id %>"><%= type.leaveworktype_name %></option>
+              <% }) %>
+            <% } %>
           </select>
         </div>
       </div>
@@ -67,11 +68,14 @@
             <td><%= leave.leavework_datestart.toISOString().slice(0, 10) %></td>
             <td><%= leave.leavework_end.toISOString().slice(0, 10) %></td>
             <td>
-              <% if (leave.leaveworktype_id == 1) { %> ลาป่วย
-              <% } else if (leave.leaveworktype_id == 2) { %> ลากิจ
-              <% } else if (leave.leaveworktype_id == 3) { %> ขาดงาน
-              <% } else { %> อื่นๆ
-              <% } %>
+              <% 
+                const leaveType = leaveTypes.find(type => type.leaveworktype_id === leave.leaveworktype_id);
+                if (leaveType) {
+                  %><%= leaveType.leaveworktype_name %><%
+                } else {
+                  %>อื่นๆ<%
+                }
+              %>
             </td>
             <td><%= leave.leavework_description %></td>
             <td>

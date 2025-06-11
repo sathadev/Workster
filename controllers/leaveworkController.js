@@ -6,15 +6,14 @@ exports.index = (req, res) => {
       console.error(err);
       return res.status(500).send('เกิดข้อผิดพลาด');
     }
-    res.render('leavework/index', { leaveworks: results });  // <<< ส่ง leaveworks ไปด้วย
+    res.render('leavework/index', { leaveworks: results });
   });
 };
 
-
-// เปิดหน้าฟอร์มขอลา
-exports.requestForm = (req, res) => {
-  res.render('leavework/request');
-};
+// Original requestForm (this one is duplicated later, consider removing it)
+// exports.requestForm = (req, res) => {
+//   res.render('leavework/request');
+// };
 
 exports.create = (req, res) => {
   const emp_id = req.session.user?.emp_id;
@@ -61,23 +60,38 @@ exports.reject = (req, res) => {
   });
 };
 
+// Corrected and updated requestForm to fetch both employee's leaves and all leave types
 exports.requestForm = (req, res) => {
   const emp_id = req.session.user?.emp_id;
 
   if (!emp_id) {
-    return res.redirect('/login');  // ถ้ายังไม่ได้ login
+    return res.redirect('/login'); // ถ้ายังไม่ได้ login
   }
 
-  LeaveworkModel.getLeaveByEmpId(emp_id, (err, results) => {
-    if (err) {
-      console.error(err);
-      return res.status(500).send('เกิดข้อผิดพลาด');
-    }
+  // Use Promise.all to fetch both data simultaneously
+  Promise.all([
+    new Promise((resolve, reject) => {
+      LeaveworkModel.getLeaveByEmpId(emp_id, (err, results) => {
+        if (err) return reject(err);
+        resolve(results);
+      });
+    }),
+    new Promise((resolve, reject) => {
+      LeaveworkModel.getAllLeaveTypes((err, results) => {
+        if (err) return reject(err);
+        resolve(results);
+      });
+    })
+  ])
+  .then(([leaveworks, leaveTypes]) => {
     res.render('leavework/request', {
-      leaveworks: results,
-      emp_id: emp_id
+      leaveworks: leaveworks,
+      emp_id: emp_id,
+      leaveTypes: leaveTypes // Pass leave types to the template
     });
+  })
+  .catch((err) => {
+    console.error(err);
+    res.status(500).send('เกิดข้อผิดพลาด');
   });
 };
-
-

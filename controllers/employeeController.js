@@ -1,6 +1,8 @@
 const Employee = require('../models/employeeModel');
 const Jobpos = require('../models/jobposModel');
-const Attendance = require('../models/attendanceModel');  // ปรับ path ตามโครงสร้างโปรเจกต์คุณ
+const Attendance = require('../models/attendanceModel');  
+const Leave = require('../models/leaveworkModel'); 
+
 
 const multer = require('multer');
 const upload = multer();  // กำหนดให้ multer ใช้สำหรับรับไฟล์
@@ -22,14 +24,14 @@ exports.list = (req, res) => {
 
 // แสดงรายละเอียดพนักงาน
 exports.view = (req, res) => {
-  const empId = req.params.id;
+  const empId = req.params.id; // ใช้ empId จาก req.params.id
 
-  Employee.getById(empId, (err, results) => {
+  Employee.getById(empId, (err, employeeResults) => { // เปลี่ยนชื่อตัวแปรจาก results เป็น employeeResults
     if (err) {
       console.error('Database error:', err);
       return res.status(500).send('Database error');
     }
-    if (!results.length) {
+    if (!employeeResults.length) {
       console.error('Employee not found');
       return res.status(404).send('Not found');
     }
@@ -40,27 +42,40 @@ exports.view = (req, res) => {
         return res.status(500).send('Attendance count error');
       }
 
-      // แปลงผลลัพธ์ให้ง่ายขึ้น เช่น
-      const summary = {
-        ontimeCheckIn: 0,
-        lateCheckIn: 0,
-        ontimeCheckOut: 0,
-        lateCheckOut: 0
+      const attendanceSummary = {
+        ontimeCheckin: 0,
+        lateCheckin: 0,
+        ontimeCheckout: 0,
+        lateCheckout: 0
       };
 
       attendanceCounts.forEach(row => {
-        const key = row.attendance_status + row.attendance_type.charAt(0).toUpperCase() + row.attendance_type.slice(1);
-        summary[key] = row.count;
+        // ปรับแก้ key ให้ตรงกับที่ใช้ใน attendanceSummary เช่น ontimeCheckin แทน ontimeCheckIn
+        const status = row.attendance_status.toLowerCase();
+        const type = row.attendance_type.toLowerCase();
+
+        if (status === 'ontime' && type === 'checkin') attendanceSummary.ontimeCheckin = row.count;
+        else if (status === 'late' && type === 'checkin') attendanceSummary.lateCheckin = row.count;
+        else if (status === 'ontime' && type === 'checkout') attendanceSummary.ontimeCheckout = row.count;
+        else if (status === 'late' && type === 'checkout') attendanceSummary.lateCheckout = row.count;
       });
 
-      res.render('employee/view', {
-        employee: results[0],
-        attendanceSummary: summary
+      // ดึงจำนวนการลาที่อนุมัติแล้วสำหรับพนักงานคนนั้นๆ
+      Leave.getApprovedLeaveCountByEmpId(empId, (err, approvedLeaveCount) => {
+        if (err) {
+          console.error('Approved leave count error:', err);
+          return res.status(500).send('Approved leave count error');
+        }
+
+        res.render('employee/view', {
+          employee: employeeResults[0],
+          attendanceSummary: attendanceSummary, // ใช้ชื่อตัวแปรให้สอดคล้องกัน
+          approvedLeaveCount: approvedLeaveCount // ส่งค่าจำนวนการลาที่อนุมัติแล้วไปยัง view
+        });
       });
     });
   });
 };
-
 
 // แสดงฟอร์มแก้ไขข้อมูลพนักงาน
 exports.editForm = (req, res) => {
@@ -106,11 +121,10 @@ exports.editForm = (req, res) => {
 };
 
 
-
 // อัปเดตข้อมูลพนักงาน
 exports.update = (req, res) => {
   const data = req.body;
-  const emp_id = req.params.id; 
+  const emp_id = req.params.id;
 
   // ดึงข้อมูลพนักงานเดิมก่อน เพื่อใช้รูปเดิมถ้าไม่ได้อัปโหลดใหม่
   Employee.getById(emp_id, (err, results) => {
@@ -123,12 +137,18 @@ exports.update = (req, res) => {
     }
 
     const existingEmployee = results[0];
+    // Check if a new file was uploaded; otherwise, use the existing picture
     const emp_pic = req.file ? req.file.buffer : existingEmployee.emp_pic;
 
     const fullData = {
       ...data,
-      emp_pic
+      emp_pic, // Use the new emp_pic or the existing one
     };
+
+    // Remove emp_password from fullData if it's not being updated,
+    // to avoid trying to update a non-existent or unchanged password field.
+    // If you plan to allow password updates here, you'll need to hash it.
+    delete fullData.emp_password;
 
     Employee.update(emp_id, fullData, (err) => {
       if (err) {
@@ -221,12 +241,12 @@ exports.delete = (req, res) => {
 exports.viewProfile = (req, res) => {
   const empId = req.session.user.emp_id;
 
-  Employee.getById(empId, (err, results) => {
+  Employee.getById(empId, (err, employeeResults) => { // เปลี่ยนชื่อตัวแปรจาก results เป็น employeeResults เพื่อความชัดเจน
     if (err) {
       console.error('Database error:', err);
       return res.status(500).send('Database error');
     }
-    if (!results.length) {
+    if (!employeeResults.length) {
       console.error('Employee not found');
       return res.status(404).send('Not found');
     }
@@ -237,7 +257,6 @@ exports.viewProfile = (req, res) => {
         return res.status(500).send('Attendance count error');
       }
 
-      // แปลง attendanceCounts เป็น object camelCase keys
       const attendanceSummary = {
         ontimeCheckin: 0,
         lateCheckin: 0,
@@ -255,9 +274,18 @@ exports.viewProfile = (req, res) => {
         else if (status === 'late' && type === 'checkout') attendanceSummary.lateCheckout = item.count;
       });
 
-      res.render('employee/profile', {
-        employee: results[0],
-        attendanceSummary
+      // ดึงจำนวนการลาที่อนุมัติแล้ว
+      Leave.getApprovedLeaveCountByEmpId(empId, (err, approvedLeaveCount) => {
+        if (err) {
+          console.error('Approved leave count error:', err);
+          return res.status(500).send('Approved leave count error');
+        }
+
+        res.render('employee/profile', {
+          employee: employeeResults[0],
+          attendanceSummary,
+          approvedLeaveCount // ส่งค่าจำนวนการลาที่อนุมัติแล้วไปยัง view
+        });
       });
     });
   });

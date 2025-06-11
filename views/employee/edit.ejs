@@ -2,10 +2,11 @@
   <%- include('../partials/navbar') %>
 
     <div class="col-md-10 p-4">
-       <div class="d-flex justify-content-between align-items-center mb-3">
-      <h4 class="fw-bold">แก้ไขข้อมูลพนักงาน</h4>
-    </div>
-      <p><a href="/employee">หน้าหลัก</a> / <a href="/employee/view/<%= employee.emp_id %>">ข้อมูลพนักงาน</a> / แก้ไชช้อมูลพนักงาน </p>
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h4 class="fw-bold">แก้ไขข้อมูลพนักงาน</h4>
+      </div>
+      <p><a href="/employee">หน้าหลัก</a> / <a href="/employee/view/<%= employee.emp_id %>">ข้อมูลพนักงาน</a> /
+        แก้ไชช้อมูลพนักงาน </p>
 
 
       <div class="card p-4">
@@ -15,28 +16,29 @@
         <div class="container mt-4">
           <div class="row">
             <!-- รูป -->
-            <div class="col-md-4 d-flex justify-content-center mb-4">
-              <div style="position: relative; width: 140px; height: 140px;">
-                <img id="profileImage"
-                  src="data:image/jpeg;base64,<%= Buffer.from(employee.emp_pic).toString('base64') %>" alt="Profile"
-                  class="rounded-circle border" style="width: 140px; height: 140px; object-fit: cover;">
 
-                <div onclick="document.getElementById('fileInput').click();" style="position: absolute; bottom: 0; right: 0;
-                background-color: #1E56A0; border-radius: 50%;
-                width: 30px; height: 30px; display: flex;
-                align-items: center; justify-content: center;
-                cursor: pointer; border: 2px solid #fff;">
-                  <i class="fa-solid fa-plus text-white"></i>
-                </div>
-
-                <input name="emp_pic" type="file" id="fileInput" style="display: none;" accept="image/*"
-                  onchange="previewImage(event)">
-              </div>
-            </div>
 
             <!-- ฟอร์ม -->
             <div class="col-md-8">
               <form action="/employee/edit/<%= employee.emp_id %>" method="POST" enctype="multipart/form-data">
+                <div class="col-md-4 d-flex justify-content-center mb-4">
+                  <div style="position: relative; width: 140px; height: 140px;">
+                    <img id="profileImage"
+                      src="data:image/jpeg;base64,<%= Buffer.from(employee.emp_pic).toString('base64') %>" alt="Profile"
+                      class="rounded-circle border" style="width: 140px; height: 140px; object-fit: cover;">
+
+                    <div onclick="document.getElementById('fileInput').click();" style="position: absolute; bottom: 0; right: 0;
+                background-color: #1E56A0; border-radius: 50%;
+                width: 30px; height: 30px; display: flex;
+                align-items: center; justify-content: center;
+                cursor: pointer; border: 2px solid #fff;">
+                      <i class="fa-solid fa-plus text-white"></i>
+                    </div>
+
+                    <input name="emp_pic" type="file" id="fileInput" style="display: none;" accept="image/*"
+                      onchange="previewImage(event)">
+                  </div>
+                </div>
                 <div class="row mb-2">
                   <div class="col-md-3">ชื่อ - สกุล :</div>
                   <div class="col-md-9"><input value="<%= employee.emp_name %>" type="text" class="form-control"
