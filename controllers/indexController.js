@@ -27,17 +27,28 @@ exports.showHome = (req, res) => {
         });
       };
 
-      res.render('index', {
-        user: req.session.user,
-        checkinTime: checkin ? formatTime(checkin.attendance_datetime) : null,
-        checkoutTime: checkout ? formatTime(checkout.attendance_datetime) : null,
-        isAfterEndWork,
-      });
+      // Nest the calls to ensure data is available before rendering
+      Attendance.getTodayCheckinCount((err, checkinCount) => {
+        if (err) return res.status(500).send("เกิดข้อผิดพลาด");
 
+        Attendance.getTodaySummary((err, summary) => {
+          if (err) return res.status(500).send("เกิดข้อผิดพลาดขณะโหลดสรุป");
+
+          res.render('index', {
+            user: req.session.user,
+            checkinTime: checkin ? formatTime(checkin.attendance_datetime) : null,
+            checkoutTime: checkout ? formatTime(checkout.attendance_datetime) : null,
+            isAfterEndWork,
+            checkinCount,
+            ontimeCount: summary.ontime,
+            lateCount: summary.late,
+            absentCount: summary.absent
+          });
+        });
+      });
     });
   });
 };
-
 
 
 exports.handleCheckIn = (req, res) => {

@@ -16,13 +16,26 @@
     </div>
 
     <table class="table table-hover table-bordered text-center align-middle">
-      <thead class="table-light">
-        <tr>
-          <th class="profile">โปรไฟล์</th>
-          <th>ชื่อ - สกุล</th>
-          <th>ตำแหน่ง</th>
-        </tr>
-      </thead>
+    <thead class="table-light">
+  <tr>
+    <th class="profile">โปรไฟล์</th>
+    
+    <th>
+      <a href="/employee?sort=emp_name&order=<%= sortField === 'emp_name' && sortOrder === 'ASC' ? 'desc' : 'asc' %>">
+        ชื่อ - สกุล 
+        <%= sortField === 'emp_name' ? (sortOrder === 'ASC' ? '▲' : '▼') : '' %>
+      </a>
+    </th>
+    
+    <th>
+      <a href="/employee?sort=jobpos_name&order=<%= sortField === 'jobpos_name' && sortOrder === 'ASC' ? 'desc' : 'asc' %>">
+        ตำแหน่ง 
+        <%= sortField === 'jobpos_name' ? (sortOrder === 'ASC' ? '▲' : '▼') : '' %>
+      </a>
+    </th>
+  </tr>
+</thead>
+
       <tbody>
         <% employees.forEach(emp => { %>
         <tr onclick="window.location='/employee/view/<%= emp.emp_id %>'" style="cursor: pointer;">

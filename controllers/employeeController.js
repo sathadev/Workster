@@ -1,11 +1,11 @@
 const Employee = require('../models/employeeModel');
 const Jobpos = require('../models/jobposModel');
-const Attendance = require('../models/attendanceModel');  
-const Leave = require('../models/leaveworkModel'); 
+const Attendance = require('../models/attendanceModel');
+const Leave = require('../models/leaveworkModel');
 
 
 const multer = require('multer');
-const upload = multer();  // กำหนดให้ multer ใช้สำหรับรับไฟล์
+const upload = multer();
 const bcrypt = require('bcrypt');
 const fs = require('fs');
 const path = require('path');
@@ -13,12 +13,13 @@ const path = require('path');
 
 // แสดงรายชื่อพนักงานทั้งหมด
 exports.list = (req, res) => {
-  Employee.getAll((err, results) => {
+  const { sort } = req.query; // Get the sort parameter from the query string
+  Employee.getAll(sort, (err, results) => { // Pass sort to the model
     if (err) {
       console.error('Database error:', err);
       return res.status(500).send('Database error');
     }
-    res.render('employee/index', { employees: results });
+    res.render('employee/index', { employees: results, currentSort: sort });
   });
 };
 
@@ -56,7 +57,7 @@ exports.view = (req, res) => {
 
         if (status === 'ontime' && type === 'checkin') attendanceSummary.ontimeCheckin = row.count;
         else if (status === 'late' && type === 'checkin') attendanceSummary.lateCheckin = row.count;
-        else if (status === 'ontime' && type === 'checkout') attendanceSummary.ontimeCheckout = row.count;
+        else if (status === 'ontime' && type === 'checkout') attendanceSummary.lateCheckout = row.count;
         else if (status === 'late' && type === 'checkout') attendanceSummary.lateCheckout = row.count;
       });
 
@@ -287,6 +288,23 @@ exports.viewProfile = (req, res) => {
           approvedLeaveCount // ส่งค่าจำนวนการลาที่อนุมัติแล้วไปยัง view
         });
       });
+    });
+  });
+};
+
+exports.list = (req, res) => {
+  const sortField = req.query.sort || 'emp_name'; // ตัวอย่าง: emp_name, jobpos_name
+  const sortOrder = req.query.order === 'desc' ? 'DESC' : 'ASC';
+
+  Employee.getAllSorted(sortField, sortOrder, (err, results) => {
+    if (err) {
+      console.error('Database error:', err);
+      return res.status(500).send('Database error');
+    }
+    res.render('employee/index', {
+      employees: results,
+      sortField,
+      sortOrder,
     });
   });
 };

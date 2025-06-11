@@ -71,7 +71,49 @@ const Attendance = {
       if (err) return callback(err);
       callback(null, results);
     });
-  }
+  },
+ getTodayCheckinCount: (callback) => {
+  const today = new Date();
+  const dateStr = today.toISOString().split('T')[0];
+
+  const sql = `
+    SELECT COUNT(DISTINCT emp_id) AS count
+    FROM attendance
+    WHERE DATE(attendance_datetime) = ? AND attendance_type = 'checkin'
+  `;
+  db.query(sql, [dateStr], (err, results) => {
+    if (err) return callback(err);
+    callback(null, results[0].count);
+  });
+},
+getTodaySummary: (callback) => {
+  const today = new Date();
+  const dateStr = today.toISOString().split('T')[0];
+
+  const sql = `
+    SELECT 
+      SUM(CASE 
+            WHEN TIME(attendance_datetime) <= '09:00:00' THEN 1 
+            ELSE 0 
+          END) AS ontime,
+      SUM(CASE 
+            WHEN TIME(attendance_datetime) > '09:00:00' THEN 1 
+            ELSE 0 
+          END) AS late,
+      (SELECT COUNT(*) FROM employee) 
+        - COUNT(DISTINCT emp_id) AS absent
+    FROM attendance
+    WHERE DATE(attendance_datetime) = ? AND attendance_type = 'checkin'
+  `;
+  db.query(sql, [dateStr], (err, results) => {
+    if (err) return callback(err);
+    callback(null, results[0]);
+  });
+}
+
+
+
 };
+
 
 module.exports = Attendance;
