@@ -293,15 +293,77 @@ exports.viewProfile = (req, res) => {
 };
 
 exports.list = (req, res) => {
-  const sortField = req.query.sort || 'emp_name';  
+  const sortField = req.query.sort || 'emp_name'; // Ensure sortField is defined
   const sortOrder = req.query.order === 'desc' ? 'DESC' : 'ASC';
+  const searchTerm = req.query.search || '';
 
-  Employee.getAllSorted(sortField, sortOrder, (err, results) => {
-    if (err) return res.status(500).send('Database error');
+  if (searchTerm.trim()) {
+    // This part now directly calls searchEmployees logic implicitly
+    // It might be better to consolidate this logic or redirect/call searchEmployees directly.
+    // For now, assuming you want this to handle search as well.
+    Employee.searchEmployees(searchTerm, (err, results) => {
+      if (err) {
+        console.error('Search error:', err);
+        return res.status(500).render('employee/index', {
+          employees: [],
+          searchTerm: searchTerm,
+          error: 'เกิดข้อผิดพลาดในการค้นหา',
+          sortField: sortField, // Ensure these are passed
+          sortOrder: sortOrder  // Ensure these are passed
+        });
+      }
+      res.render('employee/index', {
+        employees: results,
+        searchTerm: searchTerm,
+        error: null,
+        sortField: sortField, // Ensure these are passed
+        sortOrder: sortOrder  // Ensure these are passed
+      });
+    });
+  } else {
+    Employee.getAllSorted(sortField, sortOrder, (err, results) => {
+      if (err) return res.status(500).send('Database error');
+      res.render('employee/index', {
+        employees: results,
+        sortField,     // Already passed here
+        sortOrder,     // Already passed here
+        searchTerm: '',
+        error: null
+      });
+    });
+  }
+};
+
+exports.searchEmployees = function(req, res) {
+  const searchTerm = req.query.search || '';
+  // Get sortField and sortOrder from query, or set defaults for search results
+  const sortField = req.query.sort || 'emp_name'; // Default sort for search
+  const sortOrder = req.query.order === 'desc' ? 'DESC' : 'ASC'; // Default order for search
+
+  if (!searchTerm.trim()) {
+    return res.redirect('/employee'); // Redirect to the main list if no search term
+  }
+
+  Employee.searchEmployees(searchTerm, (err, results) => {
+    if (err) {
+      console.error('Search error:', err);
+      return res.status(500).render('employee/index', {
+        employees: [],
+        searchTerm: searchTerm,
+        error: 'เกิดข้อผิดพลาดในการค้นหา',
+        sortField: sortField, // Pass sortField
+        sortOrder: sortOrder  // Pass sortOrder
+      });
+    }
+
+    const employees = Array.isArray(results) ? results : [];
+
     res.render('employee/index', {
-      employees: results,
-      sortField,
-      sortOrder,
+      employees: employees,
+      searchTerm: searchTerm,
+      error: null,
+      sortField: sortField, // Pass sortField
+      sortOrder: sortOrder  // Pass sortOrder
     });
   });
 };

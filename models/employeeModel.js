@@ -144,7 +144,22 @@ const Employee = {
       WHERE j.jobpos_name = ?
     `;
     db.query(query, [jobposName], callback);
-  },
+  },searchEmployees: (searchTerm, callback) => {
+  const query = `
+    SELECT e.*, j.jobpos_name
+    FROM employee e
+    JOIN jobpos j ON e.jobpos_id = j.jobpos_id
+    WHERE e.emp_name LIKE ? OR j.jobpos_name LIKE ?
+    ORDER BY e.emp_name ASC
+  `;
+
+  const searchPattern = `%${searchTerm}%`;
+
+  db.query(query, [searchPattern, searchPattern], (err, results) => {
+    if (err) return callback(err);
+    callback(null, results);
+  });
+},
 
 };
 
