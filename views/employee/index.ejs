@@ -1,52 +1,63 @@
 <%- include('../partials/header') %>
-<%- include('../partials/navbar') %>
+  <%- include('../partials/navbar') %>
 
-<div class="col-md-10 mt-4">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-      <h4 class="fw-bold">พนักงาน</h4>
-      <button class="btn btn-outline-secondary" onclick="window.location='employee/add'" style="cursor: pointer;">
-        <i class="fa-solid fa-plus"></i> บันทึกข้อมูลพนักงานใหม่
-      </button>
+    <div class="col-md-10 mt-4">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h4 class="fw-bold">พนักงาน</h4>
+        <button class="btn btn-outline-secondary" onclick="window.location='employee/add'" style="cursor: pointer;">
+          <i class="fa-solid fa-plus"></i> บันทึกข้อมูลพนักงานใหม่
+        </button>
+      </div>
+      <p>หน้าหลัก</p>
+
+      <div class="input-group mb-3 w-50">
+        <input type="text" class="form-control" placeholder="ค้นหา" aria-label="ค้นหา">
+        <span class="input-group-text"><i class="fa-solid fa-magnifying-glass"></i></span>
+      </div>
+
+      <table class="table table-hover table-bordered text-center align-middle">
+        <thead class="table-light">
+          <tr>
+            <th class="profile">โปรไฟล์</th>
+
+            <th>
+              <a href="/employee?sort=emp_name&order=<%= sortField === 'emp_name' && sortOrder === 'ASC' ? 'desc' : 'asc' %>"
+                style="color: black; text-decoration: none;">
+                ชื่อ - สกุล
+                <%= sortField==='emp_name' ? (sortOrder==='ASC' ? '▲' : '▼' ) : '' %>
+              </a>
+            </th>
+            <th>
+              <a href="/employee?sort=jobpos_name&order=<%= sortField === 'jobpos_name' && sortOrder === 'ASC' ? 'desc' : 'asc' %>"
+                style="color: black; text-decoration: none;">
+                ตำแหน่ง
+                <%= sortField==='jobpos_name' ? (sortOrder==='ASC' ? '▲' : '▼' ) : '' %>
+              </a>
+            </th>
+
+
+
+
+          </tr>
+        </thead>
+
+        <tbody>
+          <% employees.forEach(emp=> { %>
+            <tr onclick="window.location='/employee/view/<%= emp.emp_id %>'" style="cursor: pointer;">
+              <td class="profile-cell"><img
+                  src="data:image/jpeg;base64,<%= Buffer.from(emp.emp_pic).toString('base64') %>" class="profile-image"
+                  alt="โปรไฟล์"></td>
+              <td>
+                <%= emp.emp_name %>
+              </td>
+              <td>
+                <%= emp.jobpos_name %>
+              </td>
+            </tr>
+            <% }) %>
+
+        </tbody>
+      </table>
     </div>
-          <p>หน้าหลัก</p>
 
-    <div class="input-group mb-3 w-50">
-      <input type="text" class="form-control" placeholder="ค้นหา" aria-label="ค้นหา">
-      <span class="input-group-text"><i class="fa-solid fa-magnifying-glass"></i></span>
-    </div>
-
-    <table class="table table-hover table-bordered text-center align-middle">
-    <thead class="table-light">
-  <tr>
-    <th class="profile">โปรไฟล์</th>
-    
-    <th>
-      <a href="/employee?sort=emp_name&order=<%= sortField === 'emp_name' && sortOrder === 'ASC' ? 'desc' : 'asc' %>">
-        ชื่อ - สกุล 
-        <%= sortField === 'emp_name' ? (sortOrder === 'ASC' ? '▲' : '▼') : '' %>
-      </a>
-    </th>
-    
-    <th>
-      <a href="/employee?sort=jobpos_name&order=<%= sortField === 'jobpos_name' && sortOrder === 'ASC' ? 'desc' : 'asc' %>">
-        ตำแหน่ง 
-        <%= sortField === 'jobpos_name' ? (sortOrder === 'ASC' ? '▲' : '▼') : '' %>
-      </a>
-    </th>
-  </tr>
-</thead>
-
-      <tbody>
-        <% employees.forEach(emp => { %>
-        <tr onclick="window.location='/employee/view/<%= emp.emp_id %>'" style="cursor: pointer;">
-          <td class="profile-cell"><img src="data:image/jpeg;base64,<%= Buffer.from(emp.emp_pic).toString('base64') %>" class="profile-image" alt="โปรไฟล์"></td>
-          <td><%= emp.emp_name %> </td>
-          <td><%= emp.jobpos_name %></td>
-        </tr>
-        <% }) %>
-  
-      </tbody>
-    </table>
-  </div>
-
-<%- include('../partials/footer') %>
+    <%- include('../partials/footer') %>

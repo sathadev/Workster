@@ -293,14 +293,11 @@ exports.viewProfile = (req, res) => {
 };
 
 exports.list = (req, res) => {
-  const sortField = req.query.sort || 'emp_name'; // ตัวอย่าง: emp_name, jobpos_name
+  const sortField = req.query.sort || 'emp_name';  
   const sortOrder = req.query.order === 'desc' ? 'DESC' : 'ASC';
 
   Employee.getAllSorted(sortField, sortOrder, (err, results) => {
-    if (err) {
-      console.error('Database error:', err);
-      return res.status(500).send('Database error');
-    }
+    if (err) return res.status(500).send('Database error');
     res.render('employee/index', {
       employees: results,
       sortField,

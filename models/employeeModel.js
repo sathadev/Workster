@@ -15,46 +15,46 @@ const Employee = {
       callback(null, results);
     });
   },
-getAll: (sort, callback) => { // Accept sort parameter
-  let query = `
+  getAll: (sort, callback) => { // Accept sort parameter
+    let query = `
     SELECT e.*, j.jobpos_name
     FROM employee e
     JOIN jobpos j ON e.jobpos_id = j.jobpos_id
   `;
 
-  // Add ORDER BY clause based on the sort parameter
-  if (sort === 'jobpos_id_asc') {
-    query += ` ORDER BY e.jobpos_id ASC`;
-  } else if (sort === 'jobpos_id_desc') {
-    query += ` ORDER BY e.jobpos_id DESC`;
-  } else if (sort === 'name_asc') {
-    query += ` ORDER BY e.emp_name ASC`;
-  } else if (sort === 'name_desc') {
-    query += ` ORDER BY e.emp_name DESC`;
-  } else if (sort === 'jobpos_asc') {
-    query += ` ORDER BY j.jobpos_name ASC`;
-  } else if (sort === 'jobpos_desc') {
-    query += ` ORDER BY j.jobpos_name DESC`;
-  } else {
-    query += ` ORDER BY e.emp_name ASC`; // Default sort
-  }
+    // Add ORDER BY clause based on the sort parameter
+    if (sort === 'jobpos_id_asc') {
+      query += ` ORDER BY e.jobpos_id ASC`;
+    } else if (sort === 'jobpos_id_desc') {
+      query += ` ORDER BY e.jobpos_id DESC`;
+    } else if (sort === 'name_asc') {
+      query += ` ORDER BY e.emp_name ASC`;
+    } else if (sort === 'name_desc') {
+      query += ` ORDER BY e.emp_name DESC`;
+    } else if (sort === 'jobpos_asc') {
+      query += ` ORDER BY j.jobpos_name ASC`;
+    } else if (sort === 'jobpos_desc') {
+      query += ` ORDER BY j.jobpos_name DESC`;
+    } else {
+      query += ` ORDER BY e.emp_name ASC`; // Default sort
+    }
 
-  db.query(query, callback);
-},
+    db.query(query, callback);
+  },
 
-getAllSorted: (sortField, sortOrder, callback) => {
-  const allowedFields = ['emp_name', 'jobpos_name', 'emp_startwork', 'jobpos_id']; // เพิ่ม jobpos_id
+  getAllSorted: (sortField, sortOrder, callback) => {
+    const allowedFields = ['emp_name', 'jobpos_name', 'jobpos_id', 'emp_startwork', 'emp_id']; // เพิ่ม 'jobpos_id' เข้าไปด้วย
 
-  if (!allowedFields.includes(sortField)) sortField = 'emp_name';
+    if (!allowedFields.includes(sortField)) sortField = 'emp_name';
 
-  let query = `
-    SELECT e.*, j.jobpos_name
+    let query = `
+    SELECT e.*, j.jobpos_name, j.jobpos_id
     FROM employee e
     JOIN jobpos j ON e.jobpos_id = j.jobpos_id
   `;
 
-  if (sortField === 'emp_name') {
-    query += `
+    if (sortField === 'emp_name') {
+      query += `
       ORDER BY
         CASE WHEN e.emp_name REGEXP '[0-9]+' THEN
           CAST(
@@ -68,12 +68,19 @@ getAllSorted: (sortField, sortOrder, callback) => {
         END ${sortOrder},
         e.emp_name ${sortOrder}
     `;
-  } else {
-    query += ` ORDER BY e.${sortField} ${sortOrder} `; // เปลี่ยนจาก ${sortField} เป็น e.${sortField} เพราะ jobpos_id อยู่ใน employee table
-  }
+    } else if (sortField === 'jobpos_name') {
+      // ถ้ากดเรียงตำแหน่ง ให้เปลี่ยนเรียงตาม jobpos_id แทน
+      query += ` ORDER BY j.jobpos_id ${sortOrder} `;
+    } else if (sortField === 'jobpos_id') {
+      query += ` ORDER BY j.jobpos_id ${sortOrder} `;
+    } else {
+      query += ` ORDER BY e.${sortField} ${sortOrder} `;
+    }
 
-  db.query(query, callback);
-},
+    db.query(query, callback);
+  },
+
+
 
   // ดึงข้อมูลพนักงานตาม id
   getById: (id, callback) => {
@@ -138,40 +145,6 @@ getAllSorted: (sortField, sortOrder, callback) => {
     `;
     db.query(query, [jobposName], callback);
   },
-  getAllSorted: (sortField, sortOrder, callback) => {
-  const allowedFields = ['emp_name', 'jobpos_name', 'emp_startwork', 'emp_id']; // เพิ่ม emp_id
-
-  if (!allowedFields.includes(sortField)) sortField = 'emp_name';
-
-  let query = `
-    SELECT e.*, j.jobpos_name
-    FROM employee e
-    JOIN jobpos j ON e.jobpos_id = j.jobpos_id
-  `;
-
-  // กรณีเรียงตามชื่อ (emp_name) โดยต้องแยกกรณีชื่อที่มีตัวเลขกับไม่มีตัวเลข
-  if (sortField === 'emp_name') {
-    query += `
-      ORDER BY
-        CASE WHEN e.emp_name REGEXP '[0-9]+' THEN
-          CAST(
-            SUBSTRING(
-              e.emp_name,
-              REGEXP_INSTR(e.emp_name, '[0-9]+'),
-              LENGTH(REGEXP_SUBSTR(e.emp_name, '[0-9]+'))
-            ) AS UNSIGNED
-          )
-        ELSE NULL
-        END ${sortOrder},
-        e.emp_name ${sortOrder}
-    `;
-  } else {
-    // กรณีอื่น ๆ ใช้เรียงตามปกติ
-    query += ` ORDER BY ${sortField} ${sortOrder} `;
-  }
-
-  db.query(query, callback);
-},
 
 };
 
