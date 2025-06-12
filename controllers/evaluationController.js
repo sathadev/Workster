@@ -1,80 +1,107 @@
 const employeeModel = require('../models/employeeModel');
 const Evaluation = require('../models/evaluationModel');
 
-const db = require('../config/db');
-
-exports.showEvaluationPage = (req, res) => {
-  employeeModel.getAll((err, employees) => {
-    if (err) {
-      return res.status(500).send("Database error");
-    }
-    res.render('evaluation/index', { employees ,  currentUserId: req.session.emp_id });
-  });
+/**
+ * แสดงหน้าหลักของการประเมิน (รายชื่อพนักงาน)
+ */
+exports.showEvaluationPage = async (req, res) => {
+  try {
+    // employeeModel.getAll() ถูกแก้ไขให้รองรับ sort/order ในบทสนทนาก่อนหน้า
+    // หากต้องการใช้เวอร์ชันนั้น ให้ส่ง parameter ที่เหมาะสม
+    const employees = await employeeModel.getAllSorted('emp_name', 'asc');
+    res.render('evaluation/index', { employees, currentUserId: req.session.emp_id });
+  } catch (err) {
+    console.error("Error fetching employees for evaluation:", err);
+    res.status(500).send("Database error");
+  }
 };
 
-exports.showEvaluationForm = (req, res) => {
+/**
+ * แสดงฟอร์มการประเมินสำหรับพนักงานที่เลือก
+ */
+exports.showEvaluationForm = async (req, res) => {
   const employeeId = req.query.id;
-  if (!employeeId) return res.status(400).send('Missing employee ID');
+  if (!employeeId) {
+    return res.status(400).send('Missing employee ID');
+  }
 
-  employeeModel.getById(employeeId, (err, employees) => {
-    if (err || !employees || employees.length === 0) return res.status(404).send('ไม่พบพนักงาน');
-
-    const employee = employees[0];
-    res.render('evaluation/form', { employee });
-  });
+  try {
+    const employees = await employeeModel.getById(employeeId);
+    if (!employees || employees.length === 0) {
+      return res.status(404).send('ไม่พบพนักงาน');
+    }
+    res.render('evaluation/form', { employee: employees[0] });
+  } catch (err) {
+    console.error("Error fetching employee for form:", err);
+    res.status(500).send("Database error");
+  }
 };
 
-exports.saveEvaluation = (req, res) => {
-  const employeeId = req.body.id;
+/**
+ * บันทึกผลการประเมิน
+ */
+exports.saveEvaluation = async (req, res) => {
+  const { id: employeeId, q1, q2, q3, q4, q5 } = req.body;
 
   if (!employeeId) {
     return res.status(400).send('ไม่พบรหัสพนักงานในแบบฟอร์ม');
   }
 
-  const q1 = parseInt(req.body.q1, 10);
-  const q2 = parseInt(req.body.q2, 10);
-  const q3 = parseInt(req.body.q3, 10);
-  const q4 = parseInt(req.body.q4, 10);
-  const q5 = parseInt(req.body.q5, 10);
+  try {
+    const evaluationData = {
+      id: employeeId,
+      q1: parseInt(q1, 10),
+      q2: parseInt(q2, 10),
+      q3: parseInt(q3, 10),
+      q4: parseInt(q4, 10),
+      q5: parseInt(q5, 10)
+    };
 
-  Evaluation.saveEvaluation({
-    id: employeeId,
-    q1, q2, q3, q4, q5
-  }, (err, result) => {
-    if (err) {
-      console.error(err);
-      return res.status(500).send('เกิดข้อผิดพลาดในการบันทึกข้อมูล');
-    }
+    await Evaluation.saveEvaluation(evaluationData);
     res.redirect('/evaluation');
-  });
+  } catch (err) {
+    console.error("Error saving evaluation:", err);
+    res.status(500).send('เกิดข้อผิดพลาดในการบันทึกข้อมูล');
+  }
 };
 
-exports.getEvaluationHistory = (req, res) => {
-  Evaluation.getAllEvaluations((err, evaluations) => {
-    if (err) {
-      console.error(err);
-      return res.status(500).send('เกิดข้อผิดพลาดในการดึงข้อมูล');
-    }
+/**
+ * แสดงประวัติการประเมินทั้งหมด
+ */
+exports.getEvaluationHistory = async (req, res) => {
+  try {
+    const evaluations = await Evaluation.getAllEvaluations();
     res.render('evaluation/history', { evaluations });
-  });
+  } catch (err) {
+    console.error("Error fetching evaluation history:", err);
+    res.status(500).send('เกิดข้อผิดพลาดในการดึงข้อมูล');
+  }
 };
 
-exports.showEvaluationById = (req, res) => {
-  const id = req.params.id;
+/**
+ * แสดงผลการประเมินรายบุคคล
+ */
+exports.showEvaluationById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const evaluation = await Evaluation.getById(id);
 
-  Evaluation.getById(id, (err, evaluation) => {
-    if (err || !evaluation) {
+    if (!evaluation) {
       return res.status(404).send('ไม่พบข้อมูลการประเมิน');
     }
 
-    employeeModel.getById(evaluation.emp_id, (err2, employeeResults) => {
-      if (err2 || !employeeResults || employeeResults.length === 0) {
-        return res.status(404).send('ไม่พบข้อมูลพนักงาน');
-      }
+    const employeeResults = await employeeModel.getById(evaluation.emp_id);
+    if (!employeeResults || employeeResults.length === 0) {
+      return res.status(404).send('ไม่พบข้อมูลพนักงานที่เกี่ยวข้อง');
+    }
 
-      const employee = employeeResults[0];
-
-      res.render('evaluation/result', { evaluation, employee });
+    res.render('evaluation/result', {
+      evaluation,
+      employee: employeeResults[0]
     });
-  });
+
+  } catch (err) {
+    console.error("Error showing evaluation result:", err);
+    res.status(500).send("เกิดข้อผิดพลาดในการแสดงผล");
+  }
 };

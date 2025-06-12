@@ -12,6 +12,6 @@ router.get('/employee/edit/:id', controller.editForm);
 router.get('/profile', controller.viewProfile);
 router.post('/employee/edit/:id', upload.single('emp_pic'), controller.update);
 router.post('/employee/delete/:id', controller.delete);
-router.get('/employee/search', controller.searchEmployees);
+// router.get('/employee/search', controller.searchEmployees);
 
 module.exports = router;

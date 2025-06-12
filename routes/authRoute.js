@@ -2,41 +2,54 @@ const express = require('express');
 const router = express.Router();
 const db = require('../config/db');
 const bcrypt = require('bcrypt');
+const util = require('util');
 
-// หน้า login
+// ทำให้ db.query สามารถใช้กับ async/await ได้
+const query = util.promisify(db.query).bind(db);
+
+// แสดงหน้า login
 router.get('/login', (req, res) => {
+  // หาก login อยู่แล้วให้ redirect ไปหน้าแรก
+  if (req.session.user) {
+    return res.redirect('/');
+  }
   res.render('login', { error: null });
 });
 
 // ตรวจสอบการเข้าสู่ระบบ
-router.post('/login', (req, res) => {
-  const { emp_username, emp_password } = req.body;
+router.post('/login', async (req, res) => {
+  try {
+    const { emp_username, emp_password } = req.body;
 
-  db.query('SELECT * FROM employee WHERE emp_username = ?', [emp_username], async (err, result) => {
-    if (err) {
-      console.error('Database error:', err);
-      return res.render('login', { error: 'เกิดข้อผิดพลาดในระบบ' });
+    // 1. ค้นหาผู้ใช้จาก username
+    const results = await query('SELECT * FROM employee WHERE emp_username = ?', [emp_username]);
+
+    if (results.length === 0) {
+      return res.render('login', { error: 'ไม่พบบัญชีผู้ใช้นี้' });
     }
 
-    if (result.length > 0) {
-      const user = result[0];
-      const match = await bcrypt.compare(emp_password, user.emp_password);
+    const user = results[0];
 
-      if (match) {
-        // ✅ เก็บ user และ emp_id ลงใน session
-        req.session.user = user;
-        req.session.emp_id = user.emp_id;
+    // 2. เปรียบเทียบรหัสผ่าน
+    const isMatch = await bcrypt.compare(emp_password, user.emp_password);
 
-        console.log('Login success:', req.session.user); // สำหรับ debug
-
-        return res.redirect('/');
-      } else {
-        return res.render('login', { error: 'รหัสผ่านไม่ถูกต้อง' });
-      }
-    } else {
-      return res.render('login', { error: 'ไม่พบบัญชีผู้ใช้' });
+    if (!isMatch) {
+      return res.render('login', { error: 'รหัสผ่านไม่ถูกต้อง' });
     }
-  });
+
+    // 3. หากถูกต้อง ให้สร้าง session
+    req.session.user = user;
+    req.session.emp_id = user.emp_id; // เก็บ emp_id แยกไว้เพื่อความสะดวก
+
+    console.log('Login successful for user:', req.session.user.emp_name);
+
+    // 4. Redirect ไปยังหน้าหลัก
+    res.redirect('/');
+
+  } catch (err) {
+    console.error('Login process error:', err);
+    res.render('login', { error: 'เกิดข้อผิดพลาดในระบบ' });
+  }
 });
 
 // ออกจากระบบ
@@ -45,6 +58,7 @@ router.get('/logout', (req, res) => {
     if (err) {
       console.error('Session destroy error:', err);
     }
+    // หลังจากทำลาย session แล้ว ให้ redirect ไปยังหน้า login
     res.redirect('/login');
   });
 });

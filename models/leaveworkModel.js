@@ -1,7 +1,13 @@
+const util = require('util');
 const db = require('../config/db');
 
-// ดึงคำขอลาพร้อมชื่อ ตำแหน่ง
-exports.getAllLeaveRequests = function(callback) {
+// ทำให้ db.query สามารถใช้กับ async/await ได้
+const query = util.promisify(db.query).bind(db);
+
+/**
+ * ดึงคำขอลาทั้งหมดพร้อมชื่อและตำแหน่ง
+ */
+exports.getAllLeaveRequests = async () => {
   const sql = `
     SELECT lw.*, e.emp_name, jp.jobpos_name
     FROM leavework lw
@@ -9,20 +15,17 @@ exports.getAllLeaveRequests = function(callback) {
     JOIN jobpos jp ON e.jobpos_id = jp.jobpos_id
     ORDER BY lw.leavework_daterequest DESC
   `;
-
-  db.query(sql, (err, results) => {
-    if (err) return callback(err, null);
-    callback(null, results);
-  });
+  return await query(sql);
 };
 
-// เพิ่มคำขอลาใหม่
-exports.createLeaveRequest = function(data, callback) {
+/**
+ * เพิ่มคำขอลาใหม่
+ */
+exports.createLeaveRequest = async (data) => {
   const sql = `
     INSERT INTO leavework (leavework_datestart, leavework_end, leavework_daterequest, leavework_description, emp_id, leaveworktype_id)
     VALUES (?, ?, NOW(), ?, ?, ?)
   `;
-
   const values = [
     data.datestart,
     data.dateend,
@@ -30,41 +33,43 @@ exports.createLeaveRequest = function(data, callback) {
     data.emp_id,
     data.leaveworktype_id
   ];
-
-  db.query(sql, values, callback);
+  return await query(sql, values);
 };
 
-exports.updateLeaveStatus = function(leavework_id, status, callback) {
+/**
+ * อัปเดตสถานะการลา
+ */
+exports.updateLeaveStatus = async (leavework_id, status) => {
   const sql = `UPDATE leavework SET leavework_status = ? WHERE leavework_id = ?`;
-  db.query(sql, [status, leavework_id], callback);
+  return await query(sql, [status, leavework_id]);
 };
 
-exports.getLeaveByEmpId = (emp_id, callback) => {
+/**
+ * ดึงข้อมูลการลาตามรหัสพนักงาน
+ */
+exports.getLeaveByEmpId = async (emp_id) => {
   const sql = `SELECT * FROM leavework WHERE emp_id = ? ORDER BY leavework_daterequest DESC`;
-  db.query(sql, [emp_id], callback);
+  return await query(sql, [emp_id]);
 };
 
-// New function to get all leave types
-exports.getAllLeaveTypes = (callback) => {
+/**
+ * ดึงประเภทการลาทั้งหมด
+ */
+exports.getAllLeaveTypes = async () => {
   const sql = `SELECT * FROM leaveworktype ORDER BY leaveworktype_name ASC`;
-  db.query(sql, (err, results) => {
-    if (err) return callback(err, null);
-    callback(null, results);
-  });
+  return await query(sql);
 };
 
-// Add this function to your existing exports in leavework.js
-// ... โค้ดเดิมในไฟล์โมเดลการลาของคุณ ...
-
-exports.getApprovedLeaveCountByEmpId = (emp_id, callback) => {
+/**
+ * ดึงจำนวนวันลาที่ได้รับการอนุมัติตามรหัสพนักงาน
+ */
+exports.getApprovedLeaveCountByEmpId = async (emp_id) => {
   const sql = `
     SELECT COUNT(*) AS approved_leave_count
     FROM leavework
     WHERE emp_id = ? AND leavework_status = 'approved'
   `;
-  db.query(sql, [emp_id], (err, results) => {
-    if (err) return callback(err, null);
-    // ส่งค่า count กลับไป
-    callback(null, results[0].approved_leave_count);
-  });
+  const results = await query(sql, [emp_id]);
+  // คืนค่าเป็นตัวเลขจำนวนวันลาโดยตรง
+  return results[0].approved_leave_count;
 };

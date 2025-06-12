@@ -1,166 +1,149 @@
+const util = require('util');
 const db = require('../config/db'); // เชื่อมต่อกับฐานข้อมูล
 
+// ทำให้ db.query ใช้กับ async/await ได้
+// .bind(db) เป็นสิ่งสำคัญเพื่อให้ 'this' context ถูกต้อง
+const query = util.promisify(db.query).bind(db);
+
 const Employee = {
-  // ดึงข้อมูลพนักงานทั้งหมด
-  getAllEvaluations: (callback) => {
+  // ดึงข้อมูลการประเมินทั้งหมด
+  getAllEvaluations: async () => {
     const sql = `
       SELECT e.create_at, emp.emp_name, e.evaluatework_totalscore, emp.emp_id
       FROM evaluatework e
       JOIN employee emp ON e.emp_id = emp.emp_id
       ORDER BY e.create_at DESC
     `;
-
-    db.query(sql, (err, results) => {
-      if (err) return callback(err);
-      callback(null, results);
-    });
-  },
-  getAll: (sort, callback) => { // Accept sort parameter
-    let query = `
-    SELECT e.*, j.jobpos_name
-    FROM employee e
-    JOIN jobpos j ON e.jobpos_id = j.jobpos_id
-  `;
-
-    // Add ORDER BY clause based on the sort parameter
-    if (sort === 'jobpos_id_asc') {
-      query += ` ORDER BY e.jobpos_id ASC`;
-    } else if (sort === 'jobpos_id_desc') {
-      query += ` ORDER BY e.jobpos_id DESC`;
-    } else if (sort === 'name_asc') {
-      query += ` ORDER BY e.emp_name ASC`;
-    } else if (sort === 'name_desc') {
-      query += ` ORDER BY e.emp_name DESC`;
-    } else if (sort === 'jobpos_asc') {
-      query += ` ORDER BY j.jobpos_name ASC`;
-    } else if (sort === 'jobpos_desc') {
-      query += ` ORDER BY j.jobpos_name DESC`;
-    } else {
-      query += ` ORDER BY e.emp_name ASC`; // Default sort
-    }
-
-    db.query(query, callback);
+    return await query(sql);
   },
 
-  getAllSorted: (sortField, sortOrder, callback) => {
-    const allowedFields = ['emp_name', 'jobpos_name', 'jobpos_id', 'emp_startwork', 'emp_id']; // เพิ่ม 'jobpos_id' เข้าไปด้วย
+  // ดึงข้อมูลพนักงานทั้งหมด (เวอร์ชันเก่าที่ใช้ sort แบบเฉพาะ)
+  getAll: async (sort) => {
+    let sql = `
+      SELECT e.*, j.jobpos_name
+      FROM employee e
+      JOIN jobpos j ON e.jobpos_id = j.jobpos_id
+    `;
+    
+    // Logic การเรียงลำดับยังคงเดิม
+    if (sort === 'jobpos_id_asc') sql += ` ORDER BY e.jobpos_id ASC`;
+    else if (sort === 'jobpos_id_desc') sql += ` ORDER BY e.jobpos_id DESC`;
+    else if (sort === 'name_asc') sql += ` ORDER BY e.emp_name ASC`;
+    else if (sort === 'name_desc') sql += ` ORDER BY e.emp_name DESC`;
+    else if (sort === 'jobpos_asc') sql += ` ORDER BY j.jobpos_name ASC`;
+    else if (sort === 'jobpos_desc') sql += ` ORDER BY j.jobpos_name DESC`;
+    else sql += ` ORDER BY e.emp_name ASC`; // Default sort
 
+    return await query(sql);
+  },
+
+  // ดึงข้อมูลพนักงานทั้งหมดพร้อมเรียงลำดับ (เวอร์ชันที่ปรับปรุงแล้ว)
+  getAllSorted: async (sortField, sortOrder) => {
+    const allowedFields = ['emp_name', 'jobpos_name', 'jobpos_id', 'emp_startwork', 'emp_id'];
     if (!allowedFields.includes(sortField)) sortField = 'emp_name';
 
-    let query = `
-    SELECT e.*, j.jobpos_name, j.jobpos_id
-    FROM employee e
-    JOIN jobpos j ON e.jobpos_id = j.jobpos_id
-  `;
-
-    if (sortField === 'emp_name') {
-      query += `
-      ORDER BY
-        CASE WHEN e.emp_name REGEXP '[0-9]+' THEN
-          CAST(
-            SUBSTRING(
-              e.emp_name,
-              REGEXP_INSTR(e.emp_name, '[0-9]+'),
-              LENGTH(REGEXP_SUBSTR(e.emp_name, '[0-9]+'))
-            ) AS UNSIGNED
-          )
-        ELSE NULL
-        END ${sortOrder},
-        e.emp_name ${sortOrder}
+    let sql = `
+      SELECT e.*, j.jobpos_name, j.jobpos_id
+      FROM employee e
+      JOIN jobpos j ON e.jobpos_id = j.jobpos_id
     `;
-    } else if (sortField === 'jobpos_name') {
-      // ถ้ากดเรียงตำแหน่ง ให้เปลี่ยนเรียงตาม jobpos_id แทน
-      query += ` ORDER BY j.jobpos_id ${sortOrder} `;
-    } else if (sortField === 'jobpos_id') {
-      query += ` ORDER BY j.jobpos_id ${sortOrder} `;
+    
+    // Logic การเรียงลำดับยังคงเดิม
+    if (sortField === 'emp_name') {
+      sql += `
+        ORDER BY
+          CASE WHEN e.emp_name REGEXP '[0-9]+' THEN
+            CAST(SUBSTRING(e.emp_name, REGEXP_INSTR(e.emp_name, '[0-9]+'), LENGTH(REGEXP_SUBSTR(e.emp_name, '[0-9]+'))) AS UNSIGNED)
+          ELSE NULL
+          END ${sortOrder},
+          e.emp_name ${sortOrder}
+      `;
+    } else if (sortField === 'jobpos_name' || sortField === 'jobpos_id') {
+      sql += ` ORDER BY j.jobpos_id ${sortOrder} `;
     } else {
-      query += ` ORDER BY e.${sortField} ${sortOrder} `;
+      sql += ` ORDER BY e.${sortField} ${sortOrder} `;
     }
 
-    db.query(query, callback);
+    return await query(sql);
   },
 
-
-
   // ดึงข้อมูลพนักงานตาม id
-  getById: (id, callback) => {
-    const query = `
+  getById: async (id) => {
+    const sql = `
       SELECT e.*, j.jobpos_name
       FROM employee e
       JOIN jobpos j ON e.jobpos_id = j.jobpos_id
       WHERE e.emp_id = ?
     `;
-    db.query(query, [id], callback);
+    return await query(sql, [id]);
   },
 
   // ดึงพนักงานตามตำแหน่ง
-  getByJobposId: (jobposId, callback) => {
-    const query = `
-      SELECT * FROM employee
-      WHERE jobpos_id = ?
-    `;
-    db.query(query, [jobposId], callback);
+  getByJobposId: async (jobposId) => {
+    const sql = `SELECT * FROM employee WHERE jobpos_id = ?`;
+    return await query(sql, [jobposId]);
   },
 
   // เพิ่มพนักงานใหม่
-  create: (data, callback) => {
+  create: async (data) => {
     const { emp_name, jobpos_id, emp_email, emp_tel, emp_address, emp_username, emp_password, emp_pic, emp_birthday } = data;
 
-    // ตรวจสอบว่าอีเมลมีอยู่แล้วในระบบหรือไม่
-    db.query('SELECT * FROM employee WHERE emp_email = ?', [emp_email], (err, results) => {
-      if (err) return callback(err);
-      if (results.length > 0) return callback(new Error('Email is already registered.'));
+    // 1. ตรวจสอบว่าอีเมลมีอยู่แล้วในระบบหรือไม่
+    const existingEmployee = await query('SELECT emp_id FROM employee WHERE emp_email = ?', [emp_email]);
+    if (existingEmployee.length > 0) {
+      // ถ้ามี ให้โยน Error ออกไปเพื่อให้ try...catch ใน Controller จัดการ
+      throw new Error('Email is already registered.');
+    }
 
-      // ถ้าอีเมลไม่ซ้ำ ก็ทำการเพิ่มข้อมูลพนักงานใหม่
-      const query = `
-        INSERT INTO employee
-        (emp_name, jobpos_id, emp_email, emp_tel, emp_address, emp_username, emp_password, emp_pic, emp_birthday, emp_startwork)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())
-      `;
-      db.query(query, [emp_name, jobpos_id, emp_email, emp_tel, emp_address, emp_username, emp_password, emp_pic, emp_birthday], callback);
-    });
+    // 2. ถ้าอีเมลไม่ซ้ำ ก็ทำการเพิ่มข้อมูลพนักงานใหม่
+    const insertSql = `
+      INSERT INTO employee
+      (emp_name, jobpos_id, emp_email, emp_tel, emp_address, emp_username, emp_password, emp_pic, emp_birthday, emp_startwork)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())
+    `;
+    const params = [emp_name, jobpos_id, emp_email, emp_tel, emp_address, emp_username, emp_password, emp_pic, emp_birthday];
+    return await query(insertSql, params);
   },
 
   // อัปเดตข้อมูลพนักงาน
-  update: (id, data, callback) => {
+  update: async (id, data) => {
     const { emp_name, jobpos_id, emp_email, emp_tel, emp_address, emp_pic } = data;
-    const query = `
+    const sql = `
       UPDATE employee
       SET emp_name = ?, jobpos_id = ?, emp_email = ?, emp_tel = ?, emp_address = ?, emp_pic = ?
       WHERE emp_id = ?
     `;
-    db.query(query, [emp_name, jobpos_id, emp_email, emp_tel, emp_address, emp_pic, id], callback);
+    const params = [emp_name, jobpos_id, emp_email, emp_tel, emp_address, emp_pic, id];
+    return await query(sql, params);
   },
 
   // ลบพนักงาน
-  delete: (id, callback) => {
-    db.query('DELETE FROM employee WHERE emp_id = ?', [id], callback);
+  delete: async (id) => {
+    return await query('DELETE FROM employee WHERE emp_id = ?', [id]);
   },
 
-  getByJobposName: (jobposName, callback) => {
-    const query = `
+  // ดึงพนักงานตามชื่อตำแหน่ง
+  getByJobposName: async (jobposName) => {
+    const sql = `
       SELECT e.* FROM employee e
       JOIN jobpos j ON e.jobpos_id = j.jobpos_id
       WHERE j.jobpos_name = ?
     `;
-    db.query(query, [jobposName], callback);
-  },searchEmployees: (searchTerm, callback) => {
-  const query = `
-    SELECT e.*, j.jobpos_name
-    FROM employee e
-    JOIN jobpos j ON e.jobpos_id = j.jobpos_id
-    WHERE e.emp_name LIKE ? OR j.jobpos_name LIKE ?
-    ORDER BY e.emp_name ASC
-  `;
+    return await query(sql, [jobposName]);
+  },
 
-  const searchPattern = `%${searchTerm}%`;
-
-  db.query(query, [searchPattern, searchPattern], (err, results) => {
-    if (err) return callback(err);
-    callback(null, results);
-  });
-},
-
+  // ค้นหาพนักงาน
+  searchEmployees: async (searchTerm) => {
+    const sql = `
+      SELECT e.*, j.jobpos_name
+      FROM employee e
+      JOIN jobpos j ON e.jobpos_id = j.jobpos_id
+      WHERE e.emp_name LIKE ? OR j.jobpos_name LIKE ?
+      ORDER BY e.emp_name ASC
+    `;
+    const searchPattern = `%${searchTerm}%`;
+    return await query(sql, [searchPattern, searchPattern]);
+  },
 };
 
 module.exports = Employee;

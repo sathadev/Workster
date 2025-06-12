@@ -1,99 +1,108 @@
 const Attendance = require('../models/attendanceModel');
 
-exports.showHome = (req, res) => {
-  if (!req.session.user) return res.redirect('/login');
+/**
+ * Displays the main dashboard (homepage).
+ * Fetches all necessary data concurrently for faster loading.
+ */
+exports.showHome = async (req, res) => {
+  if (!req.session.user) {
+    return res.redirect('/login');
+  }
 
-  const emp_id = req.session.user.emp_id;
-  const now = new Date();
+  try {
+    const { emp_id } = req.session.user;
 
-  Attendance.getWorkTime((err, config) => {
-    if (err) return res.status(500).send("เกิดข้อผิดพลาด");
+    // Fetch all required data in parallel for better performance
+    const [config, records, checkinCount, summary] = await Promise.all([
+      Attendance.getWorkTime(),
+      Attendance.getTodayAttendance(emp_id),
+      Attendance.getTodayCheckinCount(),
+      Attendance.getTodaySummary()
+    ]);
 
-    const endwork = new Date(now.toDateString() + ' ' + config.endwork);
-    const isAfterEndWork = now >= endwork;
-
-    Attendance.getTodayAttendance(emp_id, (err, records) => {
-      if (err) return res.status(500).send("เกิดข้อผิดพลาด");
-
-      const checkin = records.find(r => r.attendance_type === 'checkin');
-      const checkout = records.find(r => r.attendance_type === 'checkout');
-
-      const formatTime = (datetime) => {
-        return new Date(datetime).toLocaleTimeString('th-TH', {
-          hour: '2-digit',
-          minute: '2-digit',
-          hour12: false,
-          timeZone: 'Asia/Bangkok'
-        });
-      };
-
-      // Nest the calls to ensure data is available before rendering
-      Attendance.getTodayCheckinCount((err, checkinCount) => {
-        if (err) return res.status(500).send("เกิดข้อผิดพลาด");
-
-        Attendance.getTodaySummary((err, summary) => {
-          if (err) return res.status(500).send("เกิดข้อผิดพลาดขณะโหลดสรุป");
-
-          res.render('index', {
-            user: req.session.user,
-            checkinTime: checkin ? formatTime(checkin.attendance_datetime) : null,
-            checkoutTime: checkout ? formatTime(checkout.attendance_datetime) : null,
-            isAfterEndWork,
-            checkinCount,
-            ontimeCount: summary.ontime,
-            lateCount: summary.late,
-            absentCount: summary.absent
-          });
-        });
+    // Helper function to format time
+    const formatTime = (datetime) => {
+      if (!datetime) return null;
+      return new Date(datetime).toLocaleTimeString('th-TH', {
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false,
+        timeZone: 'Asia/Bangkok'
       });
+    };
+
+    const now = new Date();
+    const endworkTime = new Date(`${now.toDateString()} ${config.endwork}`);
+    const isAfterEndWork = now >= endworkTime;
+
+    const checkin = records.find(r => r.attendance_type === 'checkin');
+    const checkout = records.find(r => r.attendance_type === 'checkout');
+
+    res.render('index', {
+      user: req.session.user,
+      checkinTime: formatTime(checkin?.attendance_datetime),
+      checkoutTime: formatTime(checkout?.attendance_datetime),
+      isAfterEndWork,
+      checkinCount,
+      ontimeCount: summary.ontime,
+      lateCount: summary.late,
+      absentCount: summary.absent,
     });
-  });
+  } catch (err) {
+    console.error("Error loading home page:", err);
+    res.status(500).send("เกิดข้อผิดพลาดในการโหลดข้อมูลหน้าหลัก");
+  }
 };
 
-
-exports.handleCheckIn = (req, res) => {
-  const emp_id = req.session.user.emp_id;
-
-  Attendance.checkIn(emp_id, (err) => {
-    if (err) {
-      console.error(err);
-      return res.redirect('/?error=already_checked_in');
-    }
+/**
+ * Handles the check-in process for the logged-in user.
+ */
+exports.handleCheckIn = async (req, res) => {
+  try {
+    const { emp_id } = req.session.user;
+    await Attendance.checkIn(emp_id);
     res.redirect('/');
-  });
+  } catch (err) {
+    console.error("Check-in error:", err);
+    // Redirect with an error message, e.g., for duplicate check-ins
+    res.redirect('/?error=check_in_failed');
+  }
 };
 
+/**
+ * Handles the check-out process for the logged-in user.
+ */
+exports.handleCheckOut = async (req, res) => {
+  try {
+    const { emp_id } = req.session.user;
 
-exports.handleCheckOut = (req, res) => {
-  const emp_id = req.session.user.emp_id;
+    // 1. Get today's attendance records for validation
+    const records = await Attendance.getTodayAttendance(emp_id);
 
-  Attendance.getTodayAttendance(emp_id, (err, records) => {
-    if (err) return res.status(500).send("เกิดข้อผิดพลาด");
-
+    // 2. Validate check-in and check-out status
     const hasCheckedIn = records.some(r => r.attendance_type === 'checkin');
     const hasCheckedOut = records.some(r => r.attendance_type === 'checkout');
 
     if (!hasCheckedIn) {
       return res.status(400).send("คุณต้องเช็คอินก่อน");
     }
-
     if (hasCheckedOut) {
-      return res.status(400).send("คุณได้เช็คเอ้าท์แล้ววันนี้");
+      return res.status(400).send("คุณได้เช็คเอาท์ไปแล้วสำหรับวันนี้");
     }
 
+    // 3. Get work time configuration to determine status
+    const config = await Attendance.getWorkTime();
     const now = new Date();
-    Attendance.getWorkTime((err, config) => {
-      if (err) return res.status(500).send("ไม่สามารถดึงเวลาเลิกงานได้");
+    const endworkTime = new Date(`${now.toDateString()} ${config.endwork}`);
 
-      const endwork = new Date(now.toDateString() + ' ' + config.endwork);
+    // 4. Determine check-out status
+    const status = now < endworkTime ? 'early' : 'ontime';
 
-      // ถ้าออกก่อนเวลา ให้ใส่ status 'early' แทน 'ontime'
-      const status = now < endwork ? 'early' : 'ontime';
-
-      Attendance.checkOut(emp_id, status, (err) => {
-        if (err) return res.status(500).send("เช็คเอ้าท์ไม่สำเร็จ");
-        res.redirect('/');
-      });
-    });
-  });
+    // 5. Perform the check-out
+    await Attendance.checkOut(emp_id, status);
+    res.redirect('/');
+  } catch (err) {
+    console.error("Check-out error:", err);
+    res.status(500).send("เกิดข้อผิดพลาดระหว่างการเช็คเอาท์");
+  }
 };

@@ -3,200 +3,181 @@ const Jobpos = require('../models/jobposModel');
 const Attendance = require('../models/attendanceModel');
 const Leave = require('../models/leaveworkModel');
 
-
 const multer = require('multer');
 const upload = multer();
 const bcrypt = require('bcrypt');
 const fs = require('fs');
 const path = require('path');
 
+// ตั้งค่าชื่อตำแหน่งประธานบริษัทไว้ใช้ทุกที่
+const chairmanJobName = 'ประธานบริษัท';
 
-// แสดงรายชื่อพนักงานทั้งหมด
-exports.list = (req, res) => {
-  const { sort } = req.query; // Get the sort parameter from the query string
-  Employee.getAll(sort, (err, results) => { // Pass sort to the model
-    if (err) {
-      console.error('Database error:', err);
-      return res.status(500).send('Database error');
+// แสดงรายชื่อพนักงานทั้งหมด (รวมการค้นหาและเรียงลำดับ)
+exports.list = async (req, res) => {
+  const { sort: sortField = 'emp_name', order = 'asc', search: searchTerm = '' } = req.query;
+  const sortOrder = order.toLowerCase() === 'desc' ? 'DESC' : 'ASC';
+
+  try {
+    let employees;
+    if (searchTerm.trim()) {
+      employees = await Employee.searchEmployees(searchTerm.trim());
+    } else {
+      employees = await Employee.getAllSorted(sortField, sortOrder);
     }
-    res.render('employee/index', { employees: results, currentSort: sort });
-  });
+
+    res.render('employee/index', {
+      employees,
+      sortField,
+      sortOrder,
+      searchTerm,
+      error: null
+    });
+  } catch (err) {
+    console.error('Database error:', err);
+    res.status(500).render('employee/index', {
+      employees: [],
+      sortField,
+      sortOrder,
+      searchTerm,
+      error: 'เกิดข้อผิดพลาดในการโหลดข้อมูลพนักงาน'
+    });
+  }
 };
 
 // แสดงรายละเอียดพนักงาน
-exports.view = (req, res) => {
-  const empId = req.params.id; // ใช้ empId จาก req.params.id
+exports.view = async (req, res) => {
+  try {
+    const empId = req.params.id;
+    const employeeResults = await Employee.getById(empId);
 
-  Employee.getById(empId, (err, employeeResults) => { // เปลี่ยนชื่อตัวแปรจาก results เป็น employeeResults
-    if (err) {
-      console.error('Database error:', err);
-      return res.status(500).send('Database error');
-    }
     if (!employeeResults.length) {
-      console.error('Employee not found');
-      return res.status(404).send('Not found');
-    }
-
-    Attendance.getCountSummary(empId, (err, attendanceCounts) => {
-      if (err) {
-        console.error('Attendance count error:', err);
-        return res.status(500).send('Attendance count error');
-      }
-
-      const attendanceSummary = {
-        ontimeCheckin: 0,
-        lateCheckin: 0,
-        ontimeCheckout: 0,
-        lateCheckout: 0
-      };
-
-      attendanceCounts.forEach(row => {
-        // ปรับแก้ key ให้ตรงกับที่ใช้ใน attendanceSummary เช่น ontimeCheckin แทน ontimeCheckIn
-        const status = row.attendance_status.toLowerCase();
-        const type = row.attendance_type.toLowerCase();
-
-        if (status === 'ontime' && type === 'checkin') attendanceSummary.ontimeCheckin = row.count;
-        else if (status === 'late' && type === 'checkin') attendanceSummary.lateCheckin = row.count;
-        else if (status === 'ontime' && type === 'checkout') attendanceSummary.lateCheckout = row.count;
-        else if (status === 'late' && type === 'checkout') attendanceSummary.lateCheckout = row.count;
-      });
-
-      // ดึงจำนวนการลาที่อนุมัติแล้วสำหรับพนักงานคนนั้นๆ
-      Leave.getApprovedLeaveCountByEmpId(empId, (err, approvedLeaveCount) => {
-        if (err) {
-          console.error('Approved leave count error:', err);
-          return res.status(500).send('Approved leave count error');
-        }
-
-        res.render('employee/view', {
-          employee: employeeResults[0],
-          attendanceSummary: attendanceSummary, // ใช้ชื่อตัวแปรให้สอดคล้องกัน
-          approvedLeaveCount: approvedLeaveCount // ส่งค่าจำนวนการลาที่อนุมัติแล้วไปยัง view
-        });
-      });
-    });
-  });
-};
-
-// แสดงฟอร์มแก้ไขข้อมูลพนักงาน
-exports.editForm = (req, res) => {
-  const empId = req.params.id;
-
-  Employee.getById(empId, (err, empResults) => {
-    if (err) {
-      console.error('Database error:', err);
-      return res.status(500).send('Database error');
-    }
-    if (!empResults.length) {
       return res.status(404).send('Employee not found');
     }
 
-    Jobpos.getAll((err, positions) => {
-      if (err) {
-        console.error('Error loading positions:', err);
-        return res.status(500).send('Error loading positions');
-      }
+    // ดึงข้อมูลพร้อมกันเพื่อประสิทธิภาพที่ดีขึ้น
+    const [attendanceCounts, approvedLeaveCount] = await Promise.all([
+      Attendance.getCountSummary(empId),
+      Leave.getApprovedLeaveCountByEmpId(empId)
+    ]);
 
-      // เช็คว่ามีคนครองตำแหน่งประธานบริษัทอยู่ไหม
-      Employee.getByJobposName(chairmanJobName, (err, chairmanEmployees) => {
-        if (err) {
-          console.error('Error checking chairman:', err);
-          return res.status(500).send('Error checking chairman');
-        }
+    const attendanceSummary = {
+      ontimeCheckin: 0,
+      lateCheckin: 0,
+      ontimeCheckout: 0, // <-- แก้ไข Bug จาก lateCheckout เป็น ontimeCheckout
+      lateCheckout: 0
+    };
 
-        // ถ้ามีคนครองตำแหน่งนี้ และไม่ใช่คนที่เราจะแก้ ให้ตัด 'ประธานบริษัท' ออก
-        if (chairmanEmployees.length > 0) {
-          positions = positions.filter(pos => {
-            if (pos.jobpos_name !== chairmanJobName) return true;
-            return chairmanEmployees[0].emp_id === empId;
-          });
-        }
+    attendanceCounts.forEach(row => {
+      const status = row.attendance_status.toLowerCase();
+      const type = row.attendance_type.toLowerCase();
 
-        res.render('employee/edit', {
-          employee: empResults[0],
-          positions: positions
-        });
-      });
+      if (status === 'ontime' && type === 'checkin') attendanceSummary.ontimeCheckin = row.count;
+      else if (status === 'late' && type === 'checkin') attendanceSummary.lateCheckin = row.count;
+      else if (status === 'ontime' && type === 'checkout') attendanceSummary.ontimeCheckout = row.count; // <-- แก้ไข Bug
+      else if (status === 'late' && type === 'checkout') attendanceSummary.lateCheckout = row.count;
     });
-  });
+
+    res.render('employee/view', {
+      employee: employeeResults[0],
+      attendanceSummary,
+      approvedLeaveCount
+    });
+
+  } catch (err) {
+    console.error('Error fetching employee details:', err);
+    res.status(500).send('Server error');
+  }
 };
 
+// แสดงฟอร์มแก้ไขข้อมูลพนักงาน
+exports.editForm = async (req, res) => {
+  try {
+    const empId = parseInt(req.params.id, 10);
+    const [employee, allPositions, chairmanEmployees] = await Promise.all([
+      Employee.getById(empId),
+      Jobpos.getAll(),
+      Employee.getByJobposName(chairmanJobName)
+    ]);
+    
+    if (!employee.length) {
+      return res.status(404).send('Employee not found');
+    }
+
+    let availablePositions = allPositions;
+    // ถ้ามีคนเป็นประธานแล้ว และไม่ใช่คนที่เรากำลังจะแก้ ให้กรองตำแหน่งประธานออก
+    if (chairmanEmployees.length > 0 && chairmanEmployees[0].emp_id !== empId) {
+      availablePositions = allPositions.filter(pos => pos.jobpos_name !== chairmanJobName);
+    }
+    
+    res.render('employee/edit', {
+      employee: employee[0],
+      positions: availablePositions
+    });
+
+  } catch (err) {
+    console.error('Error loading edit form:', err);
+    res.status(500).send('Error loading data');
+  }
+};
 
 // อัปเดตข้อมูลพนักงาน
-exports.update = (req, res) => {
-  const data = req.body;
-  const emp_id = req.params.id;
-
-  // ดึงข้อมูลพนักงานเดิมก่อน เพื่อใช้รูปเดิมถ้าไม่ได้อัปโหลดใหม่
-  Employee.getById(emp_id, (err, results) => {
-    if (err) {
-      console.error('Database error:', err);
-      return res.status(500).send('Database error');
-    }
+exports.update = async (req, res) => {
+  try {
+    const emp_id = req.params.id;
+    const data = req.body;
+    
+    const results = await Employee.getById(emp_id);
     if (!results.length) {
       return res.status(404).send('Employee not found');
     }
 
     const existingEmployee = results[0];
-    // Check if a new file was uploaded; otherwise, use the existing picture
     const emp_pic = req.file ? req.file.buffer : existingEmployee.emp_pic;
 
-    const fullData = {
-      ...data,
-      emp_pic, // Use the new emp_pic or the existing one
-    };
+    const fullData = { ...data, emp_pic };
+    delete fullData.emp_password; // ไม่ควรอัปเดตรหัสผ่านในฟอร์มนี้โดยตรง
 
-    // Remove emp_password from fullData if it's not being updated,
-    // to avoid trying to update a non-existent or unchanged password field.
-    // If you plan to allow password updates here, you'll need to hash it.
-    delete fullData.emp_password;
+    await Employee.update(emp_id, fullData);
+    res.redirect(`/employee/view/${emp_id}`);
 
-    Employee.update(emp_id, fullData, (err) => {
-      if (err) {
-        console.error('Update error:', err.message || err);
-        return res.status(500).send('Update error');
-      }
-      res.redirect(`/employee/view/${emp_id}`);
-    });
-  });
+  } catch (err) {
+    console.error('Update error:', err);
+    res.status(500).send('Update error');
+  }
 };
 
-
 // แสดงฟอร์มเพิ่มพนักงาน
-// ตั้งค่าชื่อตำแหน่งประธานบริษัทไว้ใช้ทุกที่
-const chairmanJobName = 'ประธานบริษัท';
-
-// แสดงฟอร์มเพิ่มพนักงาน
-exports.addForm = (req, res) => {
-  Jobpos.getAll((err, positions) => {
-    if (err) return res.status(500).send('Error loading positions');
-
-    // เช็คว่ามีคนครองตำแหน่งประธานบริษัทหรือยัง
-    Employee.getByJobposName(chairmanJobName, (err, chairmanEmployees) => {
-      if (err) return res.status(500).send('Error checking chairman');
-
-      // ถ้ามีคนครองอยู่แล้ว กรองเอาตำแหน่ง 'ประธานบริษัท' ออก
-      if (chairmanEmployees.length > 0) {
-        positions = positions.filter(pos => pos.jobpos_name !== chairmanJobName);
-      }
-
-      res.render('employee/add', { positions, employee: null });
-    });
-  });
-};
-
-
-
-exports.create = upload.single('emp_pic'); // Middleware สำหรับไฟล์
-
-exports.createHandler = async (req, res) => {
-  const data = req.body;
-  let emp_pic = req.file ? req.file.buffer : null;
-
+exports.addForm = async (req, res) => {
   try {
+    const [positions, chairmanEmployees] = await Promise.all([
+        Jobpos.getAll(),
+        Employee.getByJobposName(chairmanJobName)
+    ]);
+    
+    let availablePositions = positions;
+    if (chairmanEmployees.length > 0) {
+      availablePositions = positions.filter(pos => pos.jobpos_name !== chairmanJobName);
+    }
+
+    res.render('employee/add', { positions: availablePositions, employee: null });
+  } catch (err) {
+    console.error('Error loading add form:', err);
+    res.status(500).send('Error loading positions');
+  }
+};
+
+// Middleware สำหรับรับไฟล์
+exports.create = upload.single('emp_pic');
+
+// Handler สำหรับสร้างพนักงานใหม่
+exports.createHandler = async (req, res) => {
+  try {
+    const data = req.body;
+    let emp_pic = req.file ? req.file.buffer : null;
+
     if (!emp_pic) {
       const defaultImagePath = path.join(__dirname, '../public/images/profile.jpg');
-      emp_pic = fs.readFileSync(defaultImagePath); // โหลดรูป default มาเป็น buffer
+      emp_pic = fs.readFileSync(defaultImagePath);
     }
 
     const hashedPassword = await bcrypt.hash(data.emp_password, 10);
@@ -205,165 +186,108 @@ exports.createHandler = async (req, res) => {
       ...data,
       emp_password: hashedPassword,
       emp_pic,
-      emp_birthday: data.emp_birthday
     };
 
-    Employee.create(fullData, (err, result) => {
-      if (err) {
-        console.error('Create error:', err.message || err);
-        return res.status(500).send('Create error: ' + (err.message || err));
-      }
-      res.redirect('/employee');
-    });
+    await Employee.create(fullData); // แก้ไข: ใช้ await แทน callback
+    res.redirect('/employee');
+
   } catch (err) {
-    console.error('Error:', err.message || err);
-    res.status(500).send('Error occurred: ' + (err.message || err));
+    console.error('Create error:', err);
+    res.status(500).send('Create error: ' + (err.message || err));
   }
 };
-
 
 // ลบพนักงาน
-exports.delete = (req, res) => {
-  const empIdToDelete = parseInt(req.params.id);
-  const loggedInEmpId = req.session.user.emp_id;
+exports.delete = async (req, res) => {
+  try {
+    const empIdToDelete = parseInt(req.params.id, 10);
+    const loggedInEmpId = req.session.user.emp_id;
 
-  if (empIdToDelete === loggedInEmpId) {
-    return res.status(403).send('คุณไม่สามารถลบตัวเองได้');
-  }
-
-  Employee.delete(empIdToDelete, (err) => {
-    if (err) {
-      return res.status(500).send('ไม่สามารถลบพนักงานได้');
+    if (empIdToDelete === loggedInEmpId) {
+      return res.status(403).send('คุณไม่สามารถลบตัวเองได้');
     }
+
+    await Employee.delete(empIdToDelete);
     res.redirect('/employee');
-  });
+  } catch (err) {
+    console.error('Delete error:', err);
+    res.status(500).send('ไม่สามารถลบพนักงานได้');
+  }
 };
 
-exports.viewProfile = (req, res) => {
-  const empId = req.session.user.emp_id;
+// แสดงหน้า Profile ของพนักงานที่ล็อกอินอยู่
+exports.viewProfile = async (req, res) => {
+    try {
+        const empId = req.session.user.emp_id;
+        const employeeResults = await Employee.getById(empId);
 
-  Employee.getById(empId, (err, employeeResults) => { // เปลี่ยนชื่อตัวแปรจาก results เป็น employeeResults เพื่อความชัดเจน
-    if (err) {
-      console.error('Database error:', err);
-      return res.status(500).send('Database error');
-    }
-    if (!employeeResults.length) {
-      console.error('Employee not found');
-      return res.status(404).send('Not found');
-    }
-
-    Attendance.getCountSummary(empId, (err, attendanceCounts) => {
-      if (err) {
-        console.error('Attendance count error:', err);
-        return res.status(500).send('Attendance count error');
-      }
-
-      const attendanceSummary = {
-        ontimeCheckin: 0,
-        lateCheckin: 0,
-        ontimeCheckout: 0,
-        lateCheckout: 0,
-      };
-
-      attendanceCounts.forEach(item => {
-        const status = item.attendance_status.toLowerCase();
-        const type = item.attendance_type.toLowerCase();
-
-        if (status === 'ontime' && type === 'checkin') attendanceSummary.ontimeCheckin = item.count;
-        else if (status === 'late' && type === 'checkin') attendanceSummary.lateCheckin = item.count;
-        else if (status === 'ontime' && type === 'checkout') attendanceSummary.ontimeCheckout = item.count;
-        else if (status === 'late' && type === 'checkout') attendanceSummary.lateCheckout = item.count;
-      });
-
-      // ดึงจำนวนการลาที่อนุมัติแล้ว
-      Leave.getApprovedLeaveCountByEmpId(empId, (err, approvedLeaveCount) => {
-        if (err) {
-          console.error('Approved leave count error:', err);
-          return res.status(500).send('Approved leave count error');
+        if (!employeeResults.length) {
+            return res.status(404).send('Employee not found');
         }
 
+        const [attendanceCounts, approvedLeaveCount] = await Promise.all([
+            Attendance.getCountSummary(empId),
+            Leave.getApprovedLeaveCountByEmpId(empId)
+        ]);
+
+        const attendanceSummary = {
+            ontimeCheckin: 0,
+            lateCheckin: 0,
+            ontimeCheckout: 0, // <-- แก้ไข Bug
+            lateCheckout: 0
+        };
+
+        attendanceCounts.forEach(item => {
+            const status = item.attendance_status.toLowerCase();
+            const type = item.attendance_type.toLowerCase();
+
+            if (status === 'ontime' && type === 'checkin') attendanceSummary.ontimeCheckin = item.count;
+            else if (status === 'late' && type === 'checkin') attendanceSummary.lateCheckin = item.count;
+            else if (status === 'ontime' && type === 'checkout') attendanceSummary.ontimeCheckout = item.count; // <-- แก้ไข Bug
+            else if (status === 'late' && type === 'checkout') attendanceSummary.lateCheckout = item.count;
+        });
+
         res.render('employee/profile', {
-          employee: employeeResults[0],
-          attendanceSummary,
-          approvedLeaveCount // ส่งค่าจำนวนการลาที่อนุมัติแล้วไปยัง view
+            employee: employeeResults[0],
+            attendanceSummary,
+            approvedLeaveCount
         });
-      });
-    });
-  });
-};
 
-exports.list = (req, res) => {
-  const sortField = req.query.sort || 'emp_name'; // Ensure sortField is defined
-  const sortOrder = req.query.order === 'desc' ? 'DESC' : 'ASC';
-  const searchTerm = req.query.search || '';
-
-  if (searchTerm.trim()) {
-    // This part now directly calls searchEmployees logic implicitly
-    // It might be better to consolidate this logic or redirect/call searchEmployees directly.
-    // For now, assuming you want this to handle search as well.
-    Employee.searchEmployees(searchTerm, (err, results) => {
-      if (err) {
-        console.error('Search error:', err);
-        return res.status(500).render('employee/index', {
-          employees: [],
-          searchTerm: searchTerm,
-          error: 'เกิดข้อผิดพลาดในการค้นหา',
-          sortField: sortField, // Ensure these are passed
-          sortOrder: sortOrder  // Ensure these are passed
-        });
-      }
-      res.render('employee/index', {
-        employees: results,
-        searchTerm: searchTerm,
-        error: null,
-        sortField: sortField, // Ensure these are passed
-        sortOrder: sortOrder  // Ensure these are passed
-      });
-    });
-  } else {
-    Employee.getAllSorted(sortField, sortOrder, (err, results) => {
-      if (err) return res.status(500).send('Database error');
-      res.render('employee/index', {
-        employees: results,
-        sortField,     // Already passed here
-        sortOrder,     // Already passed here
-        searchTerm: '',
-        error: null
-      });
-    });
-  }
-};
-
-exports.searchEmployees = function(req, res) {
-  const searchTerm = req.query.search || '';
-  // Get sortField and sortOrder from query, or set defaults for search results
-  const sortField = req.query.sort || 'emp_name'; // Default sort for search
-  const sortOrder = req.query.order === 'desc' ? 'DESC' : 'ASC'; // Default order for search
-
-  if (!searchTerm.trim()) {
-    return res.redirect('/employee'); // Redirect to the main list if no search term
-  }
-
-  Employee.searchEmployees(searchTerm, (err, results) => {
-    if (err) {
-      console.error('Search error:', err);
-      return res.status(500).render('employee/index', {
-        employees: [],
-        searchTerm: searchTerm,
-        error: 'เกิดข้อผิดพลาดในการค้นหา',
-        sortField: sortField, // Pass sortField
-        sortOrder: sortOrder  // Pass sortOrder
-      });
+    } catch (err) {
+        console.error('Error fetching profile:', err);
+        res.status(500).send('Server error');
     }
-
-    const employees = Array.isArray(results) ? results : [];
-
-    res.render('employee/index', {
-      employees: employees,
-      searchTerm: searchTerm,
-      error: null,
-      sortField: sortField, // Pass sortField
-      sortOrder: sortOrder  // Pass sortOrder
-    });
-  });
 };
+
+// ฟังก์ชัน searchEmployees เดิมไม่จำเป็นแล้ว เพราะถูกรวมเข้าไปใน exports.list แล้ว
+// หากต้องการแยก endpoint ไว้ สามารถใช้โค้ดด้านล่างนี้ได้
+/*
+exports.searchEmployees = async (req, res) => {
+  const { search: searchTerm, sort: sortField = 'emp_name', order = 'asc' } = req.query;
+  const sortOrder = order.toLowerCase() === 'desc' ? 'DESC' : 'ASC';
+
+  if (!searchTerm || !searchTerm.trim()) {
+      return res.redirect('/employee');
+  }
+
+  try {
+      const employees = await Employee.searchEmployees(searchTerm.trim());
+      res.render('employee/index', {
+          employees,
+          searchTerm,
+          error: null,
+          sortField,
+          sortOrder
+      });
+  } catch (err) {
+      console.error('Search error:', err);
+      res.status(500).render('employee/index', {
+          employees: [],
+          searchTerm,
+          error: 'เกิดข้อผิดพลาดในการค้นหา',
+          sortField,
+          sortOrder
+      });
+  }
+};
+*/

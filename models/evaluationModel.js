@@ -1,20 +1,27 @@
+const util = require('util');
 const db = require('../config/db');
 
+// ทำให้ db.query สามารถใช้กับ async/await ได้
+const query = util.promisify(db.query).bind(db);
+
 const Evaluation = {
-  getAllEvaluations: (callback) => {
+  /**
+   * ดึงประวัติการประเมินทั้งหมดพร้อมข้อมูลพนักงาน
+   */
+  getAllEvaluations: async () => {
     const sql = `
       SELECT e.evaluatework_id, e.create_at, emp.emp_name, e.evaluatework_totalscore, emp.emp_id
       FROM evaluatework e
       JOIN employee emp ON e.emp_id = emp.emp_id
       ORDER BY e.create_at DESC
     `;
-    db.query(sql, (err, results) => {
-      if (err) return callback(err);
-      callback(null, results);
-    });
+    return await query(sql);
   },
 
-  saveEvaluation: (data, callback) => {
+  /**
+   * บันทึกผลการประเมิน
+   */
+  saveEvaluation: async (data) => {
     const sql = `
       INSERT INTO evaluatework 
       (emp_id, evaluatework_score1, evaluatework_score2, evaluatework_score3, evaluatework_score4, evaluatework_score5, evaluatework_totalscore, create_at)
@@ -33,30 +40,29 @@ const Evaluation = {
       totalScore
     ];
 
-    db.query(sql, params, (err, result) => {
-      if (err) return callback(err);
-      callback(null, result);
-    });
+    return await query(sql, params);
   },
 
-  getById: (id, callback) => {
+  /**
+   * ดึงข้อมูลการประเมินด้วย ID
+   */
+  getById: async (id) => {
     const sql = `SELECT * FROM evaluatework WHERE evaluatework_id = ?`;
-    db.query(sql, [id], (err, results) => {
-      if (err) return callback(err);
-      callback(null, results[0]);
-    });
+    const results = await query(sql, [id]);
+    // คืนค่าเฉพาะ object แรก หรือ null หากไม่พบข้อมูล
+    return results[0] || null;
   },
 
-  getByEmployeeId: (emp_id, callback) => {
+  /**
+   * ดึงประวัติการประเมินทั้งหมดของพนักงานคนเดียว
+   */
+  getByEmployeeId: async (emp_id) => {
     const sql = `
       SELECT * FROM evaluatework 
       WHERE emp_id = ? 
       ORDER BY create_at DESC
     `;
-    db.query(sql, [emp_id], (err, results) => {
-      if (err) return callback(err);
-      callback(null, results);
-    });
+    return await query(sql, [emp_id]);
   }
 };
 
