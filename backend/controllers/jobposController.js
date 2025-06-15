@@ -1,61 +1,78 @@
+// backend/controllers/jobposController.js
 const Jobpos = require('../models/jobposModel');
-const Employee = require('../models/employeeModel');
+const Employee = require('../models/employeeModel'); // ยังคงต้องใช้เพื่อดึงพนักงาน
 
-// แสดงรายการตำแหน่งงานทั้งหมด
-exports.list = async (req, res) => {
+// [GET] /api/v1/positions
+exports.getAllPositions = async (req, res) => {
   try {
     const positions = await Jobpos.getAll();
-    res.render('position/index', { positions });
+    res.status(200).json(positions);
   } catch (err) {
-    console.error("Error fetching positions:", err);
-    // ส่งหน้า Error หรือข้อความแสดงข้อผิดพลาดที่เหมาะสม
-    res.status(500).send("เกิดข้อผิดพลาดในการดึงข้อมูลตำแหน่งงาน");
+    res.status(500).json({ message: "เกิดข้อผิดพลาดในการดึงข้อมูลตำแหน่งงาน" });
   }
 };
 
-// แสดงรายละเอียดตำแหน่งงานและพนักงานในตำแหน่งนั้น
-exports.view = async (req, res) => {
+// [GET] /api/v1/positions/:id
+exports.getPositionById = async (req, res) => {
   try {
-    const jobposId = req.params.id;
-
-    // ดึงข้อมูลตำแหน่งงานและข้อมูลพนักงานไปพร้อมกันเพื่อประสิทธิภาพ
-    const [jobposResults, employeeResults] = await Promise.all([
-      Jobpos.getById(jobposId),
-      Employee.getByJobposId(jobposId)
+    const { id } = req.params;
+    const [position, employeesInPos] = await Promise.all([
+        Jobpos.getById(id),
+        Employee.getByJobposId(id)
     ]);
 
-    if (jobposResults.length === 0) {
-      return res.status(404).send('ไม่พบตำแหน่งนี้');
+    if (!position) {
+      return res.status(404).json({ message: 'ไม่พบตำแหน่งงานนี้' });
     }
-
-    res.render('position/view', {
-      jobpos: jobposResults[0],
-      employees: employeeResults
-    });
-
+    
+    // ส่งข้อมูลตำแหน่ง พร้อมกับรายชื่อพนักงานในตำแหน่งนั้นๆ กลับไป
+    res.status(200).json({ position, employees: employeesInPos });
   } catch (err) {
-    console.error("Error fetching position details:", err);
-    res.status(500).send("เกิดข้อผิดพลาดในการดึงข้อมูลรายละเอียดตำแหน่งงาน");
+    res.status(500).json({ message: "เกิดข้อผิดพลาดในการดึงข้อมูลรายละเอียด" });
   }
 };
 
-// เพิ่มตำแหน่งงานใหม่
-exports.add = async (req, res) => {
-  const { jobpos_name } = req.body;
-
-  // ตรวจสอบว่าชื่อตำแหน่งไม่เป็นค่าว่าง
-  if (!jobpos_name || !jobpos_name.trim()) {
-    // ในระบบจริง อาจจะใช้ flash message เพื่อแจ้งเตือนผู้ใช้
-    return res.redirect('/position');
-  }
-
+// [POST] /api/v1/positions
+exports.createPosition = async (req, res) => {
   try {
-    await Jobpos.create(jobpos_name.trim());
-    res.redirect('/position');
+    const { jobpos_name } = req.body;
+    if (!jobpos_name || !jobpos_name.trim()) {
+      return res.status(400).json({ message: 'กรุณาระบุชื่อตำแหน่งงาน' });
+    }
+    const newPosition = await Jobpos.create(jobpos_name.trim());
+    res.status(201).json(newPosition);
   } catch (err) {
-    console.error("Error creating position:", err);
-    // จัดการกับ Error ที่อาจเกิดขึ้น เช่น ชื่อตำแหน่งซ้ำ
-    // และแจ้งเตือนผู้ใช้ผ่าน flash message
-    res.status(500).redirect('/position'); // หรือ render หน้าเดิมพร้อม error message
+    // จัดการ Error ที่มาจาก Model (เช่น ชื่อซ้ำ)
+    res.status(err.statusCode || 500).json({ message: err.message || "เกิดข้อผิดพลาดในการสร้างตำแหน่งงาน" });
   }
+};
+
+// [PUT] /api/v1/positions/:id
+exports.updatePosition = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { jobpos_name } = req.body;
+        if (!jobpos_name || !jobpos_name.trim()) {
+            return res.status(400).json({ message: 'กรุณาระบุชื่อตำแหน่งงาน' });
+        }
+        const updatedPosition = await Jobpos.update(id, jobpos_name.trim());
+        if (!updatedPosition) {
+            return res.status(404).json({ message: 'ไม่พบตำแหน่งงานที่จะอัปเดต' });
+        }
+        res.status(200).json(updatedPosition);
+    } catch (err) {
+        res.status(500).json({ message: "เกิดข้อผิดพลาดในการอัปเดตตำแหน่งงาน" });
+    }
+};
+
+// [DELETE] /api/v1/positions/:id
+exports.deletePosition = async (req, res) => {
+    try {
+        const { id } = req.params;
+        await Jobpos.delete(id);
+        // สำหรับ DELETE ส่งแค่สถานะสำเร็จกลับไปก็เพียงพอ
+        res.status(204).send(); 
+    } catch (err) {
+        res.status(500).json({ message: "เกิดข้อผิดพลาดในการลบตำแหน่งงาน" });
+    }
 };

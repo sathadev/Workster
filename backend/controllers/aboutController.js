@@ -1,54 +1,46 @@
+// backend/controllers/aboutController.js
 const About = require('../models/aboutModel');
 
-/**
- * แสดงหน้า "เกี่ยวกับ" ซึ่งเป็นฟอร์มสำหรับตั้งค่าระบบ
- */
-exports.getAboutPage = async (req, res) => {
+// [GET] /api/v1/settings - ดึงข้อมูลการตั้งค่าระบบ
+exports.getSettings = async (req, res) => {
   try {
-    const editMode = req.query.edit === 'true';
-    let about = await About.getAbout();
+    let settings = await About.getAbout();
 
-    // หากไม่มีข้อมูลในฐานข้อมูล ให้สร้าง object เริ่มต้นขึ้นมา
-    if (!about) {
-      about = {
-        startwork: '',
-        endwork: '',
-        about_late: 0,
-        about_sickleave: 0,
-        about_personalleave: 0,
-        about_annualleave: 0,
-        about_maternityleave: 0,
-        about_childcareleave: 0,
-        about_paternityleave: 0,
-        about_militaryleave: 0,
-        about_ordinationleave: 0,
-        about_sterilizationleave: 0,
-        about_trainingleave: 0,
-        about_funeralleave: 0,
-        work_days: '', // ค่าเริ่มต้นเป็นสตริงว่าง
+    // หากไม่มีข้อมูล ให้สร้าง object เริ่มต้น (Logic เดิมดีอยู่แล้ว)
+    if (!settings) {
+      settings = {
+        startwork: '08:00', endwork: '17:00', about_late: 0,
+        about_sickleave: 0, about_personalleave: 0, about_annualleave: 0,
+        about_maternityleave: 0, about_childcareleave: 0, about_paternityleave: 0,
+        about_militaryleave: 0, about_ordinationleave: 0, about_sterilizationleave: 0,
+        about_trainingleave: 0, about_funeralleave: 0, work_days: 'Mon,Tue,Wed,Thu,Fri',
       };
     }
 
-    res.render('aboutForm', { about, edit: editMode });
+    // CHANGED: แปลง work_days ที่เป็น string ให้เป็น array เพื่อให้ Frontend ใช้งานง่าย
+    if (settings.work_days && typeof settings.work_days === 'string') {
+        settings.work_days = settings.work_days.split(',').filter(day => day);
+    }
+
+    // CHANGED: ส่งข้อมูลกลับไปเป็น JSON
+    res.status(200).json(settings);
+
   } catch (err) {
-    console.error("Error fetching about data:", err);
-    res.status(500).send('เกิดข้อผิดพลาดในการโหลดข้อมูล');
+    console.error("API Error [getSettings]:", err);
+    res.status(500).json({ message: 'เกิดข้อผิดพลาดในการโหลดข้อมูลการตั้งค่า' });
   }
 };
 
-/**
- * อัปเดตข้อมูลการตั้งค่าระบบ
- */
-exports.updateAbout = async (req, res) => {
+// [PUT] /api/v1/settings - อัปเดตข้อมูลการตั้งค่าระบบ
+exports.updateSettings = async (req, res) => {
   try {
     const body = req.body;
-
-    // แปลง work_days จาก array หรือ string เป็น string ที่คั่นด้วย comma
     let workDays = body.work_days || [];
     if (!Array.isArray(workDays)) {
       workDays = [workDays];
     }
 
+    // Logic การเตรียมข้อมูลยังคงเหมือนเดิม
     const updateData = {
       startwork: body.startwork,
       endwork: body.endwork,
@@ -67,10 +59,13 @@ exports.updateAbout = async (req, res) => {
       work_days: workDays.join(','),
     };
 
-    await About.updateAbout(updateData);
-    res.redirect('/about');
+    const updatedSettings = await About.updateAbout(updateData);
+
+    // CHANGED: ส่งข้อมูลที่อัปเดตแล้วกลับไปเป็น JSON
+    res.status(200).json(updatedSettings);
+
   } catch (err) {
-    console.error("Error updating about data:", err);
-    res.status(500).send('เกิดข้อผิดพลาดในการบันทึกข้อมูล');
+    console.error("API Error [updateSettings]:", err);
+    res.status(500).json({ message: 'เกิดข้อผิดพลาดในการบันทึกข้อมูลการตั้งค่า' });
   }
 };

@@ -1,25 +1,15 @@
+// backend/models/aboutModel.js
 const util = require('util');
-const db = require('../db'); // อ้างอิงจากโค้ดของคุณ
+const db = require('../config/db'); // ตรวจสอบ Path ให้ถูกต้อง
 
-// ทำให้ db.query สามารถใช้กับ async/await ได้
 const query = util.promisify(db.query).bind(db);
 
 const About = {
-  /**
-   * ดึงข้อมูลการตั้งค่าระบบ (เกี่ยวกับ)
-   * @returns {Promise<object|null>} ข้อมูลการตั้งค่า หรือ null หากไม่มี
-   */
   getAbout: async () => {
     const results = await query('SELECT * FROM about LIMIT 1');
-    // คืนค่า object แรกที่พบ หรือ null หากตารางว่าง
     return results[0] || null;
   },
 
-  /**
-   * อัปเดตข้อมูลการตั้งค่าระบบ
-   * @param {object} data - ข้อมูลใหม่ที่จะอัปเดต
-   * @returns {Promise<object>} ผลลัพธ์จากการอัปเดต
-   */
   updateAbout: async (data) => {
     const sql = `
       UPDATE about SET 
@@ -39,7 +29,10 @@ const About = {
       data.about_funeralleave, data.work_days,
     ];
 
-    return await query(sql, params);
+    await query(sql, params);
+
+    // CHANGED: หลังจากอัปเดตแล้ว ให้ดึงข้อมูลล่าสุดกลับไปคืนค่า
+    return await About.getAbout();
   },
 };
 

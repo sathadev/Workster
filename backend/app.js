@@ -33,27 +33,32 @@ app.use(session({
 
 // Routes
 const authRoute = require('./routes/authRoute');
-const indexRoute = require('./routes/indexRoute');
 const EmpRoute = require('./routes/employeeRoutes');
 const HrRoute = require('./routes/HrRoute');
-const PosRoute = require('./routes/posRoute');
-const leaveworkRoute = require('./routes/leaveworkRoute');
-const salaryRoutes = require('./routes/salaryRoute');
-const evaluationRoute = require('./routes/evaluationRoute');
-const aboutRoutes = require('./routes/aboutRoute');
+const jobposRoutes = require('./routes/jobposRoutes');
+const leaveTypesRoutes = require('./routes/leaveTypesRoutes');
+const leaveworkRoutes = require('./routes/leaveworkRoutes');
+const salaryRoutes = require('./routes/salaryRoutes');
+const evaluationRoutes = require('./routes/evaluationRoutes');
+const aboutRoutes = require('./routes/aboutRoutes');
+const dashboardRoutes = require('./routes/dashboardRoutes');
+const attendanceRoutes = require('./routes/attendanceRoutes');
 
 // ----- 3. ปรับปรุงการเรียกใช้ Routes ให้มี Prefix /api/v1 -----
 const API_PREFIX = '/api/v1';
 
-app.use(`${API_PREFIX}/`, indexRoute);
+
 app.use(`${API_PREFIX}/employees`, EmpRoute); // อาจจะเปลี่ยน path ให้สื่อความหมายมากขึ้น
 app.use(`${API_PREFIX}/hr`, HrRoute);
-app.use(`${API_PREFIX}/positions`, PosRoute);
+app.use(`${API_PREFIX}/positions`, jobposRoutes);
 app.use(`${API_PREFIX}/auth`, authRoute);
-app.use(`${API_PREFIX}/salary`, salaryRoutes);
-app.use(`${API_PREFIX}/leave`, leaveworkRoute);
-app.use(`${API_PREFIX}/evaluation`, evaluationRoute);
-app.use(`${API_PREFIX}/about`, aboutRoutes);
+app.use(`${API_PREFIX}/salaries`, salaryRoutes);
+app.use(`${API_PREFIX}/evaluations`, evaluationRoutes);
+app.use(`${API_PREFIX}/settings`, aboutRoutes);
+app.use(`${API_PREFIX}/dashboard`, dashboardRoutes);
+app.use(`${API_PREFIX}/attendance`, attendanceRoutes);
+app.use(`${API_PREFIX}/leave-types`, leaveTypesRoutes);
+app.use(`${API_PREFIX}/leave-requests`, leaveworkRoutes);
 // -------------------------------------------------------------
 
 app.listen(PORT, () => {

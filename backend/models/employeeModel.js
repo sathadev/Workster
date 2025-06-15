@@ -65,19 +65,22 @@ const Employee = {
     };
   },
 
-  // REFACTORED: ดึงข้อมูลพนักงานตาม id โดยเลือกฟิลด์ที่ปลอดภัย
-  getById: async (id) => {
-    const sql = `
-      SELECT ${SAFE_EMPLOYEE_FIELDS}
-      FROM employee e
-      JOIN jobpos j ON e.jobpos_id = j.jobpos_id
-      WHERE e.emp_id = ?
-    `;
-    // คืนค่าเฉพาะ object ตัวแรก เพราะ id ควรจะมีแค่คนเดียว
-    const results = await query(sql, [id]);
-    return results[0]; 
-  },
 
+getById: async (id) => {
+  const sql = `
+    SELECT 
+      e.emp_id, e.emp_name, e.jobpos_id, e.emp_email, e.emp_tel, 
+      e.emp_address, e.emp_pic, e.emp_birthday, e.emp_startwork, 
+      j.jobpos_name
+    FROM employee e
+    JOIN jobpos j ON e.jobpos_id = j.jobpos_id
+    WHERE e.emp_id = ?
+  `;
+  const results = await query(sql, [id]);
+  
+  // CHANGED: คืนค่าเป็น Array ทั้งหมดที่เจอ ไม่ใช่แค่ตัวแรก
+  return results; 
+},
   // เพิ่มพนักงานใหม่
   create: async (data) => {
     const { emp_name, jobpos_id, emp_email, emp_tel, emp_address, emp_username, emp_password, emp_pic, emp_birthday } = data;
@@ -154,6 +157,16 @@ const Employee = {
       },
     };
   },
+  getByJobposId: async (jobposId) => {
+  // ใช้ SAFE_EMPLOYEE_FIELDS เพื่อความปลอดภัยและประสิทธิภาพ
+  const sql = `
+    SELECT ${SAFE_EMPLOYEE_FIELDS}
+    FROM employee e
+    JOIN jobpos j ON e.jobpos_id = j.jobpos_id
+    WHERE e.jobpos_id = ?
+  `;
+  return await query(sql, [jobposId]);
+},
 };
 
 module.exports = Employee;

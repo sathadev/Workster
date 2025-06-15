@@ -3,6 +3,7 @@
 const express = require('express');
 const router = express.Router();
 const employeeController = require('../controllers/employeeController');
+const evaluationController = require('../controllers/evaluationController');
 
 // Middleware สำหรับตรวจสอบการล็อกอิน (ถ้ามี สามารถนำมาใช้ตรงนี้ได้)
 // const authMiddleware = require('../middleware/authMiddleware');
@@ -24,6 +25,10 @@ router.put('/:id', employeeController.uploadImage, employeeController.updateEmpl
 
 // DELETE /api/v1/employees/:id -> ลบพนักงาน
 router.delete('/:id', employeeController.deleteEmployee);
+
+// GET /api/v1/employees/:id/evaluations -> ดึงประวัติการประเมินทั้งหมดของพนักงานคนนี้
+router.get('/:id/evaluations', evaluationController.getEvaluationsByEmployeeId);
+
 
 
 // ------------------- Profile Route (Special Case) -------------------

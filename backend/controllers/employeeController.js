@@ -77,21 +77,25 @@ exports.getEmployeeById = async (req, res) => {
 
 // [POST] /api/v1/employees - สร้างพนักงานใหม่
 exports.createEmployee = async (req, res) => {
+  // ================== DEBUGGING CODE ==================
+  console.log('--- ENTERING createEmployee function ---');
+  console.log('Request Body (req.body):', req.body);
+  console.log('Request File (req.file):', req.file);
+  console.log('========================================');
+  // ==================================================
+
   try {
     const data = req.body;
+    // บรรทัดนี้ถูกต้องอยู่แล้ว ถ้าไม่มีไฟล์ req.file จะเป็น undefined และ emp_pic จะได้ค่า null
     let emp_pic = req.file ? req.file.buffer : null;
 
-    if (!emp_pic) {
-      const defaultImagePath = path.join(__dirname, '../../public/images/profile.jpg'); // ปรับ path ให้ถูกต้อง
-      emp_pic = fs.readFileSync(defaultImagePath);
-    }
+    // ลบบล็อก if ที่เช็ค !emp_pic ตรงนี้ทิ้งไป
 
     const hashedPassword = await bcrypt.hash(data.emp_password, 10);
     const fullData = { ...data, emp_password: hashedPassword, emp_pic };
 
     const newEmployee = await Employee.create(fullData);
 
-    // CHANGED: ส่งสถานะ 201 (Created) และข้อมูลที่สร้างใหม่กลับไป
     res.status(201).json({
       message: 'สร้างพนักงานใหม่สำเร็จ',
       data: newEmployee
