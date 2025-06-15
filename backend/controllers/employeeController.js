@@ -15,23 +15,27 @@ exports.uploadImage = upload.single('emp_pic');
 // --- ฟังก์ชันสำหรับ API ---
 
 // [GET] /api/v1/employees - ดึงข้อมูลพนักงานทั้งหมด (รวมการค้นหาและเรียงลำดับ)
+
 exports.getAllEmployees = async (req, res) => {
-  const { sort: sortField = 'emp_name', order = 'asc', search: searchTerm = '' } = req.query;
-  const sortOrder = order.toLowerCase() === 'desc' ? 'DESC' : 'ASC';
+  const { 
+    sort: sortField = 'emp_name', 
+    order = 'asc', 
+    search: searchTerm = '',
+    page = 1,
+    limit = 10
+  } = req.query;
 
   try {
-    let employees;
+    let result;
     if (searchTerm.trim()) {
-      employees = await Employee.searchEmployees(searchTerm.trim());
+      // CHANGED: ส่ง sortField และ order ไปด้วย
+      result = await Employee.searchEmployees(searchTerm.trim(), sortField, order.toUpperCase(), page, limit);
     } else {
-      // NOTE: แนะนำให้เพิ่ม Pagination ใน Model เพื่อประสิทธิภาพในอนาคต
-      employees = await Employee.getAllSorted(sortField, sortOrder);
+      result = await Employee.getAllSorted(sortField, order.toUpperCase(), page, limit);
     }
-    // CHANGED: ส่งข้อมูลพนักงานเป็น JSON กลับไป
-    res.status(200).json(employees);
+    res.status(200).json(result);
   } catch (err) {
     console.error('API Error [getAllEmployees]:', err);
-    // CHANGED: ส่ง Error เป็น JSON กลับไป
     res.status(500).json({ message: 'เกิดข้อผิดพลาดในการโหลดข้อมูลพนักงาน' });
   }
 };

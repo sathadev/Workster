@@ -31,37 +31,81 @@ const Employee = {
    * @param {number} limit - จำนวนรายการต่อหน้า
    * @returns {Promise<{data: Array, meta: object}>} - ข้อมูลพนักงานพร้อมข้อมูล meta สำหรับการแบ่งหน้า
    */
-  getAllSorted: async (sortField, sortOrder, page = 1, limit = 10) => {
-    const allowedFields = ['emp_name', 'jobpos_name', 'emp_startwork', 'emp_id'];
-    if (!allowedFields.includes(sortField)) sortField = 'emp_name';
-    
-    // 1. Query เพื่อนับจำนวนรายการทั้งหมดสำหรับทำ Pagination
+ getAllSorted: async (sortField, sortOrder, page = 1, limit = 10) => {
     const countSql = `SELECT COUNT(emp_id) as total FROM employee`;
     const [totalResult] = await query(countSql);
     const totalItems = totalResult.total;
     const totalPages = Math.ceil(totalItems / limit);
-    
-    // 2. Query เพื่อดึงข้อมูลตามหน้าและจำนวนที่กำหนด
+
     let dataSql = `
       SELECT ${SAFE_EMPLOYEE_FIELDS}
       FROM employee e
       JOIN jobpos j ON e.jobpos_id = j.jobpos_id
-      ORDER BY e.${sortField} ${sortOrder}
-      LIMIT ? OFFSET ?
     `;
-    
+
+    // --- CORRECTED: ปรับปรุง Logic การ ORDER BY ---
+    if (sortField === 'emp_name') {
+        dataSql += ` ORDER BY CAST(REGEXP_SUBSTR(e.emp_name, '[0-9]+') AS UNSIGNED) ${sortOrder}, e.emp_name ${sortOrder}`;
+    } else if (sortField === 'jobpos_name') {
+        // เมื่อ sort ตามตำแหน่ง ให้เรียงตาม ID ของตำแหน่งแทน
+        dataSql += ` ORDER BY j.jobpos_id ${sortOrder} `;
+    } else {
+        // Fallback สำหรับฟิลด์อื่นๆ ที่อนุญาต
+        const allowedFields = ['emp_startwork', 'emp_id'];
+        if(allowedFields.includes(sortField)) {
+            dataSql += ` ORDER BY e.${sortField} ${sortOrder} `;
+        } else {
+            dataSql += ` ORDER BY e.emp_name ASC `; // Default sort
+        }
+    }
+
     const offset = (page - 1) * limit;
+    dataSql += ` LIMIT ? OFFSET ? `;
     const employees = await query(dataSql, [parseInt(limit), parseInt(offset)]);
 
-    // 3. คืนค่าเป็น Object ที่มีทั้งข้อมูลและ meta สำหรับ Frontend
     return {
       data: employees,
-      meta: {
-        totalItems,
-        totalPages,
-        currentPage: parseInt(page),
-        itemsPerPage: parseInt(limit),
-      },
+      meta: { totalItems, totalPages, currentPage: parseInt(page), itemsPerPage: parseInt(limit) },
+    };
+  },
+
+  /**
+   * REFACTORED: แก้ไข Logic การเรียงลำดับตามตำแหน่ง
+   */
+  searchEmployees: async (searchTerm, sortField, sortOrder, page = 1, limit = 10) => {
+    const searchPattern = `%${searchTerm}%`;
+    const countSql = `SELECT COUNT(e.emp_id) as total FROM employee e JOIN jobpos j ON e.jobpos_id = j.jobpos_id WHERE e.emp_name LIKE ? OR j.jobpos_name LIKE ?`;
+    const [totalResult] = await query(countSql, [searchPattern, searchPattern]);
+    const totalItems = totalResult.total;
+    const totalPages = Math.ceil(totalItems / limit);
+
+    let dataSql = `
+      SELECT ${SAFE_EMPLOYEE_FIELDS}
+      FROM employee e JOIN jobpos j ON e.jobpos_id = j.jobpos_id
+      WHERE e.emp_name LIKE ? OR j.jobpos_name LIKE ?
+    `;
+
+    // --- ใช้ Logic การ ORDER BY ที่ถูกต้องเหมือนกัน ---
+    if (sortField === 'emp_name') {
+        dataSql += ` ORDER BY CAST(REGEXP_SUBSTR(e.emp_name, '[0-9]+') AS UNSIGNED) ${sortOrder}, e.emp_name ${sortOrder}`;
+    } else if (sortField === 'jobpos_name') {
+        dataSql += ` ORDER BY j.jobpos_id ${sortOrder} `;
+    } else {
+        const allowedFields = ['emp_startwork', 'emp_id'];
+        if(allowedFields.includes(sortField)) {
+            dataSql += ` ORDER BY e.${sortField} ${sortOrder} `;
+        } else {
+            dataSql += ` ORDER BY e.emp_name ASC `;
+        }
+    }
+
+    const offset = (page - 1) * limit;
+    dataSql += ` LIMIT ? OFFSET ? `;
+    const employees = await query(dataSql, [searchPattern, searchPattern, parseInt(limit), parseInt(offset)]);
+
+    return {
+      data: employees,
+      meta: { totalItems, totalPages, currentPage: parseInt(page), itemsPerPage: parseInt(limit) },
     };
   },
 
@@ -125,38 +169,58 @@ getById: async (id) => {
   },
   
   // REFACTORED: ค้นหาพนักงาน (เพิ่ม Pagination และเลือกฟิลด์)
-  searchEmployees: async (searchTerm, page = 1, limit = 10) => {
+ // backend/models/employeeModel.js
+
+  // REFACTORED: ค้นหาพนักงาน (แก้ไข Typo jp -> j)
+  searchEmployees: async (searchTerm, sortField, sortOrder, page = 1, limit = 10) => {
     const searchPattern = `%${searchTerm}%`;
+    
+    // Query เพื่อนับจำนวน
     const countSql = `
       SELECT COUNT(e.emp_id) as total
-      FROM employee e JOIN jobpos j ON e.jobpos_id = j.jobpos_id
+      FROM employee e JOIN jobpos j ON e.jobpos_id = j.jobpos_id 
       WHERE e.emp_name LIKE ? OR j.jobpos_name LIKE ?`;
-    
+      //                                          ^^^ แก้ไขจาก jp เป็น j
+
     const [totalResult] = await query(countSql, [searchPattern, searchPattern]);
     const totalItems = totalResult.total;
     const totalPages = Math.ceil(totalItems / limit);
 
-    const dataSql = `
+    // Query เพื่อดึงข้อมูล
+    let dataSql = `
       SELECT ${SAFE_EMPLOYEE_FIELDS}
       FROM employee e
       JOIN jobpos j ON e.jobpos_id = j.jobpos_id
       WHERE e.emp_name LIKE ? OR j.jobpos_name LIKE ?
-      ORDER BY e.emp_name ASC
-      LIMIT ? OFFSET ?
     `;
+    //                                  ^^^ แก้ไขจาก jp เป็น j
+
+    // --- ส่วนของ ORDER BY (ถูกต้องแล้ว) ---
+    if (sortField === 'emp_name') {
+        dataSql += ` ORDER BY CAST(REGEXP_SUBSTR(e.emp_name, '[0-9]+') AS UNSIGNED) ${sortOrder}, e.emp_name ${sortOrder}`;
+    } else if (sortField === 'jobpos_name') {
+        dataSql += ` ORDER BY j.jobpos_id ${sortOrder} `;
+    } else {
+        const allowedFields = ['emp_startwork', 'emp_id'];
+        if(allowedFields.includes(sortField)) {
+            dataSql += ` ORDER BY e.${sortField} ${sortOrder} `;
+        } else {
+            dataSql += ` ORDER BY e.emp_name ASC `;
+        }
+    }
+    // ------------------------------------
+
     const offset = (page - 1) * limit;
+    dataSql += ` LIMIT ? OFFSET ? `;
+    
     const employees = await query(dataSql, [searchPattern, searchPattern, parseInt(limit), parseInt(offset)]);
 
     return {
       data: employees,
-      meta: {
-        totalItems,
-        totalPages,
-        currentPage: parseInt(page),
-        itemsPerPage: parseInt(limit),
-      },
+      meta: { totalItems, totalPages, currentPage: parseInt(page), itemsPerPage: parseInt(limit) },
     };
   },
+
   getByJobposId: async (jobposId) => {
   // ใช้ SAFE_EMPLOYEE_FIELDS เพื่อความปลอดภัยและประสิทธิภาพ
   const sql = `

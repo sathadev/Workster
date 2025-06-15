@@ -1,19 +1,15 @@
-// frontend/src/App.jsx
-
-import './App.css' // คุณอาจจะมีไฟล์ css ของตัวเองด้วย
+import { useState } from 'react'
+import reactLogo from './assets/react.svg'
+import viteLogo from '/vite.svg'
+import './App.css'
 
 function App() {
   return (
-    <div className="container mt-5"> {/* ใช้ container ของ Bootstrap */}
-      <h1>ยินดีต้อนรับสู่โปรเจกต์ใหม่!</h1>
-      <p>นี่คือตัวอย่างการใช้งาน Bootstrap ในโปรเจกต์ React</p>
-
-      <button className="btn btn-primary me-2">
-        ปุ่มหลัก (Primary)
-      </button>
-
-      <button className="btn btn-success">
-        ปุ่มสำเร็จ (Success)
+    <div className="container mt-4">
+      <h1>ทดสอบการติดตั้ง Bootstrap</h1>
+      <p>ถ้าปุ่มด้านล่างเป็นสีน้ำเงิน แสดงว่าติดตั้งสำเร็จ!</p>
+      <button className="btn btn-primary">
+        ติดตั้งสำเร็จ!
       </button>
     </div>
   )
