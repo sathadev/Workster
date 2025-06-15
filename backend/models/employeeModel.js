@@ -1,12 +1,18 @@
 const util = require('util');
-const db = require('../config/db'); // เชื่อมต่อกับฐานข้อมูล
+const db = require('../config/db');
 
 // ทำให้ db.query ใช้กับ async/await ได้
-// .bind(db) เป็นสิ่งสำคัญเพื่อให้ 'this' context ถูกต้อง
 const query = util.promisify(db.query).bind(db);
 
+// REFACTORED: กำหนดฟิลด์ที่ปลอดภัยสำหรับดึงข้อมูล เพื่อหลีกเลี่ยงการส่งข้อมูลรหัสผ่าน
+const SAFE_EMPLOYEE_FIELDS = `
+  e.emp_id, e.emp_name, e.jobpos_id, e.emp_email, e.emp_tel, 
+  e.emp_address, e.emp_pic, e.emp_birthday, e.emp_startwork, 
+  j.jobpos_name
+`;
+
 const Employee = {
-  // ดึงข้อมูลการประเมินทั้งหมด
+  // ดึงข้อมูลการประเมินทั้งหมด (ไม่เปลี่ยนแปลง)
   getAllEvaluations: async () => {
     const sql = `
       SELECT e.create_at, emp.emp_name, e.evaluatework_totalscore, emp.emp_id
@@ -17,92 +23,82 @@ const Employee = {
     return await query(sql);
   },
 
-  // ดึงข้อมูลพนักงานทั้งหมด (เวอร์ชันเก่าที่ใช้ sort แบบเฉพาะ)
-  getAll: async (sort) => {
-    let sql = `
-      SELECT e.*, j.jobpos_name
-      FROM employee e
-      JOIN jobpos j ON e.jobpos_id = j.jobpos_id
-    `;
-    
-    // Logic การเรียงลำดับยังคงเดิม
-    if (sort === 'jobpos_id_asc') sql += ` ORDER BY e.jobpos_id ASC`;
-    else if (sort === 'jobpos_id_desc') sql += ` ORDER BY e.jobpos_id DESC`;
-    else if (sort === 'name_asc') sql += ` ORDER BY e.emp_name ASC`;
-    else if (sort === 'name_desc') sql += ` ORDER BY e.emp_name DESC`;
-    else if (sort === 'jobpos_asc') sql += ` ORDER BY j.jobpos_name ASC`;
-    else if (sort === 'jobpos_desc') sql += ` ORDER BY j.jobpos_name DESC`;
-    else sql += ` ORDER BY e.emp_name ASC`; // Default sort
-
-    return await query(sql);
-  },
-
-  // ดึงข้อมูลพนักงานทั้งหมดพร้อมเรียงลำดับ (เวอร์ชันที่ปรับปรุงแล้ว)
-  getAllSorted: async (sortField, sortOrder) => {
-    const allowedFields = ['emp_name', 'jobpos_name', 'jobpos_id', 'emp_startwork', 'emp_id'];
+  /**
+   * REFACTORED: ดึงข้อมูลพนักงานทั้งหมดพร้อมเรียงลำดับและแบ่งหน้า (Pagination)
+   * @param {string} sortField - ฟิลด์ที่ใช้เรียงลำดับ
+   * @param {string} sortOrder - 'ASC' หรือ 'DESC'
+   * @param {number} page - หน้าปัจจุบัน
+   * @param {number} limit - จำนวนรายการต่อหน้า
+   * @returns {Promise<{data: Array, meta: object}>} - ข้อมูลพนักงานพร้อมข้อมูล meta สำหรับการแบ่งหน้า
+   */
+  getAllSorted: async (sortField, sortOrder, page = 1, limit = 10) => {
+    const allowedFields = ['emp_name', 'jobpos_name', 'emp_startwork', 'emp_id'];
     if (!allowedFields.includes(sortField)) sortField = 'emp_name';
-
-    let sql = `
-      SELECT e.*, j.jobpos_name, j.jobpos_id
+    
+    // 1. Query เพื่อนับจำนวนรายการทั้งหมดสำหรับทำ Pagination
+    const countSql = `SELECT COUNT(emp_id) as total FROM employee`;
+    const [totalResult] = await query(countSql);
+    const totalItems = totalResult.total;
+    const totalPages = Math.ceil(totalItems / limit);
+    
+    // 2. Query เพื่อดึงข้อมูลตามหน้าและจำนวนที่กำหนด
+    let dataSql = `
+      SELECT ${SAFE_EMPLOYEE_FIELDS}
       FROM employee e
       JOIN jobpos j ON e.jobpos_id = j.jobpos_id
+      ORDER BY e.${sortField} ${sortOrder}
+      LIMIT ? OFFSET ?
     `;
     
-    // Logic การเรียงลำดับยังคงเดิม
-    if (sortField === 'emp_name') {
-      sql += `
-        ORDER BY
-          CASE WHEN e.emp_name REGEXP '[0-9]+' THEN
-            CAST(SUBSTRING(e.emp_name, REGEXP_INSTR(e.emp_name, '[0-9]+'), LENGTH(REGEXP_SUBSTR(e.emp_name, '[0-9]+'))) AS UNSIGNED)
-          ELSE NULL
-          END ${sortOrder},
-          e.emp_name ${sortOrder}
-      `;
-    } else if (sortField === 'jobpos_name' || sortField === 'jobpos_id') {
-      sql += ` ORDER BY j.jobpos_id ${sortOrder} `;
-    } else {
-      sql += ` ORDER BY e.${sortField} ${sortOrder} `;
-    }
+    const offset = (page - 1) * limit;
+    const employees = await query(dataSql, [parseInt(limit), parseInt(offset)]);
 
-    return await query(sql);
+    // 3. คืนค่าเป็น Object ที่มีทั้งข้อมูลและ meta สำหรับ Frontend
+    return {
+      data: employees,
+      meta: {
+        totalItems,
+        totalPages,
+        currentPage: parseInt(page),
+        itemsPerPage: parseInt(limit),
+      },
+    };
   },
 
-  // ดึงข้อมูลพนักงานตาม id
+  // REFACTORED: ดึงข้อมูลพนักงานตาม id โดยเลือกฟิลด์ที่ปลอดภัย
   getById: async (id) => {
     const sql = `
-      SELECT e.*, j.jobpos_name
+      SELECT ${SAFE_EMPLOYEE_FIELDS}
       FROM employee e
       JOIN jobpos j ON e.jobpos_id = j.jobpos_id
       WHERE e.emp_id = ?
     `;
-    return await query(sql, [id]);
-  },
-
-  // ดึงพนักงานตามตำแหน่ง
-  getByJobposId: async (jobposId) => {
-    const sql = `SELECT * FROM employee WHERE jobpos_id = ?`;
-    return await query(sql, [jobposId]);
+    // คืนค่าเฉพาะ object ตัวแรก เพราะ id ควรจะมีแค่คนเดียว
+    const results = await query(sql, [id]);
+    return results[0]; 
   },
 
   // เพิ่มพนักงานใหม่
   create: async (data) => {
     const { emp_name, jobpos_id, emp_email, emp_tel, emp_address, emp_username, emp_password, emp_pic, emp_birthday } = data;
 
-    // 1. ตรวจสอบว่าอีเมลมีอยู่แล้วในระบบหรือไม่
     const existingEmployee = await query('SELECT emp_id FROM employee WHERE emp_email = ?', [emp_email]);
     if (existingEmployee.length > 0) {
-      // ถ้ามี ให้โยน Error ออกไปเพื่อให้ try...catch ใน Controller จัดการ
       throw new Error('Email is already registered.');
     }
 
-    // 2. ถ้าอีเมลไม่ซ้ำ ก็ทำการเพิ่มข้อมูลพนักงานใหม่
     const insertSql = `
       INSERT INTO employee
       (emp_name, jobpos_id, emp_email, emp_tel, emp_address, emp_username, emp_password, emp_pic, emp_birthday, emp_startwork)
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())
     `;
     const params = [emp_name, jobpos_id, emp_email, emp_tel, emp_address, emp_username, emp_password, emp_pic, emp_birthday];
-    return await query(insertSql, params);
+    
+    const result = await query(insertSql, params);
+    
+    // REFACTORED: คืนค่าเป็นข้อมูลพนักงานที่เพิ่งสร้าง แทนที่จะเป็น OkPacket
+    const newEmployeeId = result.insertId;
+    return await Employee.getById(newEmployeeId);
   },
 
   // อัปเดตข้อมูลพนักงาน
@@ -114,35 +110,49 @@ const Employee = {
       WHERE emp_id = ?
     `;
     const params = [emp_name, jobpos_id, emp_email, emp_tel, emp_address, emp_pic, id];
-    return await query(sql, params);
+    await query(sql, params);
+
+    // REFACTORED: คืนค่าเป็นข้อมูลพนักงานที่เพิ่งอัปเดต
+    return await Employee.getById(id);
   },
 
-  // ลบพนักงาน
+  // ลบพนักงาน (ไม่เปลี่ยนแปลง)
   delete: async (id) => {
     return await query('DELETE FROM employee WHERE emp_id = ?', [id]);
   },
+  
+  // REFACTORED: ค้นหาพนักงาน (เพิ่ม Pagination และเลือกฟิลด์)
+  searchEmployees: async (searchTerm, page = 1, limit = 10) => {
+    const searchPattern = `%${searchTerm}%`;
+    const countSql = `
+      SELECT COUNT(e.emp_id) as total
+      FROM employee e JOIN jobpos j ON e.jobpos_id = j.jobpos_id
+      WHERE e.emp_name LIKE ? OR j.jobpos_name LIKE ?`;
+    
+    const [totalResult] = await query(countSql, [searchPattern, searchPattern]);
+    const totalItems = totalResult.total;
+    const totalPages = Math.ceil(totalItems / limit);
 
-  // ดึงพนักงานตามชื่อตำแหน่ง
-  getByJobposName: async (jobposName) => {
-    const sql = `
-      SELECT e.* FROM employee e
-      JOIN jobpos j ON e.jobpos_id = j.jobpos_id
-      WHERE j.jobpos_name = ?
-    `;
-    return await query(sql, [jobposName]);
-  },
-
-  // ค้นหาพนักงาน
-  searchEmployees: async (searchTerm) => {
-    const sql = `
-      SELECT e.*, j.jobpos_name
+    const dataSql = `
+      SELECT ${SAFE_EMPLOYEE_FIELDS}
       FROM employee e
       JOIN jobpos j ON e.jobpos_id = j.jobpos_id
       WHERE e.emp_name LIKE ? OR j.jobpos_name LIKE ?
       ORDER BY e.emp_name ASC
+      LIMIT ? OFFSET ?
     `;
-    const searchPattern = `%${searchTerm}%`;
-    return await query(sql, [searchPattern, searchPattern]);
+    const offset = (page - 1) * limit;
+    const employees = await query(dataSql, [searchPattern, searchPattern, parseInt(limit), parseInt(offset)]);
+
+    return {
+      data: employees,
+      meta: {
+        totalItems,
+        totalPages,
+        currentPage: parseInt(page),
+        itemsPerPage: parseInt(limit),
+      },
+    };
   },
 };
 
