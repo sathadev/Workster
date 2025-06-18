@@ -13,16 +13,22 @@ import './index.css';
 import { AuthProvider } from './context/AuthContext';
 
 // Import Layout และ Pages
-import MainLayout from './layouts/MainLayout.jsx'; // <-- CHANGED: Import Layout ใหม่
+import MainLayout from './layouts/MainLayout.jsx';
 import LoginPage from './pages/LoginPage.jsx';
 import HomePage from './pages/HomePage.jsx';
 import EmployeeListPage from './pages/EmployeeListPage.jsx';
+import ProtectedRoute from './components/ProtectedRoute.jsx'; // <-- 1. Import "ยาม" เข้ามา
 
 // สร้าง "แผนที่" ของเว็บไซต์
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <MainLayout />, // <-- CHANGED: ใช้ MainLayout เป็นกรอบ
+    // vvv 2. ให้ "ยาม" (ProtectedRoute) มาห่อหุ้ม Layout หลักของเรา vvv
+    element: (
+      <ProtectedRoute>
+        <MainLayout />
+      </ProtectedRoute>
+    ),
     children: [
       {
         index: true,
@@ -32,8 +38,7 @@ const router = createBrowserRouter([
         path: "employees",
         element: <EmployeeListPage />,
       },
-      // ในอนาคตเราจะเพิ่ม Route ลูกๆ ที่นี่ เช่น
-      // { path: "employees", element: <EmployeeListPage /> },
+      // ในอนาคต Route ลูกๆ ที่ต้องล็อกอินก่อนจะถูกเพิ่มที่นี่
     ],
   },
   {

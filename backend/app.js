@@ -9,7 +9,10 @@ const app = express();
 const PORT = 5000; // <-- 4. (แนะนำ) เปลี่ยน Port เป็น 5000
 
 // Middleware ที่จำเป็น
-app.use(cors()); // <-- 1. ใช้งาน CORS เพื่อให้ Frontend เรียกได้
+app.use(cors({
+    origin: "http://localhost:5173", // 1. อนุญาตเฉพาะ Origin นี้เท่านั้น
+    credentials: true               // 2. อนุญาตให้ส่ง Cookie ข้าม Origin ได้
+}));// <-- 1. ใช้งาน CORS เพื่อให้ Frontend เรียกได้
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 
@@ -21,15 +24,6 @@ app.use(session({
   cookie: { maxAge: 60 * 60 * 1000 }
 }));
 
-// ----- 2. ลบส่วนของ View Engine และ Static Files ทิ้งไป -----
-// app.set('view engine', 'ejs');
-// app.set('views', path.join(__dirname, 'views'));
-// app.use(express.static('public'));
-// app.use((req, res, next) => {
-//   res.locals.user = req.session.user;
-//   next();
-// });
-// ---------------------------------------------------------
 
 // Routes
 const authRoute = require('./routes/authRoute');
