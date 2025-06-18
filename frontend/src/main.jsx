@@ -12,18 +12,19 @@ import './index.css';
 // Import Context Provider
 import { AuthProvider } from './context/AuthContext';
 
-// Import Layout และ Pages
+// Import Layout และ Pages ทั้งหมดที่จำเป็น
 import MainLayout from './layouts/MainLayout.jsx';
+import ProtectedRoute from './components/ProtectedRoute.jsx';
 import LoginPage from './pages/LoginPage.jsx';
 import HomePage from './pages/HomePage.jsx';
 import EmployeeListPage from './pages/EmployeeListPage.jsx';
-import ProtectedRoute from './components/ProtectedRoute.jsx'; // <-- 1. Import "ยาม" เข้ามา
+import EmployeeDetailPage from './pages/EmployeeDetailPage.jsx'; // <-- 1. Import เข้ามา
+import EmployeeEditPage from './pages/EmployeeEditPage.jsx';   // <-- 1. Import เข้ามา
 
 // สร้าง "แผนที่" ของเว็บไซต์
 const router = createBrowserRouter([
   {
     path: "/",
-    // vvv 2. ให้ "ยาม" (ProtectedRoute) มาห่อหุ้ม Layout หลักของเรา vvv
     element: (
       <ProtectedRoute>
         <MainLayout />
@@ -38,7 +39,16 @@ const router = createBrowserRouter([
         path: "employees",
         element: <EmployeeListPage />,
       },
-      // ในอนาคต Route ลูกๆ ที่ต้องล็อกอินก่อนจะถูกเพิ่มที่นี่
+      // --- 2. เพิ่ม 2 Routes ใหม่เข้ามาตรงนี้ ---
+      {
+        path: "employees/view/:id", // :id คือ URL Parameter ที่จะเปลี่ยนไปตามพนักงาน
+        element: <EmployeeDetailPage />,
+      },
+      {
+        path: "employees/edit/:id",
+        element: <EmployeeEditPage />,
+      },
+      // ------------------------------------
     ],
   },
   {
