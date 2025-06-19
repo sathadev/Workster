@@ -12,4 +12,6 @@ router.post('/', evaluationController.createEvaluation);
 // GET /api/v1/evaluations/:id -> ดึงการประเมินชิ้นเดียว
 router.get('/:id', evaluationController.getEvaluationById);
 
+router.get('/result/:id', evaluationController.getEvaluationResultById);
+
 module.exports = router;

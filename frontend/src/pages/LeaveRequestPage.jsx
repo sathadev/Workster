@@ -115,8 +115,7 @@ function LeaveRequestPage() {
                 {/* ... เนื้อหาตารางเหมือนเดิม ... */}
                 <thead className="table-light">
                     <tr>
-                        <th>วันที่เริ่ม</th>
-                        <th>วันที่สิ้นสุด</th>
+                        <th>วันที่ลา</th>
                         <th>ประเภทการลา</th>
                         <th>เหตุผล</th>
                         <th>สถานะ</th>
@@ -125,8 +124,7 @@ function LeaveRequestPage() {
                 <tbody>
                     {myRequests.length > 0 ? myRequests.map((leave) => (
                         <tr key={leave.leavework_id}>
-                            <td>{formatDate(leave.leavework_datestart)}</td>
-                            <td>{formatDate(leave.leavework_end)}</td>
+                            <td>{formatDate(leave.leavework_datestart)} - {formatDate(leave.leavework_end)}</td>
                             <td>{leave.leaveworktype_name}</td>
                             <td>{leave.leavework_description}</td>
                             <td>

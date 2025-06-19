@@ -1,6 +1,7 @@
 // backend/controllers/evaluationController.js
 
 const Evaluation = require('../models/evaluationModel');
+const employeeModel = require('../models/employeeModel');
 
 // [GET] /api/v1/evaluations -> ดึงประวัติการประเมินทั้งหมด
 exports.getAllEvaluations = async (req, res) => {
@@ -53,14 +54,27 @@ exports.createEvaluation = async (req, res) => {
   }
 };
 
-// [GET] /api/v1/employees/:id/evaluations -> ดึงประวัติการประเมินของพนักงานคนเดียว
-exports.getEvaluationsByEmployeeId = async (req, res) => {
-    try {
-        const { id } = req.params; // id ในที่นี้คือ emp_id
-        const evaluations = await Evaluation.getByEmployeeId(id);
-        res.status(200).json(evaluations);
-    } catch (err) {
-        console.error("API Error [getEvaluationsByEmployeeId]:", err);
-        res.status(500).json({ message: 'เกิดข้อผิดพลาดในการดึงประวัติการประเมินของพนักงาน' });
+// [GET] /api/v1/evaluations/result/:id -> ดึงผลประเมินพร้อมข้อมูลพนักงาน
+exports.getEvaluationResultById = async (req, res) => {
+  try {
+    const { id } = req.params; // id นี้คือ evaluatework_id
+    const evaluation = await Evaluation.getById(id);
+
+    if (!evaluation) {
+      return res.status(404).json({ message: 'ไม่พบข้อมูลการประเมิน' });
     }
+
+    // ดึงข้อมูลพนักงานที่ถูกประเมิน
+    const [employee] = await employeeModel.getById(evaluation.emp_id);
+    if (!employee) {
+        return res.status(404).json({ message: 'ไม่พบข้อมูลพนักงานที่เกี่ยวข้อง' });
+    }
+
+    // ส่งข้อมูลทั้งสองส่วนกลับไปพร้อมกัน
+    res.status(200).json({ evaluation, employee });
+
+  } catch (err) {
+    console.error("API Error [getEvaluationResultById]:", err);
+    res.status(500).json({ message: 'เกิดข้อผิดพลาดในการแสดงผล' });
+  }
 };

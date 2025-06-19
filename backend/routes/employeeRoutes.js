@@ -18,6 +18,6 @@ router.get('/:id', employeeController.getEmployeeById);
 // Routes อื่นๆ สำหรับ :id
 router.put('/:id', employeeController.uploadImage, employeeController.updateEmployee);
 router.delete('/:id', employeeController.deleteEmployee);
-router.get('/:id/evaluations', evaluationController.getEvaluationsByEmployeeId);
+
 
 module.exports = router;

@@ -60,11 +60,9 @@ function LeaveRequestListPage() {
                     <thead className="table-light">
                         <tr>
                             <th>ชื่อ - สกุล</th>
-                            <th>ตำแหน่ง</th>
                             <th>ประเภทการลา</th>
                             <th>หมายเหตุ</th>
-                            <th>วันที่เริ่ม</th>
-                            <th>วันที่สิ้นสุด</th>
+                            <th>วันที่ลา</th>
                             <th>สถานะ</th>
                             <th>ดำเนินการ</th>
                         </tr>
@@ -73,11 +71,9 @@ function LeaveRequestListPage() {
                         {leaveRequests.length > 0 ? leaveRequests.map((leave) => (
                             <tr key={leave.leavework_id}>
                                 <td>{leave.emp_name}</td>
-                                <td>{leave.jobpos_name}</td>
                                 <td>{leave.leaveworktype_name}</td>
                                 <td>{leave.leavework_description}</td>
-                                <td>{formatDate(leave.leavework_datestart)}</td>
-                                <td>{formatDate(leave.leavework_end)}</td>
+                                <td>{formatDate(leave.leavework_datestart)} - {formatDate(leave.leavework_end)}</td>
                                 <td>
                                     <StatusBadge status={leave.leavework_status} />
                                 </td>

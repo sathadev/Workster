@@ -1,0 +1,7 @@
+
+.custom-modal .modal-content {
+  max-width: 500px;
+  margin: auto; /* จัดกลางแนวนอน */
+  border-radius: 25px;
+  border: none;
+}

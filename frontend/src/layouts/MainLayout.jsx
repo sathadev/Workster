@@ -68,7 +68,7 @@ function MainLayout() {
                                     <NavLink to="/salaries" className="sidebar-link">จัดการเงินเดือน</NavLink>
                                     <NavLink to="/evaluations" className="sidebar-link">การประเมินผล</NavLink>
                                     <NavLink to="/positions" className="sidebar-link">ตำแหน่งงาน</NavLink>
-                                    <NavLink to="/apply-work" className="sidebar-link">ผู้สมัครงาน</NavLink>
+                                    {/* <NavLink to="/apply-work" className="sidebar-link">ผู้สมัครงาน</NavLink> */}
                                     <NavLink to="/settings" className="sidebar-link">ตั้งค่าบริษัท</NavLink>
                                 </>
                             )}
