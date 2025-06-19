@@ -1,6 +1,6 @@
 // frontend/src/pages/LoginPage.jsx
 import { useState } from 'react';
-import axios from 'axios';
+import api from '../api/axios'
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext'; // Import useAuth
 import './LoginPage.css';
@@ -17,9 +17,7 @@ function LoginPage() {
     setError(null);
 
     try {
-      const response = await axios.post(
-        'http://localhost:5000/api/v1/auth/login',
-        {
+      const response = await api.post('/auth/login', {
           emp_username: username,
           emp_password: password,
         }

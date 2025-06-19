@@ -46,3 +46,17 @@ exports.getMySalary = async (req, res) => {
         res.status(500).json({ message: 'เกิดข้อผิดพลาดในการดึงข้อมูล' });
     }
 };
+
+// [GET] /api/v1/salaries/:empId
+exports.getSalaryByEmpId = async (req, res) => {
+    try {
+        const { empId } = req.params;
+        const salaryInfo = await SalaryModel.getSalaryByEmpId(empId);
+        if (!salaryInfo) {
+            return res.status(404).json({ message: 'ไม่พบข้อมูลเงินเดือนของพนักงานนี้' });
+        }
+        res.status(200).json(salaryInfo);
+    } catch (err) {
+        res.status(500).json({ message: 'เกิดข้อผิดพลาดในการดึงข้อมูล' });
+    }
+};

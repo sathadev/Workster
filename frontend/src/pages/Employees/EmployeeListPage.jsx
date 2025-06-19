@@ -39,7 +39,7 @@ function EmployeeListPage() {
     useEffect(() => {
         const fetchEmployees = async () => {
             try {
-                // REFACTORED: จะขึ้น Loading แค่ตอนโหลดครั้งแรก หรือมีการค้นหาใหม่เท่านั้น
+                // ขึ้น Loading แค่ตอนโหลดครั้งแรก หรือมีการค้นหาใหม่เท่านั้น
                 if (loading || searchTerm !== prevSearchTermRef.current) {
                     setLoading(true);
                 }
@@ -117,7 +117,7 @@ function EmployeeListPage() {
                 </div>
             )}
 
-            {/* --- REFACTORED: ใช้โครงสร้าง Input Group แบบเดียวกับ EJS --- */}
+       
             <form onSubmit={handleSearchSubmit} className="mb-3 search-form">
                 <div className="input-group w-50">
                     <input 

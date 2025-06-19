@@ -17,9 +17,14 @@ import MainLayout from './layouts/MainLayout.jsx';
 import ProtectedRoute from './components/ProtectedRoute.jsx';
 import LoginPage from './pages/LoginPage.jsx';
 import HomePage from './pages/HomePage.jsx';
-import EmployeeListPage from './pages/EmployeeListPage.jsx';
-import EmployeeDetailPage from './pages/EmployeeDetailPage.jsx'; // <-- 1. Import เข้ามา
-import EmployeeEditPage from './pages/EmployeeEditPage.jsx';   // <-- 1. Import เข้ามา
+import EmployeeListPage from './pages/Employees/EmployeeListPage.jsx';
+import EmployeeDetailPage from './pages/Employees/EmployeeDetailPage.jsx';
+import EmployeeEditPage from './pages/Employees/EmployeeEditPage.jsx';
+import EmployeeAddPage from './pages/Employees/EmployeeAddPage.jsx';
+import LeaveRequestListPage from './pages/LeaveRequestListPage.jsx';
+import LeaveRequestPage from './pages/LeaveRequestPage.jsx';
+import SalaryListPage from './pages/SalaryListPage.jsx';
+import SalaryEditPage from './pages/SalaryEditPage.jsx';
 
 // สร้าง "แผนที่" ของเว็บไซต์
 const router = createBrowserRouter([
@@ -39,7 +44,6 @@ const router = createBrowserRouter([
         path: "employees",
         element: <EmployeeListPage />,
       },
-      // --- 2. เพิ่ม 2 Routes ใหม่เข้ามาตรงนี้ ---
       {
         path: "employees/view/:id", // :id คือ URL Parameter ที่จะเปลี่ยนไปตามพนักงาน
         element: <EmployeeDetailPage />,
@@ -48,6 +52,26 @@ const router = createBrowserRouter([
         path: "employees/edit/:id",
         element: <EmployeeEditPage />,
       },
+      {
+        path: "employees/add",
+        element: <EmployeeAddPage />
+      },
+      {
+        path: "leave-requests",
+        element: <LeaveRequestListPage />
+      },
+      {
+        path: "leave-request/new",
+        element: <LeaveRequestPage />
+      },
+      {
+        path: "salaries",
+        element: <SalaryListPage />
+      },
+      {
+        path: "salaries/edit/:empId",
+        element: <SalaryEditPage />
+      }
       // ------------------------------------
     ],
   },

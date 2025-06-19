@@ -59,3 +59,13 @@
   margin-bottom: 0.5rem;
   padding: 0 1rem;
 }
+.sidebar-link::before {
+    content: "•";
+    margin-right: 10px;
+    color: #6c757d;
+}
+
+/* ปรับสไตล์เมื่อ Active ให้จุดเปลี่ยนสีด้วย */
+.sidebar-link.active::before {
+    color: white;
+}

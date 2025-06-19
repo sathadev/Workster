@@ -2,8 +2,8 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import EmployeeInfo from '../components/EmployeeInfo';
-import AttendanceCards from '../components/AttendanceCards';
+import EmployeeInfo from '../../components/EmployeeInfo';
+import AttendanceCards from '../../components/AttendanceCards';
 import './EmployeeDetailPage.css';
 
 function EmployeeDetailPage() {

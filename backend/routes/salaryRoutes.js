@@ -15,4 +15,7 @@ router.get('/', salaryController.getAllSalaries);
 // PUT /api/v1/salaries/:empId
 router.put('/:empId', salaryController.updateSalary);
 
+// GET /api/v1/salaries/:empId
+router.get('/:empId', salaryController.getSalaryByEmpId);
+
 module.exports = router;

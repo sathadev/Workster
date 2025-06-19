@@ -1,0 +1,144 @@
+body,
+#root {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  /* ทำให้ #root และ body สูงเต็มหน้าจอ */
+  width: 100%;
+}
+
+body {
+  font-family: "Noto Sans Thai", sans-serif;
+  background-color: #ffffff;
+  /* ตั้งสีพื้นหลังเผื่อไว้ */
+}
+
+
+.sidebar {
+  background-color: #f8f9fa;
+  min-height: 100vh;
+  padding-top: 20px;
+}
+
+.sidebar a {
+  display: block;
+  padding: 10px 20px;
+  color: #000;
+  text-decoration: none;
+}
+
+.sidebar a:hover {
+  background-color: #e2e6ea;
+  border-radius: 5px;
+}
+
+.card-green {
+  background-color: #a7f9a2;
+}
+
+.card-yellow {
+  background-color: #f9f59a;
+}
+
+.card-red {
+  background-color: #f9a2a2;
+}
+
+/* เส้นขอบรอบนอกของตาราง */
+.table {
+  border: 2px solid #dee2e6;
+  /* เส้นขอบรอบตาราง */
+}
+
+/* เส้นขอบใต้หัวข้อ */
+.table .profile {
+  border-bottom: 2px solid #dee2e6;
+  /* เส้นขอบใต้หัวข้อ */
+  text-align: center;
+  /* จัดกลางหัวข้อ */
+}
+
+/* ลบเส้นขอบในเซลล์ */
+.table td,
+.table th {
+  border: none;
+  /* ไม่มีเส้นขอบในเซลล์ */
+}
+
+/* จัดรูปภาพให้เป็นวงกลม และให้ครอบคลุมพื้นที่ */
+.profile-image {
+  width: 40px;
+  height: 40px;
+  object-fit: cover;
+  /* ให้รูปภาพครอบคลุมพื้นที่โดยไม่เพี้ยน */
+  border-radius: 50%;
+}
+
+/* จัดให้อยู่ตรงกลาง */
+.profile-cell {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.navbar-brand a {
+  text-decoration: none;
+  color: inherit;
+}
+
+.dropdown-toggle::after {
+  display: none;
+}
+/* frontend/src/pages/EmployeeListPage.css 
+
+/* --- สไตล์สำหรับช่องค้นหาแบบใหม่ --- */
+.search-form-custom {
+    display: flex;
+    align-items: center;
+    border: 1px solid #ced4da; /* สีขอบเทาอ่อน */
+    border-radius: 0.5rem; /* ทำให้ขอบมน */
+    overflow: hidden; /* ซ่อนส่วนเกินของ border */
+    max-width: 450px; /* กำหนดความกว้างสูงสุด */
+    margin-bottom: 1.5rem;
+}
+
+.search-input {
+    border: none;
+    flex-grow: 1; /* ให้ช่อง input ขยายเต็มพื้นที่ */
+    padding: 0.5rem 1rem;
+}
+.search-input:focus {
+    outline: none; /* เอาเส้นขอบสีฟ้าตอน focus ออก */
+    box-shadow: none;
+}
+
+.search-button {
+    border: none;
+    background-color: #ffffff;
+    padding: 0.5rem 1rem;
+    border-left: 1px solid #ced4da; /* เพิ่มเส้นคั่นทางซ้าย */
+    color: #6c757d;
+}
+.search-button:hover {
+    background-color: #f8f9fa;
+}
+
+/* frontend/src/pages/EmployeeListPage.css */
+
+/* ...สไตล์อื่นๆ ของคุณ... */
+
+/* --- FIX: สำหรับจัดแนว Input Group --- */
+.search-form .input-group {
+    /* ทำให้ flex container จัด item ให้อยู่ตรงกลางในแนวตั้ง */
+    /* วิธีนี้มักจะแก้ปัญหาความสูงต่างกันเล็กน้อยได้ */
+    align-items: stretch; 
+}
+
+/* บังคับให้ปุ่มและ input มีความสูงเท่ากัน */
+.search-form .form-control,
+.search-form .btn {
+    height: 38px; /* ความสูงมาตรฐานของ Bootstrap form-control */
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
