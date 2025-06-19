@@ -18,19 +18,26 @@
   flex-grow: 1;      /* ให้ส่วนนี้ขยายเต็มพื้นที่แนวตั้งที่เหลือ */
 }
 
-/* --- ส่วนของ Sidebar --- */
 .sidebar {
-  flex: 0 0 250px;     /* ความกว้างของ sidebar 250px และไม่ยืด/หด */
-  background-color: #f8f9fa;
-  padding: 1.5rem 1rem;
-  border-right: 1px solid #dee2e6;
+    flex: 0 0 250px; /* ความกว้างคงที่ 250px */
+    background-color: #f8f9fa;
+    padding: 1.5rem 1rem;
+    border-right: 1px solid #dee2e6;
+
+    /* --- NEW: เพิ่ม 3 บรรทัดนี้เข้ามา --- */
+    position: sticky;      /* ทำให้มัน "ติด" อยู่กับที่ */
+    top: 0;                /* ให้มันติดอยู่ที่ขอบบนสุด */
+    align-self: flex-start; /* จัดตำแหน่งให้มันเริ่มจากบนสุดของ container */
+    height: 100vh;         /* ให้ความสูงเต็มหน้าจอของ viewport */
 }
 
-/* --- ส่วนของ Content --- */
 .content {
-  flex-grow: 1;      /* ให้เนื้อหาขยายเต็มพื้นที่แนวนอนที่เหลือ */
-  padding: 2rem;
-  background-color: #ffffff;
+    flex-grow: 1;
+    padding: 2rem;
+    background-color: #ffffff;
+
+    /* --- NEW: เพิ่มบรรทัดนี้เข้ามา --- */
+    overflow-y: auto; /* ทำให้เฉพาะส่วนเนื้อหานี้มี scrollbar เมื่อเนื้อหายาวเกิน */
 }
 
 /* --- สไตล์ของลิงก์ใน Sidebar (เหมือนเดิม) --- */

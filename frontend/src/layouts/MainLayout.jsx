@@ -2,7 +2,7 @@
 import { Outlet, NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCircleUser, faSignOutAlt } from '@fortawesome/free-solid-svg-icons';
+import { faCircleUser, faSignOutAlt, faUser } from '@fortawesome/free-solid-svg-icons';
 import './MainLayout.css';
 
 // Socket.IO imports and useEffect (ถ้าคุณใช้งาน)
@@ -16,6 +16,9 @@ function MainLayout() {
     const handleLogout = () => {
         logout();
         navigate('/login');
+    };
+    const handleProfile = () => {
+        navigate('profile');
     };
 
     // useEffect for Socket.IO connection
@@ -33,11 +36,13 @@ function MainLayout() {
                     <NavLink className="navbar-brand mb-0 h1 fs-4 text-white text-decoration-none" to="/">WorkSter</NavLink>
                     {user && (
                         <div className="dropdown">
-                            <a className="text-white dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" style={{textDecoration: 'none'}}>
+                            <a className="text-white dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" style={{ textDecoration: 'none' }}>
                                 <FontAwesomeIcon icon={faCircleUser} className="fs-3" />
-                                <span className='fs-6 ms-2'>{user.emp_name}</span>
                             </a>
                             <ul className="dropdown-menu dropdown-menu-end">
+                                <li><a className="dropdown-item" href="#" onClick={handleProfile}>
+                                    <FontAwesomeIcon icon={faUser} className="me-2"/> Profile
+                                </a></li>
                                 <li><a className="dropdown-item" href="#" onClick={handleLogout}>
                                     <FontAwesomeIcon icon={faSignOutAlt} className="me-2" /> Log out
                                 </a></li>
@@ -75,7 +80,7 @@ function MainLayout() {
                             <NavLink to="/my-salary" className="sidebar-link">ดูข้อมูลเงินเดือน</NavLink>
                         </>
                     ) : (
-                         // กรณีที่ไม่มี user (เผื่อไว้)
+                        // กรณีที่ไม่มี user (เผื่อไว้)
                         <NavLink to="/login" className="sidebar-link">กรุณาเข้าสู่ระบบ</NavLink>
                     )}
                 </nav>

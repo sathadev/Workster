@@ -161,25 +161,16 @@ exports.deleteEmployee = async (req, res) => {
 
 // [GET] /api/v1/profile - แสดงหน้า Profile ของพนักงานที่ล็อกอินอยู่
 exports.viewProfile = async (req, res) => {
-    try {
-        const empId = req.session.user.emp_id; // ยังคงใช้ session ได้ในตอนนี้
-        if (!empId) {
-            return res.status(401).json({ message: 'ไม่ได้รับอนุญาต กรุณาเข้าสู่ระบบ' });
-        }
-        
-        // (ส่วน Logic เหมือนกับ getEmployeeById แต่ใช้ empId จาก session)
-        const employeeResults = await Employee.getById(empId);
-        // ... (Logic การดึงข้อมูลอื่นๆ) ...
-
-        // CHANGED: ส่งข้อมูล Profile เป็น JSON กลับไป
-        res.status(200).json({
-          employee: employeeResults[0],
-          // ... attendanceSummary, approvedLeaveCount
-        });
-    } catch (err) {
-        console.error('API Error [viewProfile]:', err);
-        res.status(500).json({ message: 'เกิดข้อผิดพลาดในการดึงข้อมูลโปรไฟล์' });
+    // ตรวจสอบว่ามี session และ emp_id หรือไม่
+    if (!req.session.user || !req.session.user.emp_id) {
+        return res.status(401).json({ message: 'ไม่ได้รับอนุญาต กรุณาเข้าสู่ระบบ' });
     }
+
+    // ส่งต่อ Request ไปให้ getEmployeeById โดยใช้ ID จาก session
+    // เป็นการใช้โค้ดซ้ำอย่างมีประสิทธิภาพ
+    req.params.id = req.session.user.emp_id;
+
+    return exports.getEmployeeById(req, res);
 };
 
 /*

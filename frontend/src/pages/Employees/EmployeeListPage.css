@@ -33,15 +33,15 @@ body {
 }
 
 .card-green {
-  background-color: #a7f9a2;
+  background-color: #28a745;
 }
 
 .card-yellow {
-  background-color: #f9f59a;
+  background-color: #ffc107;
 }
 
 .card-red {
-  background-color: #f9a2a2;
+  background-color: #dc3545;
 }
 
 /* เส้นขอบรอบนอกของตาราง */

@@ -25,6 +25,7 @@ import LeaveRequestListPage from './pages/LeaveRequestListPage.jsx';
 import LeaveRequestPage from './pages/LeaveRequestPage.jsx';
 import SalaryListPage from './pages/SalaryListPage.jsx';
 import SalaryEditPage from './pages/SalaryEditPage.jsx';
+import ProfilePage from './pages/Employees/ProfilePage.jsx';
 
 // สร้าง "แผนที่" ของเว็บไซต์
 const router = createBrowserRouter([
@@ -48,6 +49,9 @@ const router = createBrowserRouter([
         path: "employees/view/:id", // :id คือ URL Parameter ที่จะเปลี่ยนไปตามพนักงาน
         element: <EmployeeDetailPage />,
       },
+      { path: "profile",
+        element: <ProfilePage /> 
+      }, 
       {
         path: "employees/edit/:id",
         element: <EmployeeEditPage />,
