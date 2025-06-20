@@ -2,16 +2,20 @@
 const express = require('express');
 const router = express.Router();
 const evaluationController = require('../controllers/evaluationController');
+const { protect } = require('../middleware/authMiddleware');
 
-// GET /api/v1/evaluations -> ดึงประวัติการประเมินทั้งหมด
-router.get('/', evaluationController.getAllEvaluations);
+// ทุก Route ต้อง protect เพราะเป็นข้อมูลละเอียดอ่อน
 
-// POST /api/v1/evaluations -> สร้างการประเมินใหม่
-router.post('/', evaluationController.createEvaluation);
+// ดึงประวัติการประเมินทั้งหมด (สำหรับ Admin/HR)
+router.get('/', protect, evaluationController.getAllEvaluations);
 
-// GET /api/v1/evaluations/:id -> ดึงการประเมินชิ้นเดียว
-router.get('/:id', evaluationController.getEvaluationById);
+// ดึงการประเมินชิ้นเดียวด้วย ID
+router.get('/:id', protect, evaluationController.getEvaluationById);
 
-router.get('/result/:id', evaluationController.getEvaluationResultById);
+// บันทึกผลการประเมินใหม่
+router.post('/', protect, evaluationController.createEvaluation);
+
+// ดึงผลประเมินพร้อมข้อมูลพนักงาน
+router.get('/result/:id', protect, evaluationController.getEvaluationResultById);
 
 module.exports = router;

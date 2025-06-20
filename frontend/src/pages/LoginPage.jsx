@@ -12,32 +12,39 @@ function LoginPage() {
   const navigate = useNavigate();
   const { login } = useAuth(); // <-- 1. ดึงฟังก์ชัน login จาก Context มาใช้งาน
 
-  const handleSubmit = async (event) => {
-    event.preventDefault();
-    setError(null);
+const handleSubmit = async (e) => {
+        e.preventDefault();
+        setError(''); 
 
-    try {
-      const response = await api.post('/auth/login', {
-          emp_username: username,
-          emp_password: password,
+        // ตรวจสอบให้แน่ใจว่าเราส่งข้อมูลที่ถูกต้องไปใน object
+        const credentials = { 
+            emp_username: username, 
+            emp_password: password 
+        };
+        
+        // ถ้าค่าใดค่าหนึ่งว่าง ก็ไม่ควรส่งไปแต่แรก
+        if (!credentials.emp_username || !credentials.emp_password) {
+            setError('กรุณากรอกชื่อผู้ใช้และรหัสผ่าน');
+            return;
         }
-      );
 
-      // --- ถ้าสำเร็จ ---
-      console.log('Login Success:', response.data);
-      
-      // 2. เรียกใช้ฟังก์ชัน login พร้อมกับส่งข้อมูล user ที่ได้จาก API ไป
-      login(response.data.user); 
-      
-      // 3. สั่งให้เปลี่ยนหน้าไปที่หน้าหลัก
-      navigate('/'); 
+        try {
+            // เรียกใช้ฟังก์ชัน login จาก context
+            const loginData = await login(credentials);
 
-    } catch (err) {
-      // --- ถ้าล้มเหลว ---
-      const errorMessage = err.response?.data?.message || 'เกิดข้อผิดพลาดที่ไม่รู้จัก';
-      setError(errorMessage);
-    }
-  };
+            // Log ข้อมูลที่ได้กลับมา (ถ้าต้องการ)
+            console.log('Login Success:', loginData); 
+
+            // เมื่อ login สำเร็จ ให้ navigate ไปหน้าหลัก
+            navigate('/'); 
+
+        } catch (err) {
+            // *** จุดสำคัญ ***
+            // ถ้า login() ใน Context โยน Error ออกมา มันจะถูกจับได้ที่นี่
+            const errorMessage = err.response?.data?.message || 'เกิดข้อผิดพลาดในการเข้าสู่ระบบ';
+            setError(errorMessage);
+        }
+    };
 
   return (
     <div className="login-body">

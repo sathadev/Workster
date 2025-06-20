@@ -140,39 +140,31 @@ exports.updateEmployee = async (req, res) => {
 
 // [DELETE] /api/v1/employees/:id - ลบพนักงาน
 exports.deleteEmployee = async (req, res) => {
-  try {
-    const empIdToDelete = parseInt(req.params.id, 10);
-    // const loggedInEmpId = req.session.user.emp_id; // Session อาจจะต้องปรับปรุงในอนาคต
+    try {
+        const empIdToDelete = parseInt(req.params.id, 10);
+        const loggedInEmpId = req.user.emp_id; 
 
-    // if (empIdToDelete === loggedInEmpId) {
-    //   return res.status(403).json({ message: 'คุณไม่สามารถลบตัวเองได้' });
-    // }
+        if (empIdToDelete === loggedInEmpId) {
+            return res.status(403).json({ message: 'คุณไม่สามารถลบตัวเองได้' });
+        }
 
-    await Employee.delete(empIdToDelete);
-
-    // CHANGED: ส่งข้อความยืนยันการลบสำเร็จ
-    res.status(200).json({ message: `ลบพนักงาน ID: ${empIdToDelete} สำเร็จ` });
-  } catch (err) {
-    console.error('API Error [deleteEmployee]:', err);
-    res.status(500).json({ message: 'ไม่สามารถลบพนักงานได้' });
-  }
+        await Employee.delete(empIdToDelete);
+        res.status(200).json({ message: `ลบพนักงาน ID: ${empIdToDelete} สำเร็จ` });
+    } catch (err) {
+        console.error('API Error [deleteEmployee]:', err);
+        res.status(500).json({ message: 'ไม่สามารถลบพนักงานได้' });
+    }
 };
 
-
-// [GET] /api/v1/profile - แสดงหน้า Profile ของพนักงานที่ล็อกอินอยู่
+// [GET] /api/v1/profile - แสดงหน้า Profile ของพนักงานที่ล็อกอินอยู่ (เวอร์ชันสมบูรณ์)
 exports.viewProfile = async (req, res) => {
-    // ตรวจสอบว่ามี session และ emp_id หรือไม่
-    if (!req.session.user || !req.session.user.emp_id) {
-        return res.status(401).json({ message: 'ไม่ได้รับอนุญาต กรุณาเข้าสู่ระบบ' });
-    }
+    // ลบการเช็ค if (!req.session.user) ทิ้งไป เพราะ protect middleware จัดการให้แล้ว
+    // เปลี่ยนมาใช้ req.user ที่ได้จาก protect middleware โดยตรง
+    req.params.id = req.user.emp_id;
 
-    // ส่งต่อ Request ไปให้ getEmployeeById โดยใช้ ID จาก session
-    // เป็นการใช้โค้ดซ้ำอย่างมีประสิทธิภาพ
-    req.params.id = req.session.user.emp_id;
-
+    // ส่งต่อไปยังฟังก์ชัน getEmployeeById เหมือนเดิม
     return exports.getEmployeeById(req, res);
 };
-
 /*
   หมายเหตุ: ฟังก์ชันที่เกี่ยวกับ "การแสดงฟอร์ม" เช่น `addForm`, `editForm` 
   ได้ถูกลบออกไปแล้ว เพราะในสถาปัตยกรรมแบบใหม่ Frontend (React)

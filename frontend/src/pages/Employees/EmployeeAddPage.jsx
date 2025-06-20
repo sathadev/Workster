@@ -1,7 +1,7 @@
 // frontend/src/pages/EmployeeAddPage.jsx
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import axios from 'axios';
+import api from '../../api/axios'; 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus } from '@fortawesome/free-solid-svg-icons';
 
@@ -28,16 +28,17 @@ function EmployeeAddPage() {
   const [error, setError] = useState(null);
 
   // 1. ดึงข้อมูลรายการตำแหน่งงานมาแสดงใน dropdown
-  useEffect(() => {
-    axios.get('http://localhost:5000/api/v1/positions')
-      .then(res => {
-        setPositions(res.data);
-      })
-      .catch(err => {
-        console.error("Failed to fetch positions", err);
-        setError("ไม่สามารถโหลดข้อมูลตำแหน่งงานได้");
-      });
-  }, []);
+ useEffect(() => {
+
+        api.get('/positions')
+            .then(res => {
+                setPositions(res.data);
+            })
+            .catch(err => {
+                console.error("Failed to fetch positions", err);
+                setError("ไม่สามารถโหลดข้อมูลตำแหน่งงานได้");
+            });
+    }, []);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -59,31 +60,32 @@ function EmployeeAddPage() {
 
   // 2. ส่งข้อมูลพนักงานใหม่ไปที่ Backend
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError(null);
-    
-    const dataToSubmit = new FormData();
-    // วน Loop Key ใน formData ที่เราต้องการส่ง
-    Object.keys(formData).forEach(key => {
-        dataToSubmit.append(key, formData[key]);
-    });
-    
-    if (imageFile) {
-        dataToSubmit.append('emp_pic', imageFile);
-    }
+        e.preventDefault();
+        setError(null);
+        
+        const dataToSubmit = new FormData();
+        Object.keys(formData).forEach(key => {
+            dataToSubmit.append(key, formData[key]);
+        });
+        
+        if (imageFile) {
+            dataToSubmit.append('emp_pic', imageFile);
+        }
 
-    try {
-      await axios.post('http://localhost:5000/api/v1/employees', dataToSubmit, {
-          headers: { 'Content-Type': 'multipart/form-data' }
-      });
-      alert('บันทึกข้อมูลพนักงานใหม่สำเร็จ!');
-      navigate('/employees'); // กลับไปหน้ารายชื่อ
-    } catch (err) {
-      const errorMessage = err.response?.data?.message || "เกิดข้อผิดพลาดในการบันทึกข้อมูล";
-      setError(errorMessage);
-      console.error(err);
-    }
-  };
+        try {
+            // 3. (แก้ไข) เปลี่ยนมาใช้ 'api' เพื่อสร้างพนักงานใหม่
+            await api.post('/employees', dataToSubmit, {
+                headers: { 'Content-Type': 'multipart/form-data' }
+            });
+            alert('บันทึกข้อมูลพนักงานใหม่สำเร็จ!');
+            navigate('/employees');
+        } catch (err) {
+            const errorMessage = err.response?.data?.message || "เกิดข้อผิดพลาดในการบันทึกข้อมูล";
+            setError(errorMessage);
+            console.error(err);
+        }
+    };
+
 
   return (
     <div>

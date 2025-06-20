@@ -1,44 +1,58 @@
 // frontend/src/context/AuthContext.jsx
-import React, { createContext, useState, useContext } from 'react';
-import axios from 'axios';
+import { createContext, useState, useContext, useEffect } from 'react';
+import api from '../api/axios'; // <-- Import instance ที่เราสร้างไว้
 
-axios.defaults.withCredentials = true;
 const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
-    // CHANGED: ให้ state เริ่มต้นอ่านค่าจาก localStorage ก่อน
-    const [user, setUser] = useState(() => {
+    const [user, setUser] = useState(null);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const verifyUser = async () => {
+            const token = localStorage.getItem('token');
+            if (token) {
+                try {
+                    const response = await api.get('/auth/profile');
+                    setUser(response.data);
+                } catch (err) {
+                    localStorage.removeItem('token');
+                    setUser(null);
+                }
+            }
+            setLoading(false);
+        };
+        verifyUser();
+    }, []);
+
+    const login = async (credentials) => {
+        // เราจะ re-throw error เพื่อให้ component ที่เรียกใช้ (LoginPage) รู้ว่ามันล้มเหลว
         try {
-            const storedUser = localStorage.getItem('user');
-            return storedUser ? JSON.parse(storedUser) : null;
+            const response = await api.post('/auth/login', credentials);
+            const { token, user: userData } = response.data;
+
+            localStorage.setItem('token', token);
+            setUser(userData);
+            
+            return response.data;
         } catch (error) {
-            console.error("Failed to parse user from localStorage", error);
-            return null;
+            // *** จุดสำคัญ ***
+            // เมื่อเกิด Error ให้โยนมันออกไป เพื่อให้ .catch() ใน LoginPage ทำงาน
+            throw error; 
         }
-    });
-
-    // ตั้งค่า axios ให้ส่ง cookie ไปด้วยทุกครั้ง (สำคัญมากสำหรับ session)
-    axios.defaults.withCredentials = true;
-
-    const login = (userData) => {
-        // CHANGED: เมื่อ login ให้บันทึกข้อมูล user ลงใน localStorage ด้วย
-        localStorage.setItem('user', JSON.stringify(userData));
-        setUser(userData);
     };
 
     const logout = () => {
-        // CHANGED: เมื่อ logout ให้ลบข้อมูล user ออกจาก localStorage
-        localStorage.removeItem('user');
+        localStorage.removeItem('token');
         setUser(null);
-        // อาจจะเรียก API /logout ของ backend ที่นี่ในอนาคต
-        axios.get('http://localhost:5000/api/v1/auth/logout');
+        window.location.href = '/login';
     };
 
-    const value = { user, login, logout };
+    const value = { user, login, logout, loading };
 
     return (
         <AuthContext.Provider value={value}>
-            {children}
+            {!loading && children}
         </AuthContext.Provider>
     );
 };

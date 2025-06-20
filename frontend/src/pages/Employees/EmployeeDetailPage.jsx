@@ -1,8 +1,9 @@
-// frontend/src/pages/EmployeeDetailPage.jsx
+// frontend/src/pages/Employees/EmployeeDetailPage.jsx
+
 import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import axios from 'axios';
 import EmployeeInfo from '../../components/EmployeeInfo';
+import api from '../../api/axios';
 import AttendanceCards from '../../components/AttendanceCards';
 import './EmployeeDetailPage.css';
 
@@ -17,9 +18,11 @@ function EmployeeDetailPage() {
         const fetchEmployeeDetails = async () => {
             try {
                 setLoading(true);
-                const response = await axios.get(`http://localhost:5000/api/v1/employees/${id}`);
+                // 2. (แก้ไข) เปลี่ยนมาใช้ 'api' และใช้ path สั้นๆ
+                const response = await api.get(`/employees/${id}`); // <-- **แก้ตรงนี้**
                 setEmployeeData(response.data);
             } catch (err) {
+                console.error("Failed to fetch employee details:", err);
                 setError("เกิดข้อผิดพลาดในการดึงข้อมูล");
             } finally {
                 setLoading(false);
@@ -43,8 +46,8 @@ function EmployeeDetailPage() {
                 <h4 className="fw-bold mt-2">สรุปการทำงาน</h4>
                 <AttendanceCards summary={attendanceSummary} leaveCount={approvedLeaveCount} />
                 <div className="d-flex justify-content-end mt-4">
-                     <button onClick={() => navigate(`/employees/edit/${employee.emp_id}`)} className="btn btn-warning ms-2 text-white">อัพเดท</button>
-                     {/* ในอนาคตจะเพิ่มปุ่มลบที่เชื่อมกับ Modal ที่นี่ */}
+                    <button onClick={() => navigate(`/employees/edit/${employee.emp_id}`)} className="btn btn-warning ms-2 text-white">อัพเดท</button>
+                    {/* ในอนาคตจะเพิ่มปุ่มลบที่เชื่อมกับ Modal ที่นี่ */}
                 </div>
             </div>
         </div>

@@ -3,11 +3,11 @@ const Attendance = require('../models/attendanceModel');
 
 // [GET] /api/v1/attendance/today - ดึงสถานะการลงเวลาของ user ที่ login อยู่
 exports.getTodaysUserAttendance = async (req, res) => {
-    if (!req.session.user) {
-        return res.status(401).json({ message: 'Unauthorized' });
-    }
+    // ไม่ต้องใช้ if (!req.session.user) อีกต่อไป เพราะ protect middleware จัดการให้แล้ว
     try {
-        const { emp_id } = req.session.user;
+        // เปลี่ยนจาก req.session.user เป็น req.user
+        const { emp_id } = req.user; 
+        
         const [records, config] = await Promise.all([
             Attendance.getTodayAttendance(emp_id),
             Attendance.getWorkTime()
@@ -37,27 +37,24 @@ exports.getTodaysUserAttendance = async (req, res) => {
 
 // [POST] /api/v1/attendance/checkin - ลงเวลาเข้างาน
 exports.handleCheckIn = async (req, res) => {
-    if (!req.session.user) {
-        return res.status(401).json({ message: 'Unauthorized' });
-    }
+    // ไม่ต้องใช้ if (!req.session.user)
     try {
-        const { emp_id } = req.session.user;
+        // เปลี่ยนจาก req.session.user เป็น req.user
+        const { emp_id } = req.user;
         await Attendance.checkIn(emp_id);
         res.status(201).json({ message: 'เช็คอินสำเร็จ' });
     } catch (err) {
         console.error("Check-in error:", err);
-        // ส่ง error กลับไปเป็น JSON เพื่อให้ Frontend แสดงข้อความที่เหมาะสม
         res.status(400).json({ message: err.message || 'เกิดข้อผิดพลาดในการเช็คอิน' });
     }
 };
 
 // [POST] /api/v1/attendance/checkout - ลงเวลาออกงาน
 exports.handleCheckOut = async (req, res) => {
-    if (!req.session.user) {
-        return res.status(401).json({ message: 'Unauthorized' });
-    }
+    // ไม่ต้องใช้ if (!req.session.user)
     try {
-        const { emp_id } = req.session.user;
+        // เปลี่ยนจาก req.session.user เป็น req.user
+        const { emp_id } = req.user;
         const records = await Attendance.getTodayAttendance(emp_id);
         const hasCheckedIn = records.some(r => r.attendance_type === 'checkin');
         const hasCheckedOut = records.some(r => r.attendance_type === 'checkout');

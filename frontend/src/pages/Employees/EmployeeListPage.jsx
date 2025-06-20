@@ -1,7 +1,7 @@
 // frontend/src/pages/EmployeeListPage.jsx
 
 import { useState, useEffect, useRef } from 'react';
-import axios from 'axios';
+import api from '../../api/axios';
 import { Link, useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { 
@@ -39,7 +39,6 @@ function EmployeeListPage() {
     useEffect(() => {
         const fetchEmployees = async () => {
             try {
-                // ขึ้น Loading แค่ตอนโหลดครั้งแรก หรือมีการค้นหาใหม่เท่านั้น
                 if (loading || searchTerm !== prevSearchTermRef.current) {
                     setLoading(true);
                 }
@@ -51,7 +50,10 @@ function EmployeeListPage() {
                     page: 1, 
                     limit: 100
                 };
-                const response = await axios.get('http://localhost:5000/api/v1/employees', { params });
+                
+                // 2. (แก้ไข) เปลี่ยนมาใช้ 'api' และใช้ path สั้นๆ (baseURL จะถูกเติมให้อัตโนมัติ)
+                const response = await api.get('/employees', { params });
+                
                 setEmployees(response.data.data || []);
                 setMeta(response.data.meta || {});
                 setError(null);
@@ -84,20 +86,22 @@ function EmployeeListPage() {
         setSearchTerm('');
     };
 
-    const handleDelete = async (empId, empName) => {
+  const handleDelete = async (empId, empName) => {
         if (window.confirm(`คุณแน่ใจหรือไม่ที่ต้องการลบพนักงาน ${empName}?`)) {
             try {
-                await axios.delete(`http://localhost:5000/api/v1/employees/${empId}`);
+                // 3. (แก้ไข) เปลี่ยนมาใช้ 'api' ในฟังก์ชัน delete ด้วย
+                await api.delete(`/employees/${empId}`);
+                
                 setEmployees(currentEmployees => currentEmployees.filter(emp => emp.emp_id !== empId));
                 alert('ลบพนักงานสำเร็จ');
             } catch (err) {
-                alert('เกิดข้อผิดพลาดในการลบพนักงาน');
+                const errorMessage = err.response?.data?.message || 'เกิดข้อผิดพลาดในการลบพนักงาน';
+                alert(errorMessage);
             }
         }
     };
     
-    if (loading) return <div className="text-center mt-5">กำลังโหลดข้อมูล...</div>;
-
+  if (loading) return <div className="text-center mt-5">กำลังโหลดข้อมูล...</div>;
     return (
         <div>
             <div className="d-flex justify-content-between align-items-center mb-3">

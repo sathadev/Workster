@@ -1,7 +1,7 @@
 // frontend/src/pages/EmployeeEditPage.jsx
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import axios from 'axios';
+import api from '../../api/axios';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus } from '@fortawesome/free-solid-svg-icons';
 
@@ -27,13 +27,14 @@ function EmployeeEditPage() {
 
     // --- ส่วน Logic ทั้งหมด (useEffect, handleChange, handleSubmit) ยังคงเหมือนเดิม ---
     // 1. ดึงข้อมูลพนักงานและรายการตำแหน่งงานเมื่อเปิดหน้า
-    useEffect(() => {
+   useEffect(() => {
         const fetchData = async () => {
             try {
                 setLoading(true);
+                // 2. (แก้ไข) เปลี่ยนมาใช้ 'api' ทั้งสองจุด และใช้ path สั้นๆ
                 const [employeeRes, positionsRes] = await Promise.all([
-                    axios.get(`http://localhost:5000/api/v1/employees/${id}`),
-                    axios.get('http://localhost:5000/api/v1/positions')
+                    api.get(`/employees/${id}`), // <-- แก้ไข (ใช้ path จาก main.jsx)
+                    api.get('/positions')              // <-- แก้ไข
                 ]);
                 
                 setFormData(employeeRes.data.employee);
@@ -64,10 +65,9 @@ function EmployeeEditPage() {
         }
     };
 
-    const handleSubmit = async (e) => {
+  const handleSubmit = async (e) => {
         e.preventDefault();
         const dataToSubmit = new FormData();
-        // วน Loop Key ใน formData ที่เราต้องการส่ง
         ['emp_name', 'jobpos_id', 'emp_email', 'emp_tel', 'emp_address'].forEach(key => {
             dataToSubmit.append(key, formData[key]);
         });
@@ -77,7 +77,8 @@ function EmployeeEditPage() {
         }
 
         try {
-            await axios.put(`http://localhost:5000/api/v1/employees/${id}`, dataToSubmit, {
+            // 3. (แก้ไข) เปลี่ยนมาใช้ 'api' สำหรับการอัปเดตข้อมูล
+            await api.put(`/employees/${id}`, dataToSubmit, {
                 headers: { 'Content-Type': 'multipart/form-data' }
             });
             alert('อัปเดตข้อมูลสำเร็จ!');

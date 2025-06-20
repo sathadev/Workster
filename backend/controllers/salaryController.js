@@ -30,12 +30,12 @@ exports.updateSalary = async (req, res) => {
 };
 
 // [GET] /api/v1/salaries/me - ดูข้อมูลเงินเดือนของตนเอง
+// [GET] /api/v1/salaries/me - ดูข้อมูลเงินเดือนของตนเอง
 exports.getMySalary = async (req, res) => {
-    if (!req.session.user) {
-        return res.status(401).json({ message: 'กรุณาเข้าสู่ระบบ' });
-    }
+    // ไม่ต้องมี if check แล้ว เพราะ protect middleware จัดการให้
     try {
-        const { emp_id } = req.session.user;
+        // เปลี่ยนมาใช้ req.user แทน
+        const { emp_id } = req.user; 
         const salaryInfo = await SalaryModel.getSalaryByEmpId(emp_id);
 
         if (!salaryInfo) {

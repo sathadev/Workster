@@ -2,20 +2,23 @@
 const express = require('express');
 const router = express.Router();
 const jobposController = require('../controllers/jobposController');
+const { protect } = require('../middleware/authMiddleware'); // <-- Import เข้ามา
 
-// GET /api/v1/positions -> ดึงตำแหน่งงานทั้งหมด
-router.get('/', jobposController.getAllPositions);
+// ทุก Route ควรถูกป้องกัน เพราะเป็นการจัดการข้อมูลหลักของบริษัท
 
-// POST /api/v1/positions -> สร้างตำแหน่งงานใหม่
-router.post('/', jobposController.createPosition);
+// GET /api/v1/positions
+router.get('/', protect, jobposController.getAllPositions);
 
-// GET /api/v1/positions/:id -> ดึงตำแหน่งงานเดียว
-router.get('/:id', jobposController.getPositionById);
+// GET /api/v1/positions/:id
+router.get('/:id', protect, jobposController.getPositionById);
 
-// PUT /api/v1/positions/:id -> อัปเดตตำแหน่งงาน
-router.put('/:id', jobposController.updatePosition);
+// POST /api/v1/positions
+router.post('/', protect, jobposController.createPosition);
 
-// DELETE /api/v1/positions/:id -> ลบตำแหน่งงาน
-router.delete('/:id', jobposController.deletePosition);
+// PUT /api/v1/positions/:id
+router.put('/:id', protect, jobposController.updatePosition);
+
+// DELETE /api/v1/positions/:id
+router.delete('/:id', protect, jobposController.deletePosition);
 
 module.exports = router;

@@ -2,20 +2,20 @@
 const express = require('express');
 const router = express.Router();
 const salaryController = require('../controllers/salaryController');
-// const { isAdmin, isLoggedIn } = require('../middleware/authMiddleware'); // ตัวอย่าง Middleware
+const { protect } = require('../middleware/authMiddleware'); // <-- 1. Import protect เข้ามา
 
 // Route สำหรับให้พนักงานดูเงินเดือนของตัวเอง
 // GET /api/v1/salaries/me
-router.get('/me', salaryController.getMySalary);
+router.get('/me', protect, salaryController.getMySalary); // <-- 2. เพิ่ม protect
 
 // Routes สำหรับ Admin/HR
 // GET /api/v1/salaries
-router.get('/', salaryController.getAllSalaries);
+router.get('/', protect, salaryController.getAllSalaries); // <-- 2. เพิ่ม protect
 
 // PUT /api/v1/salaries/:empId
-router.put('/:empId', salaryController.updateSalary);
+router.put('/:empId', protect, salaryController.updateSalary); // <-- 2. เพิ่ม protect
 
 // GET /api/v1/salaries/:empId
-router.get('/:empId', salaryController.getSalaryByEmpId);
+router.get('/:empId', protect, salaryController.getSalaryByEmpId); // <-- 2. เพิ่ม protect
 
 module.exports = router;
