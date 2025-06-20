@@ -1,7 +1,7 @@
 // frontend/src/pages/EvaluationHistoryPage.jsx
 import { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import api from '../api/axios';
+import api from '../../api/axios';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSearch, faInbox } from '@fortawesome/free-solid-svg-icons';
 

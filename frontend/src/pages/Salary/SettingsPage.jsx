@@ -1,6 +1,6 @@
 // frontend/src/pages/SettingsPage.jsx
 import { useState, useEffect } from 'react';
-import api from '../api/axios';
+import api from '../../api/axios';
 import { Form, Button, Row, Col } from 'react-bootstrap'; // Import Row, Col เพิ่ม
 
 const ALL_DAYS = ['จันทร์', 'อังคาร', 'พุธ', 'พฤหัสบดี', 'ศุกร์', 'เสาร์', 'อาทิตย์'];

@@ -1,7 +1,7 @@
 // frontend/src/pages/PositionDetailPage.jsx
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import api from '../api/axios';
+import api from '../../api/axios';
 
 function PositionDetailPage() {
     const { id } = useParams();

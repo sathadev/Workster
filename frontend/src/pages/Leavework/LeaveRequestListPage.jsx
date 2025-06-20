@@ -1,7 +1,7 @@
 // frontend/src/pages/LeaveRequestListPage.jsx
 import { useState, useEffect } from 'react';
-import api from '../api/axios';
-import StatusBadge from '../components/StatusBadge'; // <-- Import component ใหม่
+import api from '../../api/axios';
+import StatusBadge from '../../components/StatusBadge'; // <-- Import component ใหม่
 
 function LeaveRequestListPage() {
     const [leaveRequests, setLeaveRequests] = useState([]);

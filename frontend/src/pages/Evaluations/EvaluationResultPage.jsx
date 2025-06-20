@@ -1,8 +1,8 @@
 // frontend/src/pages/EvaluationResultPage.jsx
 import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import api from '../api/axios';
-import EvaluationResultItem from '../components/EvaluationResultItem';
+import api from '../../api/axios';
+import EvaluationResultItem from '../../components/EvaluationResultItem';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faAngleLeft } from '@fortawesome/free-solid-svg-icons';
 

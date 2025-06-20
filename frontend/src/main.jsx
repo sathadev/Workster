@@ -21,19 +21,19 @@ import EmployeeListPage from './pages/Employees/EmployeeListPage.jsx';
 import EmployeeDetailPage from './pages/Employees/EmployeeDetailPage.jsx';
 import EmployeeEditPage from './pages/Employees/EmployeeEditPage.jsx';
 import EmployeeAddPage from './pages/Employees/EmployeeAddPage.jsx';
-import LeaveRequestListPage from './pages/LeaveRequestListPage.jsx';
-import LeaveRequestPage from './pages/LeaveRequestPage.jsx';
-import SalaryListPage from './pages/SalaryListPage.jsx';
-import SalaryEditPage from './pages/SalaryEditPage.jsx';
+import LeaveRequestListPage from './pages/Leavework/LeaveRequestListPage.jsx';
+import LeaveRequestPage from './pages/Leavework/LeaveRequestPage.jsx';
+import SalaryListPage from './pages/Salary/SalaryListPage.jsx';
+import SalaryEditPage from './pages/Salary/SalaryEditPage.jsx';
 import ProfilePage from './pages/Employees/ProfilePage.jsx';
-import MySalaryPage from './pages/MySalaryPage.jsx';
-import EvaluationPage from './pages/EvaluationPage.jsx';
-import EvaluationFormPage from './pages/EvaluationFormPage.jsx';
-import EvaluationHistoryPage from './pages/EvaluationHistoryPage.jsx';
-import EvaluationResultPage from './pages/EvaluationResultPage.jsx';
-import PositionListPage from './pages/PositionListPage.jsx';
-import PositionDetailPage from './pages/PositionDetailPage.jsx';
-import SettingsPage from './pages/SettingsPage.jsx';
+import MySalaryPage from './pages/Salary/MySalaryPage.jsx';
+import EvaluationPage from './pages/Evaluations/EvaluationPage.jsx';
+import EvaluationFormPage from './pages/Evaluations/EvaluationFormPage.jsx';
+import EvaluationHistoryPage from './pages/Evaluations/EvaluationHistoryPage.jsx';
+import EvaluationResultPage from './pages/Evaluations/EvaluationResultPage.jsx';
+import PositionListPage from './pages/Jobpos/PositionListPage.jsx';
+import PositionDetailPage from './pages/Jobpos/PositionDetailPage.jsx';
+import SettingsPage from './pages/Salary/SettingsPage.jsx';
 
 
 // สร้าง "แผนที่" ของเว็บไซต์

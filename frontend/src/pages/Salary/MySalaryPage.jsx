@@ -1,9 +1,9 @@
 // frontend/src/pages/MySalaryPage.jsx
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import api from '../api/axios';
-import { useAuth } from '../context/AuthContext';
-import SalaryDetailItem from '../components/SalaryDetailItem'; // <-- Import component ใหม่
+import api from '../../api/axios';
+import { useAuth } from '../../context/AuthContext';
+import SalaryDetailItem from '../../components/SalaryDetailItem'; // <-- Import component ใหม่
 
 function MySalaryPage() {
     const { user } = useAuth(); // ดึงข้อมูล user ที่ล็อกอินอยู่

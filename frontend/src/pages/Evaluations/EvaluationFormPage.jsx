@@ -1,8 +1,8 @@
 // frontend/src/pages/EvaluationFormPage.jsx
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import api from '../api/axios';
-import EvaluationQuestion from '../components/EvaluationQuestion'; // <-- Import component ใหม่
+import api from '../../api/axios';
+import EvaluationQuestion from '../../components/EvaluationQuestion'; // <-- Import component ใหม่
 
 const initialScores = { q1: '', q2: '', q3: '', q4: '', q5: '' };
 

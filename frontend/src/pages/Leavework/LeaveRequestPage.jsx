@@ -1,8 +1,8 @@
 // frontend/src/pages/LeaveRequestPage.jsx
 import { useState, useEffect, useCallback } from 'react';
-import api from '../api/axios';
+import api from '../../api/axios';
 import { Link } from 'react-router-dom';
-import StatusBadge from '../components/StatusBadge';
+import StatusBadge from '../../components/StatusBadge';
 
 const initialFormData = {
     leaveworktype_id: '',

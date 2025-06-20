@@ -1,10 +1,10 @@
 // frontend/src/pages/SalaryListPage.jsx
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import api from '../api/axios';
+import api from '../../api/axios';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEdit, faMagnifyingGlass, faTimes, faInfoCircle, faInbox } from '@fortawesome/free-solid-svg-icons';
-import SalarySummary from '../components/SalarySummary';
+import SalarySummary from '../../components/SalarySummary';
 import './SalaryListPage.css';
 
 function SalaryListPage() {
