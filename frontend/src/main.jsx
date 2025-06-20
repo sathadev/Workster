@@ -3,7 +3,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
-
 // Import CSS หลักและ Bootstrap
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
@@ -33,7 +32,7 @@ import EvaluationHistoryPage from './pages/Evaluations/EvaluationHistoryPage.jsx
 import EvaluationResultPage from './pages/Evaluations/EvaluationResultPage.jsx';
 import PositionListPage from './pages/Jobpos/PositionListPage.jsx';
 import PositionDetailPage from './pages/Jobpos/PositionDetailPage.jsx';
-import SettingsPage from './pages/Salary/SettingsPage.jsx';
+import SettingsPage from './pages/SettingsPage.jsx';
 
 
 // สร้าง "แผนที่" ของเว็บไซต์

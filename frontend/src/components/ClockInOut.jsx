@@ -1,5 +1,5 @@
 // frontend/src/components/ClockInOut.jsx
-import axios from '../api/axios'; // <-- ใช้ apiClient ที่เราสร้างไว้
+import api from '../api/axios';
 
 function ClockInOut({ attendanceData, onUpdate }) {
     if (!attendanceData) return null;

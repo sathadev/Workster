@@ -1,6 +1,6 @@
 // frontend/src/pages/SettingsPage.jsx
 import { useState, useEffect } from 'react';
-import api from '../../api/axios';
+import api from '../api/axios';
 import { Form, Button, Row, Col } from 'react-bootstrap'; // Import Row, Col เพิ่ม
 
 const ALL_DAYS = ['จันทร์', 'อังคาร', 'พุธ', 'พฤหัสบดี', 'ศุกร์', 'เสาร์', 'อาทิตย์'];
@@ -53,9 +53,28 @@ function SettingsPage() {
         fetchSettings();
     }, []);
 
-    const handleChange = (e) => { /* ...เหมือนเดิม... */ };
-    const handleWorkDaysChange = (e) => { /* ...เหมือนเดิม... */ };
+      const handleChange = (e) => {
+        const { name, value } = e.target;
+        setSettings(prevSettings => ({
+            ...prevSettings,
+            [name]: value
+        }));
+    };
 
+    const handleWorkDaysChange = (e) => {
+        const { value, checked } = e.target;
+        setSettings(prevSettings => {
+            const currentWorkDays = prevSettings.work_days || [];
+            if (checked) {
+                // ถ้าถูกติ๊ก และยังไม่มีค่านั้นใน array ให้เพิ่มเข้าไป
+                return { ...prevSettings, work_days: [...currentWorkDays, value] };
+            } else {
+                // ถ้าติ๊กออก ให้กรองค่านั้นออกจาก array
+                return { ...prevSettings, work_days: currentWorkDays.filter(day => day !== value) };
+            }
+        });
+    };
+    
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
