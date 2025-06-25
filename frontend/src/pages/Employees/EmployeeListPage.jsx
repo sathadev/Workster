@@ -4,14 +4,12 @@ import { useState, useEffect, useRef } from 'react';
 import api from '../../api/axios';
 import { Link, useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { 
-    faEye, faEdit, faTrash, faSort, faSortUp, faSortDown, 
-    faPlus, faMagnifyingGlass, faTimes, faInbox, faInfoCircle, 
-    faExclamationTriangle, faUserCircle 
+import {
+    faEye, faEdit, faTrash, faSort, faSortUp, faSortDown,
+    faPlus, faMagnifyingGlass, faTimes, faInbox, faInfoCircle
 } from '@fortawesome/free-solid-svg-icons';
 import './EmployeeListPage.css';
 
-// Helper function สำหรับแปลง Buffer รูปภาพ
 function arrayBufferToBase64(buffer) {
     if (!buffer || !buffer.data) return '';
     let binary = '';
@@ -25,35 +23,30 @@ function arrayBufferToBase64(buffer) {
 function EmployeeListPage() {
     const [employees, setEmployees] = useState([]);
     const [meta, setMeta] = useState({});
+    const [currentPage, setCurrentPage] = useState(1);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    
     const [searchInput, setSearchInput] = useState('');
     const [searchTerm, setSearchTerm] = useState('');
     const [sortConfig, setSortConfig] = useState({ key: 'emp_name', direction: 'asc' });
 
-    // ใช้ useRef เพื่อจำค่า searchTerm ก่อนหน้า (สำหรับแก้ปัญหากระพริบ)
     const prevSearchTermRef = useRef();
     const navigate = useNavigate();
 
     useEffect(() => {
         const fetchEmployees = async () => {
+            setLoading(true);
             try {
-                if (loading || searchTerm !== prevSearchTermRef.current) {
-                    setLoading(true);
-                }
-
                 const params = {
                     search: searchTerm,
                     sort: sortConfig.key,
                     order: sortConfig.direction,
-                    page: 1, 
-                    limit: 100
+                    page: currentPage,
+                    limit: 15
                 };
-                
-                // 2. (แก้ไข) เปลี่ยนมาใช้ 'api' และใช้ path สั้นๆ (baseURL จะถูกเติมให้อัตโนมัติ)
+
                 const response = await api.get('/employees', { params });
-                
+
                 setEmployees(response.data.data || []);
                 setMeta(response.data.meta || {});
                 setError(null);
@@ -66,42 +59,53 @@ function EmployeeListPage() {
             }
         };
         fetchEmployees();
-    }, [searchTerm, sortConfig]);
+    }, [searchTerm, sortConfig, currentPage]);
+
+
+    const handlePageChange = (newPage) => {
+        if (newPage >= 1 && newPage <= meta.totalPages) {
+            setCurrentPage(newPage);
+        }
+    };
 
     const handleSort = (key) => {
+        // เมื่อมีการ sort ให้กลับไปที่หน้า 1 เสมอ
+        setCurrentPage(1);
         let direction = 'asc';
         if (sortConfig.key === key && sortConfig.direction === 'asc') {
             direction = 'desc';
         }
         setSortConfig({ key, direction });
     };
-    
+
     const handleSearchSubmit = (e) => {
         e.preventDefault();
+        // เมื่อมีการค้นหา ให้กลับไปที่หน้า 1 เสมอ
+        setCurrentPage(1);
         setSearchTerm(searchInput);
     };
 
     const clearSearch = () => {
+        setCurrentPage(1);
         setSearchInput('');
         setSearchTerm('');
     };
 
-  const handleDelete = async (empId, empName) => {
+    const handleDelete = async (empId, empName) => {
         if (window.confirm(`คุณแน่ใจหรือไม่ที่ต้องการลบพนักงาน ${empName}?`)) {
             try {
-                // 3. (แก้ไข) เปลี่ยนมาใช้ 'api' ในฟังก์ชัน delete ด้วย
                 await api.delete(`/employees/${empId}`);
-                
-                setEmployees(currentEmployees => currentEmployees.filter(emp => emp.emp_id !== empId));
                 alert('ลบพนักงานสำเร็จ');
+                setCurrentPage(1);
+
             } catch (err) {
                 const errorMessage = err.response?.data?.message || 'เกิดข้อผิดพลาดในการลบพนักงาน';
                 alert(errorMessage);
             }
         }
     };
-    
-  if (loading) return <div className="text-center mt-5">กำลังโหลดข้อมูล...</div>;
+
+    if (loading) return <div className="text-center mt-5">กำลังโหลดข้อมูล...</div>;
     return (
         <div>
             <div className="d-flex justify-content-between align-items-center mb-3">
@@ -113,19 +117,19 @@ function EmployeeListPage() {
                     <FontAwesomeIcon icon={faPlus} className="me-2" /> บันทึกข้อมูลพนักงานใหม่
                 </button>
             </div>
-            
+
             {error && (
                 <div className="alert alert-danger">
-                    <FontAwesomeIcon icon={faExclamationTriangle} className="me-2"/>
+                    <FontAwesomeIcon icon={faExclamationTriangle} className="me-2" />
                     {error}
                 </div>
             )}
 
-       
+
             <form onSubmit={handleSearchSubmit} className="mb-3 search-form">
                 <div className="input-group w-50">
-                    <input 
-                        type="text" 
+                    <input
+                        type="text"
                         className="form-control"
                         placeholder="ค้นหาชื่อพนักงานหรือตำแหน่ง"
                         aria-label="ค้นหา"
@@ -142,10 +146,10 @@ function EmployeeListPage() {
                     )}
                 </div>
             </form>
-            
+
             {searchTerm && (
                 <div className="alert alert-info">
-                    <FontAwesomeIcon icon={faInfoCircle} className="me-2"/>
+                    <FontAwesomeIcon icon={faInfoCircle} className="me-2" />
                     ผลการค้นหา "<strong>{searchTerm}</strong>" พบ {meta.totalItems || 0} รายการ
                 </div>
             )}
@@ -168,7 +172,7 @@ function EmployeeListPage() {
                         {employees.length > 0 ? employees.map((employee) => (
                             <tr key={employee.emp_id}>
                                 <td className="profile-cell">
-                                    <img 
+                                    <img
                                         src={employee.emp_pic ? `data:image/jpeg;base64,${arrayBufferToBase64(employee.emp_pic)}` : '/images/profile.jpg'}
                                         alt={employee.emp_name}
                                         className="profile-image"
@@ -176,7 +180,7 @@ function EmployeeListPage() {
                                 </td>
                                 <td>{employee.emp_name}</td>
                                 <td>{employee.jobpos_name}</td>
-                                <td style={{minWidth: '220px'}}>
+                                <td style={{ minWidth: '220px' }}>
                                     <Link to={`/employees/view/${employee.emp_id}`} className="btn btn-info btn-sm me-2 text-white" title="ดูรายละเอียด">
                                         <FontAwesomeIcon icon={faEye} className='me-1' /> ดู
                                     </Link>
@@ -200,6 +204,28 @@ function EmployeeListPage() {
                         )}
                     </tbody>
                 </table>
+            </div>
+
+            <div className="d-flex justify-content-between align-items-center mt-3">
+                <span className="text-muted">
+                    หน้า {meta.currentPage} / {meta.totalPages} (ทั้งหมด {meta.totalItems} รายการ)
+                </span>
+                <div className="btn-group">
+                    <button
+                        className="btn btn-outline-secondary"
+                        onClick={() => handlePageChange(currentPage - 1)}
+                        disabled={currentPage === 1}
+                    >
+                        ก่อนหน้า
+                    </button>
+                    <button
+                        className="btn btn-outline-secondary"
+                        onClick={() => handlePageChange(currentPage + 1)}
+                        disabled={currentPage >= meta.totalPages}
+                    >
+                        ถัดไป
+                    </button>
+                </div>
             </div>
         </div>
     );

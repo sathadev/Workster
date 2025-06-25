@@ -165,8 +165,3 @@ exports.viewProfile = async (req, res) => {
     // ส่งต่อไปยังฟังก์ชัน getEmployeeById เหมือนเดิม
     return exports.getEmployeeById(req, res);
 };
-/*
-  หมายเหตุ: ฟังก์ชันที่เกี่ยวกับ "การแสดงฟอร์ม" เช่น `addForm`, `editForm` 
-  ได้ถูกลบออกไปแล้ว เพราะในสถาปัตยกรรมแบบใหม่ Frontend (React)
-  จะเป็นผู้รับผิดชอบในการสร้างและแสดงฟอร์มขึ้นมาเองทั้งหมด
-*/
