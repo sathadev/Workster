@@ -3,20 +3,16 @@ const SalaryModel = require('../models/salaryModel');
 
 // [GET] /api/v1/salaries - ดึงข้อมูลเงินเดือนทั้งหมด (สำหรับ Admin)
 exports.getAllSalaries = async (req, res) => {
-    const { search = '', page = 1, limit = 10 } = req.query;
     try {
-        let result;
-        if (search.trim()) {
-            result = await SalaryModel.searchSalaryInfo(search.trim(), page, limit);
-        } else {
-            result = await SalaryModel.getAllSalaryInfo(page, limit);
-        }
+        // ส่ง req.query ทั้งหมด (ที่มี search, sort, order, page, filter)
+        // เข้าไปในฟังก์ชัน getAll ของ Model ได้เลย
+        const result = await SalaryModel.getAll(req.query);
         res.status(200).json(result);
     } catch (err) {
+        console.error("API Error [getAllSalaries]:", err);
         res.status(500).json({ message: "เกิดข้อผิดพลาดในการดึงข้อมูลเงินเดือน" });
     }
 };
-
 // [PUT] /api/v1/salaries/:empId - อัปเดตข้อมูลเงินเดือน (สำหรับ Admin)
 exports.updateSalary = async (req, res) => {
     try {

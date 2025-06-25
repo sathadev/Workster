@@ -19,7 +19,7 @@ function EmployeeDetailPage() {
             try {
                 setLoading(true);
                 // 2. (แก้ไข) เปลี่ยนมาใช้ 'api' และใช้ path สั้นๆ
-                const response = await api.get(`/employees/${id}`); // <-- **แก้ตรงนี้**
+                const response = await api.get(`/employees/${id}`);
                 setEmployeeData(response.data);
             } catch (err) {
                 console.error("Failed to fetch employee details:", err);

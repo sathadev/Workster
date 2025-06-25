@@ -6,22 +6,82 @@ const query = util.promisify(db.query).bind(db);
 
 // REFACTORED: กำหนดฟิลด์ที่ปลอดภัยสำหรับดึงข้อมูล เพื่อหลีกเลี่ยงการส่งข้อมูลรหัสผ่าน
 const SAFE_EMPLOYEE_FIELDS = `
-  e.emp_id, e.emp_name, e.jobpos_id, e.emp_email, e.emp_tel, 
-  e.emp_address, e.emp_pic, e.emp_birthday, e.emp_startwork, 
-  j.jobpos_name
+    e.emp_id, e.emp_name, e.jobpos_id, e.emp_email, e.emp_tel, 
+    e.emp_address, e.emp_pic, e.emp_birthday, e.emp_startwork, e.emp_status,
+    j.jobpos_name
 `;
+
 
 const Employee = {
   // ดึงข้อมูลการประเมินทั้งหมด (ไม่เปลี่ยนแปลง)
-  getAllEvaluations: async () => {
-    const sql = `
-      SELECT e.create_at, emp.emp_name, e.evaluatework_totalscore, emp.emp_id
-      FROM evaluatework e
-      JOIN employee emp ON e.emp_id = emp.emp_id
-      ORDER BY e.create_at DESC
-    `;
-    return await query(sql);
-  },
+getAll: async (options = {}) => {
+        // 1. กำหนดค่าเริ่มต้นสำหรับ options ทั้งหมด
+        const {
+            sort = 'emp_name',
+            order = 'asc',
+            page = 1,
+            limit = 10,
+            jobpos_id = null,
+            status = null,
+            search = ''
+        } = options;
+
+        let params = [];
+        let whereClauses = [];
+
+        // 2. สร้างเงื่อนไข WHERE แบบไดนามิก
+        if (search) {
+            whereClauses.push(`(e.emp_name LIKE ? OR j.jobpos_name LIKE ?)`);
+            params.push(`%${search}%`, `%${search}%`);
+        }
+        if (jobpos_id) {
+            whereClauses.push(`e.jobpos_id = ?`);
+            params.push(jobpos_id);
+        }
+        if (status) {
+            whereClauses.push(`e.emp_status = ?`);
+            params.push(status);
+        }
+        const whereSql = whereClauses.length > 0 ? `WHERE ${whereClauses.join(' AND ')}` : '';
+
+        // 3. สร้าง SQL สำหรับนับจำนวนทั้งหมด (สำหรับ Pagination)
+        const countSql = `SELECT COUNT(e.emp_id) as total FROM employee e JOIN jobpos j ON e.jobpos_id = j.jobpos_id ${whereSql}`;
+        const [totalResult] = await query(countSql, params);
+        const totalItems = totalResult.total;
+        const totalPages = Math.ceil(totalItems / limit) || 1;
+
+        // 4. สร้าง SQL สำหรับดึงข้อมูล พร้อม Logic การเรียงลำดับที่ปลอดภัย
+        const sortableColumns = {
+            emp_name: 'e.emp_name',
+            jobpos_name: 'j.jobpos_name',
+            emp_startwork: 'e.emp_startwork',
+            jobpos_id: 'e.jobpos_id'
+        };
+        const sortColumn = sortableColumns[sort] || sortableColumns.emp_name;
+        const sortDirection = order.toUpperCase() === 'DESC' ? 'DESC' : 'ASC';
+        
+        let dataSql = `
+            SELECT ${SAFE_EMPLOYEE_FIELDS}
+            FROM employee e
+            JOIN jobpos j ON e.jobpos_id = j.jobpos_id
+            ${whereSql}
+            ORDER BY ${sortColumn} ${sortDirection}
+        `;
+        
+        // 5. เพิ่ม LIMIT / OFFSET และส่ง Query
+        const offset = (page - 1) * limit;
+        dataSql += ` LIMIT ? OFFSET ?`;
+        
+        const finalParams = [...params, parseInt(limit), parseInt(offset)];
+        const employees = await query(dataSql, finalParams);
+
+        // 6. คืนค่าข้อมูลและ meta
+        return {
+            data: employees,
+            meta: { totalItems, totalPages, currentPage: parseInt(page), itemsPerPage: parseInt(limit) },
+        };
+    },
+
 
   /**
    * REFACTORED: ดึงข้อมูลพนักงานทั้งหมดพร้อมเรียงลำดับและแบ่งหน้า (Pagination)
@@ -69,47 +129,6 @@ const Employee = {
     };
   },
 
-  /**
-   * REFACTORED: แก้ไข Logic การเรียงลำดับตามตำแหน่ง
-   */
-  searchEmployees: async (searchTerm, sortField, sortOrder, page = 1, limit = 10) => {
-    const searchPattern = `%${searchTerm}%`;
-    const countSql = `SELECT COUNT(e.emp_id) as total FROM employee e JOIN jobpos j ON e.jobpos_id = j.jobpos_id WHERE e.emp_name LIKE ? OR j.jobpos_name LIKE ?`;
-    const [totalResult] = await query(countSql, [searchPattern, searchPattern]);
-    const totalItems = totalResult.total;
-    const totalPages = Math.ceil(totalItems / limit);
-
-    let dataSql = `
-      SELECT ${SAFE_EMPLOYEE_FIELDS}
-      FROM employee e JOIN jobpos j ON e.jobpos_id = j.jobpos_id
-      WHERE e.emp_name LIKE ? OR j.jobpos_name LIKE ?
-    `;
-
-    // --- ใช้ Logic การ ORDER BY ที่ถูกต้องเหมือนกัน ---
-    if (sortField === 'emp_name') {
-        dataSql += ` ORDER BY CAST(REGEXP_SUBSTR(e.emp_name, '[0-9]+') AS UNSIGNED) ${sortOrder}, e.emp_name ${sortOrder}`;
-    } else if (sortField === 'jobpos_name') {
-        dataSql += ` ORDER BY j.jobpos_id ${sortOrder} `;
-    } else {
-        const allowedFields = ['emp_startwork', 'emp_id'];
-        if(allowedFields.includes(sortField)) {
-            dataSql += ` ORDER BY e.${sortField} ${sortOrder} `;
-        } else {
-            dataSql += ` ORDER BY e.emp_name ASC `;
-        }
-    }
-
-    const offset = (page - 1) * limit;
-    dataSql += ` LIMIT ? OFFSET ? `;
-    const employees = await query(dataSql, [searchPattern, searchPattern, parseInt(limit), parseInt(offset)]);
-
-    return {
-      data: employees,
-      meta: { totalItems, totalPages, currentPage: parseInt(page), itemsPerPage: parseInt(limit) },
-    };
-  },
-
-
 getById: async (id) => {
   const sql = `
     SELECT 
@@ -127,26 +146,24 @@ getById: async (id) => {
 },
   // เพิ่มพนักงานใหม่
   create: async (data) => {
-    const { emp_name, jobpos_id, emp_email, emp_tel, emp_address, emp_username, emp_password, emp_pic, emp_birthday } = data;
+        const { emp_name, jobpos_id, emp_email, emp_tel, emp_address, emp_username, emp_password, emp_pic, emp_birthday } = data;
+        const existingEmployee = await query('SELECT emp_id FROM employee WHERE emp_email = ? OR emp_username = ?', [emp_email, emp_username]);
+        if (existingEmployee.length > 0) {
+            throw new Error('Email หรือ Username นี้มีผู้ใช้งานแล้ว');
+        }
 
-    const existingEmployee = await query('SELECT emp_id FROM employee WHERE emp_email = ?', [emp_email]);
-    if (existingEmployee.length > 0) {
-      throw new Error('Email is already registered.');
-    }
-
-    const insertSql = `
-      INSERT INTO employee
-      (emp_name, jobpos_id, emp_email, emp_tel, emp_address, emp_username, emp_password, emp_pic, emp_birthday, emp_startwork)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())
-    `;
-    const params = [emp_name, jobpos_id, emp_email, emp_tel, emp_address, emp_username, emp_password, emp_pic, emp_birthday];
-    
-    const result = await query(insertSql, params);
-    
-    // REFACTORED: คืนค่าเป็นข้อมูลพนักงานที่เพิ่งสร้าง แทนที่จะเป็น OkPacket
-    const newEmployeeId = result.insertId;
-    return await Employee.getById(newEmployeeId);
-  },
+        const insertSql = `
+            INSERT INTO employee
+            (emp_name, jobpos_id, emp_email, emp_tel, emp_address, emp_username, emp_password, emp_pic, emp_birthday, emp_startwork)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, CURDATE())
+        `;
+        const params = [emp_name, parseInt(jobpos_id), emp_email, emp_tel, emp_address, emp_username, emp_password, emp_pic, emp_birthday];
+        
+        const result = await query(insertSql, params);
+        const newEmployeeId = result.insertId;
+        const [newEmployeeData] = await Employee.getById(newEmployeeId);
+        return newEmployeeData;
+    },
 
   // อัปเดตข้อมูลพนักงาน
   update: async (id, data) => {
