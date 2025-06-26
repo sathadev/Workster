@@ -1,0 +1,25 @@
+/* frontend/src/pages/EmployeeDetailPage.css */
+.detail-card {
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    border: none;
+    border-radius: 0.75rem;
+}
+.profile-details .row {
+    margin-bottom: 0.75rem;
+    font-size: 1rem;
+}
+.profile-details .label {
+    font-weight: 600;
+    color: #6c757d;
+}
+.summary-card {
+    color: white;
+    border: none;
+    border-radius: 0.5rem;
+}
+.card-green { background-color: #28a745; }
+.card-yellow { background-color: #ffc107; }
+.card-red { background-color: #dc3545; }
+
+.summary-card .card-title { font-weight: 300; }
+.summary-card .card-value { font-size: 2.5rem; font-weight: 700; }

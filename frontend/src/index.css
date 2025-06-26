@@ -1,0 +1,98 @@
+/* frontend/src/index.css */
+
+/* --- 1. Import Font (ยังคงเก็บไว้) --- */
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@100..900&display=swap');
+
+/* --- 2. CSS Reset และตั้งค่า Global --- */
+html,
+body,
+#root {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  /* ทำให้ #root และ body สูงเต็มหน้าจอ */
+  width: 100%;
+}
+
+body {
+  font-family: "Noto Sans Thai", sans-serif;
+  background-color: #ffffff;
+  /* ตั้งสีพื้นหลังเผื่อไว้ */
+}
+
+
+.sidebar {
+  background-color: #f8f9fa;
+  min-height: 100vh;
+  padding-top: 20px;
+}
+
+.sidebar a {
+  display: block;
+  padding: 10px 20px;
+  color: #000;
+  text-decoration: none;
+}
+
+.sidebar a:hover {
+  background-color: #e2e6ea;
+  border-radius: 5px;
+}
+
+.card-green {
+  background-color: #a7f9a2;
+}
+
+.card-yellow {
+  background-color: #f9f59a;
+}
+
+.card-red {
+  background-color: #f9a2a2;
+}
+
+/* เส้นขอบรอบนอกของตาราง */
+.table {
+  border: 2px solid #dee2e6;
+  /* เส้นขอบรอบตาราง */
+}
+
+/* เส้นขอบใต้หัวข้อ */
+.table .profile {
+  border-bottom: 2px solid #dee2e6;
+  /* เส้นขอบใต้หัวข้อ */
+  text-align: center;
+  /* จัดกลางหัวข้อ */
+}
+
+/* ลบเส้นขอบในเซลล์ */
+.table td,
+.table th {
+  border: none;
+  /* ไม่มีเส้นขอบในเซลล์ */
+}
+
+/* จัดรูปภาพให้เป็นวงกลม และให้ครอบคลุมพื้นที่ */
+.profile-image {
+  width: 40px;
+  height: 40px;
+  object-fit: cover;
+  /* ให้รูปภาพครอบคลุมพื้นที่โดยไม่เพี้ยน */
+  border-radius: 50%;
+}
+
+/* จัดให้อยู่ตรงกลาง */
+.profile-cell {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.navbar-brand a {
+  text-decoration: none;
+  color: inherit;
+}
+
+.dropdown-toggle::after {
+  display: none;
+}
