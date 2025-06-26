@@ -5,11 +5,12 @@ const Attendance = require('../models/attendanceModel');
 const Leave = require('../models/leaveworkModel');
 const bcrypt = require('bcrypt');
 const multer = require('multer');
+const { getIO } = require('../socket');
 
 const upload = multer();
 exports.uploadImage = upload.single('emp_pic');
 
-// [GET] /api/v1/employees - ดึงข้อมูลพนักงานทั้งหมด
+// [GET] /api/v1/employees
 exports.getAllEmployees = async (req, res) => {
     try {
         const result = await Employee.getAll(req.query);
@@ -20,15 +21,13 @@ exports.getAllEmployees = async (req, res) => {
     }
 };
 
-
-// [GET] /api/v1/employees/:id - ดึงข้อมูลพนักงานรายบุคคล (ฉบับแก้ไข)
+// [GET] /api/v1/employees/view/:id
 exports.getEmployeeById = async (req, res) => {
     try {
         const empId = req.params.id;
+        const [employee] = await Employee.getById(empId);
 
-        const employeeResults = await Employee.getById(empId);
-
-        if (!employeeResults || !employeeResults.length) {
+        if (!employee) {
             return res.status(404).json({ message: 'ไม่พบข้อมูลพนักงาน' });
         }
 
@@ -36,31 +35,24 @@ exports.getEmployeeById = async (req, res) => {
             Attendance.getCountSummary(empId),
             Leave.getApprovedLeaveCountByEmpId(empId)
         ]);
-        
-        const attendanceSummary = { ontimeCheckin: 0, lateCheckin: 0, ontimeCheckout: 0, lateCheckout: 0 };
-        
-        // --- ส่วนที่แก้ไข ---
-        // เพิ่มการตรวจสอบก่อนเรียกใช้ forEach และตรวจสอบค่า null ก่อนใช้ .toLowerCase()
+
+        const attendanceSummary = { ontimeCheckin: 0, lateCheckin: 0, ontimeCheckout: 0, earlyCheckout: 0 }; // Changed lateCheckout to earlyCheckout
         if (attendanceCounts && Array.isArray(attendanceCounts)) {
             attendanceCounts.forEach(row => {
-                const status = row.attendance_status ? row.attendance_status.toLowerCase() : '';
-                const type = row.attendance_type ? row.attendance_type.toLowerCase() : '';
-
+                const status = row.attendance_status?.toLowerCase() || '';
+                const type = row.attendance_type?.toLowerCase() || '';
                 if (status === 'ontime' && type === 'checkin') attendanceSummary.ontimeCheckin = row.count;
                 else if (status === 'late' && type === 'checkin') attendanceSummary.lateCheckin = row.count;
                 else if (status === 'ontime' && type === 'checkout') attendanceSummary.ontimeCheckout = row.count;
-                // ในโค้ดเดิมของคุณมี typo ผมได้แก้เป็น 'early' ตาม ENUM ใน database schema
-                else if (status === 'early' && type === 'checkout') attendanceSummary.lateCheckout = row.count; 
+                else if (status === 'early' && type === 'checkout') attendanceSummary.earlyCheckout = row.count;
             });
         }
-        // --- จบส่วนแก้ไข ---
 
         res.status(200).json({
-            employee: employeeResults[0],
+            employee,
             attendanceSummary,
-            approvedLeaveCount: approvedLeaveCount || 0 // ป้องกันค่า null
+            approvedLeaveCount: approvedLeaveCount || 0
         });
-
     } catch (err) {
         console.error('API Error [getEmployeeById]:', err);
         res.status(500).json({ message: 'เกิดข้อผิดพลาดในการดึงข้อมูลพนักงาน' });
@@ -72,19 +64,19 @@ exports.createEmployee = async (req, res) => {
     try {
         const data = req.body;
         let emp_pic = req.file ? req.file.buffer : null;
-
         if (!data.emp_password) {
             return res.status(400).json({ message: 'กรุณากรอกรหัสผ่าน' });
         }
-        
         const hashedPassword = await bcrypt.hash(data.emp_password, 10);
         const fullData = { ...data, emp_password: hashedPassword, emp_pic };
+        const newEmployeeData = await Employee.create(fullData);
 
-        const newEmployee = await Employee.create(fullData);
+        // **ส่งข้อมูลพนักงานใหม่ที่สมบูรณ์ไปกับ Event**
+        getIO().emit('employee_created', newEmployeeData);
 
         res.status(201).json({
             message: 'สร้างพนักงานใหม่สำเร็จ',
-            data: newEmployee
+            data: newEmployeeData
         });
     } catch (err) {
         console.error('API Error [createEmployee]:', err);
@@ -97,21 +89,18 @@ exports.updateEmployee = async (req, res) => {
     try {
         const emp_id = req.params.id;
         const data = req.body;
-        
         const results = await Employee.getById(emp_id);
         if (!results.length) {
             return res.status(404).json({ message: 'ไม่พบข้อมูลพนักงานที่จะอัปเดต' });
         }
-
         const existingEmployee = results[0];
         const emp_pic = req.file ? req.file.buffer : existingEmployee.emp_pic;
-
-        // ไม่ควรอัปเดตรหัสผ่านและ username ในฟังก์ชันนี้
-        const { emp_password, emp_username, ...updateData } = data; 
+        const { emp_password, emp_username, ...updateData } = data;
         const fullData = { ...updateData, emp_pic };
-        
-        await Employee.update(emp_id, fullData);
-        const [updatedEmployee] = await Employee.getById(emp_id);
+        const [updatedEmployee] = await Employee.update(emp_id, fullData);
+
+        // **ส่งข้อมูลที่อัปเดตแล้วไปกับ Event**
+        getIO().emit('employee_updated', updatedEmployee);
 
         res.status(200).json(updatedEmployee);
     } catch (err) {
@@ -124,13 +113,15 @@ exports.updateEmployee = async (req, res) => {
 exports.deleteEmployee = async (req, res) => {
     try {
         const empIdToDelete = parseInt(req.params.id, 10);
-        const loggedInEmpId = req.user.emp_id; 
-
+        const loggedInEmpId = req.user.emp_id;
         if (empIdToDelete === loggedInEmpId) {
             return res.status(403).json({ message: 'คุณไม่สามารถลบตัวเองได้' });
         }
-
         await Employee.delete(empIdToDelete);
+
+        // **ส่ง ID ของพนักงานที่ถูกลบไปกับ Event**
+        getIO().emit('employee_deleted', { id: empIdToDelete });
+
         res.status(200).json({ message: `ลบพนักงาน ID: ${empIdToDelete} สำเร็จ` });
     } catch (err) {
         console.error('API Error [deleteEmployee]:', err);
@@ -138,9 +129,9 @@ exports.deleteEmployee = async (req, res) => {
     }
 };
 
-
 // [GET] /api/v1/profile - แสดงหน้า Profile ของพนักงานที่ล็อกอินอยู่
 exports.viewProfile = async (req, res) => {
     req.params.id = req.user.emp_id;
     return exports.getEmployeeById(req, res);
 };
+

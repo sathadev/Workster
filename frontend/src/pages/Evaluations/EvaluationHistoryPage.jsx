@@ -1,4 +1,4 @@
-// frontend/src/pages/EvaluationHistoryPage.jsx
+// frontend/src/pages/Evaluations/EvaluationHistoryPage.jsx
 import { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../../api/axios';

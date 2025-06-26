@@ -1,4 +1,4 @@
-// frontend/src/pages/ProfilePage.jsx
+// frontend/src/pages/Employees/ProfilePage.jsx
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import api from '../../api/axios'; 

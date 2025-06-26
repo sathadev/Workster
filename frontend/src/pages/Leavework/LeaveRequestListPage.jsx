@@ -1,4 +1,4 @@
-// frontend/src/pages/LeaveRequestListPage.jsx
+// frontend/src/pages/Leavework/LeaveRequestListPage.jsx
 import { useState, useEffect } from 'react';
 import api from '../../api/axios';
 import StatusBadge from '../../components/StatusBadge'; // <-- Import component ใหม่

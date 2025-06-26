@@ -1,4 +1,4 @@
-// frontend/src/pages/SalaryListPage.jsx
+// frontend/src/pages/Salary/SalaryListPage.jsx
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../../api/axios';

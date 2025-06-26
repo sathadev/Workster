@@ -1,4 +1,4 @@
-// frontend/src/pages/PositionDetailPage.jsx
+// frontend/src/pages/Jobpos/PositionDetailPage.jsx
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import api from '../../api/axios';

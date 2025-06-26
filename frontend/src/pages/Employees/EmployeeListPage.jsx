@@ -1,5 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react'; // เพิ่ม useCallback
 import api from '../../api/axios';
+import socket from '../../socket';
 import { Link, useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
@@ -9,7 +10,7 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import './EmployeeListPage.css';
 
-// Helper function (เหมือนเดิม)
+// Helper function
 function arrayBufferToBase64(buffer) {
     if (!buffer || !buffer.data) return '';
     let binary = '';
@@ -26,94 +27,118 @@ function EmployeeListPage() {
     const [meta, setMeta] = useState({});
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [isSorting, setIsSorting] = useState(false); // **1. เพิ่ม State สำหรับตรวจสอบว่ากำลัง Sort หรือไม่**
-
     const [filters, setFilters] = useState({
         search: '',
         jobpos_id: '',
         status: 'active'
     });
-    
     const [searchInput, setSearchInput] = useState('');
     const [positions, setPositions] = useState([]);
     const [sortConfig, setSortConfig] = useState({ key: 'emp_name', direction: 'asc' });
     const [currentPage, setCurrentPage] = useState(1);
-    const [refetchTrigger, setRefetchTrigger] = useState(0);
-
+    
     const navigate = useNavigate();
 
     // --- Effects ---
+
+    // 1. ดึงข้อมูลตำแหน่งงาน (ทำครั้งเดียวเมื่อ component mount)
     useEffect(() => {
-        const fetchPositions = async () => {
-            try {
-                const response = await api.get('/positions');
-                setPositions(response.data);
-            } catch (err) {
-                console.error("Failed to fetch positions", err);
-            }
-        };
-        fetchPositions();
+        api.get('/positions').then(res => setPositions(res.data)).catch(err => console.error("Failed to fetch positions", err));
     }, []);
 
+    // 2. ฟังก์ชันสำหรับดึงข้อมูลพนักงาน (ใช้ useCallback เพื่อให้ฟังก์ชันไม่ถูกสร้างใหม่ทุกครั้งที่ render)
+    // Dependencies ของฟังก์ชันนี้คือ state ที่มีผลต่อการเรียก API
+    const fetchEmployees = useCallback(async () => {
+        if (employees.length === 0 && !error) { 
+            setLoading(true);
+        }
+
+        setError(null);
+        try {
+            const params = { 
+                ...filters, 
+                sort: sortConfig.key, 
+                order: sortConfig.direction, 
+                page: currentPage, 
+                limit: 15 
+            };
+            const response = await api.get('/employees', { params });
+            setEmployees(response.data.data || []);
+            setMeta(response.data.meta || {});
+        } catch (err) {
+            console.error('Failed to fetch employees:', err);
+            setError('เกิดข้อผิดพลาดในการดึงข้อมูลพนักงาน');
+        } finally {
+            setLoading(false); 
+        }
+    }, [filters, sortConfig, currentPage]); 
+
+    // 3. useEffect หลัก: เรียก fetchEmployees และจัดการ Socket.IO listeners
     useEffect(() => {
-        const fetchEmployees = async () => {
-            // **3. แก้ไข: จะแสดง Loading แบบเต็มหน้าจอก็ต่อเมื่อไม่ใช่การ Sort**
-            if (!isSorting) {
-                setLoading(true);
-            }
-            setError(null);
-            try {
-                const params = {
-                    ...filters,
-                    sort: sortConfig.key,
-                    order: sortConfig.direction,
-                    page: currentPage,
-                    limit: 15
-                };
-                const response = await api.get('/employees', { params });
-                setEmployees(response.data.data || []);
-                setMeta(response.data.meta || {});
-            } catch (err) {
-                console.error('Failed to fetch employees:', err);
-                setError('เกิดข้อผิดพลาดในการดึงข้อมูลพนักงาน');
-            } finally {
-                setLoading(false);
-                setIsSorting(false); // **4. Reset สถานะ isSorting ทุกครั้งที่ทำงานเสร็จ**
-            }
-        };
         fetchEmployees();
-    }, [filters, sortConfig, currentPage, refetchTrigger]);
+
+        socket.connect(); 
+
+        const handleEmployeeChange = () => {
+            console.log("Socket event related to employees received! Re-fetching data...");
+            fetchEmployees(); 
+        };
+
+        socket.on('employee_created', handleEmployeeChange);
+        socket.on('employee_updated', handleEmployeeChange);
+        socket.on('employee_deleted', handleEmployeeChange);
+
+        return () => {
+            socket.off('employee_created', handleEmployeeChange);
+            socket.off('employee_updated', handleEmployeeChange);
+            socket.off('employee_deleted', handleEmployeeChange);
+            socket.disconnect(); 
+        };
+    }, [fetchEmployees]); 
 
     // --- Handlers ---
-    const handleFilterChange = (e) => {
-        const { name, value } = e.target;
-        setCurrentPage(1);
-        setFilters(prevFilters => ({
-            ...prevFilters,
-            [name]: value
-        }));
+    const handleDelete = async (empId, empName) => {
+        if (window.confirm(`คุณแน่ใจหรือไม่ที่ต้องการลบพนักงาน ${empName}?`)) {
+            try {
+                await api.delete(`/employees/${empId}`);
+                alert('ลบพนักงานสำเร็จ');
+            } catch (err) {
+                const errorMessage = err.response?.data?.message || 'เกิดข้อผิดพลาดในการลบพนักงาน';
+                alert(errorMessage);
+            }
+        }
     };
-    
+
+    const handleFilterChange = (e) => {
+        setCurrentPage(1); 
+        setFilters(prev => ({ ...prev, [e.target.name]: e.target.value }));
+    };
+
     const handleSearchSubmit = (e) => {
         e.preventDefault();
-        setCurrentPage(1);
+        setCurrentPage(1); 
         setFilters(prev => ({ ...prev, search: searchInput }));
     };
 
     const clearSearch = () => {
-        setCurrentPage(1);
+        setCurrentPage(1); 
         setSearchInput('');
         setFilters(prev => ({ ...prev, search: '' }));
     };
-    
+
     const handleSort = (key) => {
-        setCurrentPage(1);
-        setIsSorting(true); // **2. ตั้งค่า isSorting เป็น true เมื่อกดปุ่ม Sort**
+        setCurrentPage(1); 
         let direction = 'asc';
         if (sortConfig.key === key && sortConfig.direction === 'asc') {
             direction = 'desc';
         }
-        setSortConfig({ key, direction });
+
+        // *** การแก้ไขที่สำคัญ: เปลี่ยน 'jobpos_id' เป็น 'jobpos_name' เมื่อ Sort ตำแหน่ง ***
+        let actualSortKey = key;
+        if (key === 'jobpos_id') {
+            actualSortKey = 'jobpos_name'; 
+        }
+        setSortConfig({ key: actualSortKey, direction });
     };
 
     const handlePageChange = (newPage) => {
@@ -121,23 +146,7 @@ function EmployeeListPage() {
             setCurrentPage(newPage);
         }
     };
-    
-    const handleDelete = async (empId, empName) => {
-        if (window.confirm(`คุณแน่ใจหรือไม่ที่ต้องการลบพนักงาน ${empName}?`)) {
-            try {
-                await api.delete(`/employees/${empId}`);
-                alert('ลบพนักงานสำเร็จ');
-                if (employees.length === 1 && currentPage > 1) {
-                    setCurrentPage(currentPage - 1);
-                } else {
-                    setRefetchTrigger(t => t + 1);
-                }
-            } catch (err) {
-                const errorMessage = err.response?.data?.message || 'เกิดข้อผิดพลาดในการลบพนักงาน';
-                alert(errorMessage);
-            }
-        }
-    };
+
     // --- Render ---
     if (loading) return <div className="text-center mt-5">กำลังโหลดข้อมูล...</div>;
 
@@ -155,7 +164,6 @@ function EmployeeListPage() {
             {/* --- Filter Section --- */}
             <div className="row g-2 mb-1">
                 <div className="col-md-7">
-
                     <form onSubmit={handleSearchSubmit} className="mb-3 search-form">
                         <div className="input-group w-50">
                             <input
@@ -175,7 +183,6 @@ function EmployeeListPage() {
                             )}
                         </div>
                     </form>
-
                 </div>
                 <div className="col-md-3">
                     <div className="input-group">
@@ -224,15 +231,14 @@ function EmployeeListPage() {
                 <>
                     <div className="table-responsive">
                         <table className="table table-hover table-bordered text-center align-middle">
-                            {/* ... thead และ tbody เหมือนเดิม ... */}
                             <thead className="table-light">
                                 <tr>
                                     <th className="profile">โปรไฟล์</th>
-                                    <th onClick={() => handleSort('emp_name')} style={{ cursor: 'pointer' }}>
-                                        ชื่อ - สกุล {sortConfig.key === 'emp_name' && <FontAwesomeIcon icon={sortConfig.direction === 'asc' ? faSortUp : faSortDown} />}
+                                    <th >
+                                        ชื่อ - สกุล 
                                     </th>
-                                    <th onClick={() => handleSort('jobpos_id')} style={{ cursor: 'pointer' }}>
-                                        ตำแหน่ง {sortConfig.key === 'jobpos_id' && <FontAwesomeIcon icon={sortConfig.direction === 'asc' ? faSortUp : faSortDown} />}
+                                    <th>
+                                        ตำแหน่ง 
                                     </th>
                                     <th>จัดการ</th>
                                 </tr>

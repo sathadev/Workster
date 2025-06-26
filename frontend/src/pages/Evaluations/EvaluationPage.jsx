@@ -1,4 +1,4 @@
-// frontend/src/pages/EvaluationPage.jsx
+// frontend/src/pages/Evaluations/EvaluationPage.jsx
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import api from '../../api/axios';
