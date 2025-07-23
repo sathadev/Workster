@@ -1,3 +1,4 @@
+// frontend/src/pages/EmployeeListPage.jsx
 import { useState, useEffect } from 'react';
 import api from '../../api/axios';
 import { Link, useNavigate } from 'react-router-dom';
@@ -9,16 +10,21 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import './EmployeeListPage.css';
 
-// Helper function (เหมือนเดิม)
-function arrayBufferToBase64(buffer) {
-    if (!buffer || !buffer.data) return '';
-    let binary = '';
-    const bytes = new Uint8Array(buffer.data);
-    bytes.forEach((byte) => {
-        binary += String.fromCharCode(byte);
-    });
-    return window.btoa(binary);
-}
+// <--- ลบ Helper function arrayBufferToBase64 ทิ้งไปเลย เพราะเราจะไม่ใช้แล้ว
+// function arrayBufferToBase64(buffer) {
+//     if (!buffer || !buffer.data) return '';
+//     let binary = '';
+//     const bytes = new Uint8Array(buffer.data);
+//     bytes.forEach((byte) => {
+//         binary += String.fromCharCode(byte);
+//     });
+//     return window.btoa(binary);
+// }
+// --->
+
+// กำหนด BASE_URL_UPLOAD สำหรับรูปภาพ
+// ต้องตรงกับ URL ที่ Express Serve Static Files ใน app.js
+const BASE_URL_UPLOAD = 'http://localhost:5000/uploads/profile_pics/'; // <--- เพิ่ม: URL สำหรับรูปภาพ
 
 function EmployeeListPage() {
     // --- State Management ---
@@ -26,7 +32,7 @@ function EmployeeListPage() {
     const [meta, setMeta] = useState({});
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [isSorting, setIsSorting] = useState(false); // **1. เพิ่ม State สำหรับตรวจสอบว่ากำลัง Sort หรือไม่**
+    const [isSorting, setIsSorting] = useState(false); 
 
     const [filters, setFilters] = useState({
         search: '',
@@ -57,7 +63,6 @@ function EmployeeListPage() {
 
     useEffect(() => {
         const fetchEmployees = async () => {
-            // **3. แก้ไข: จะแสดง Loading แบบเต็มหน้าจอก็ต่อเมื่อไม่ใช่การ Sort**
             if (!isSorting) {
                 setLoading(true);
             }
@@ -78,7 +83,7 @@ function EmployeeListPage() {
                 setError('เกิดข้อผิดพลาดในการดึงข้อมูลพนักงาน');
             } finally {
                 setLoading(false);
-                setIsSorting(false); // **4. Reset สถานะ isSorting ทุกครั้งที่ทำงานเสร็จ**
+                setIsSorting(false); 
             }
         };
         fetchEmployees();
@@ -108,7 +113,7 @@ function EmployeeListPage() {
     
     const handleSort = (key) => {
         setCurrentPage(1);
-        setIsSorting(true); // **2. ตั้งค่า isSorting เป็น true เมื่อกดปุ่ม Sort**
+        setIsSorting(true); 
         let direction = 'asc';
         if (sortConfig.key === key && sortConfig.direction === 'asc') {
             direction = 'desc';
@@ -224,7 +229,6 @@ function EmployeeListPage() {
                 <>
                     <div className="table-responsive">
                         <table className="table table-hover table-bordered text-center align-middle">
-                            {/* ... thead และ tbody เหมือนเดิม ... */}
                             <thead className="table-light">
                                 <tr>
                                     <th className="profile">โปรไฟล์</th>
@@ -242,7 +246,9 @@ function EmployeeListPage() {
                                     <tr key={employee.emp_id}>
                                         <td className="profile-cell">
                                             <img
-                                                src={employee.emp_pic ? `data:image/jpeg;base64,${arrayBufferToBase64(employee.emp_pic)}` : '/images/profile.jpg'}
+                                                // <--- เปลี่ยน src ให้ชี้ไปยังไฟล์ใน Server
+                                                src={employee.emp_pic ? `${BASE_URL_UPLOAD}${employee.emp_pic}` : '/images/profile.jpg'}
+                                                // --->
                                                 alt={employee.emp_name}
                                                 className="profile-image"
                                             />

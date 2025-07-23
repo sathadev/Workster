@@ -1,11 +1,58 @@
+// backend/controllers/employeeController.js
+
 const Employee = require('../models/employeeModel');
 const Attendance = require('../models/attendanceModel');
 const Leave = require('../models/leaveworkModel');
 const bcrypt = require('bcrypt');
 const multer = require('multer');
+const path = require('path'); // นำเข้าโมดูล 'path' สำหรับจัดการเส้นทางไฟล์
+const fs = require('fs');     // นำเข้าโมดูล 'fs' สำหรับจัดการไฟล์และโฟลเดอร์
 
-const upload = multer();
-exports.uploadImage = upload.single('emp_pic');
+// กำหนด Storage สำหรับ Multer ให้บันทึกไฟล์ลงบน Disk
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        // กำหนดโฟลเดอร์ปลายทางสำหรับเก็บรูปภาพโปรไฟล์
+        // จะเก็บที่ backend/public/uploads/profile_pics/
+        const uploadDir = path.join(__dirname, '..', 'public', 'uploads', 'profile_pics');
+        
+        // ตรวจสอบว่าโฟลเดอร์มีอยู่หรือไม่ ถ้าไม่มีให้สร้างขึ้นมา
+        // { recursive: true } จะสร้างโฟลเดอร์ย่อยทั้งหมดที่จำเป็น
+        if (!fs.existsSync(uploadDir)) {
+            fs.mkdirSync(uploadDir, { recursive: true });
+        }
+        cb(null, uploadDir); // ระบุโฟลเดอร์ปลายทาง
+    },
+    filename: (req, file, cb) => {
+        // ตั้งชื่อไฟล์ให้ไม่ซ้ำกัน เพื่อป้องกันไฟล์ซ้ำทับกัน
+        // ใช้ emp_id (จาก req.user ที่มาจาก protect middleware) + timestamp + นามสกุลไฟล์เดิม
+        const empId = req.user.emp_id; 
+        const ext = path.extname(file.originalname); // ดึงนามสกุลไฟล์เดิม
+        const newFileName = `employee-${empId}-${Date.now()}${ext}`; // ตัวอย่าง: employee-4-1678888888888.jpg
+        cb(null, newFileName); // กำหนดชื่อไฟล์ใหม่
+    }
+});
+
+// กำหนดเงื่อนไขการอัปโหลดไฟล์ (ประเภทไฟล์, ขนาด)
+const fileFilter = (req, file, cb) => {
+    // ตรวจสอบ MIME type ของไฟล์ว่าเป็นรูปภาพหรือไม่
+    if (file.mimetype.startsWith('image/')) {
+        cb(null, true); // อนุญาตให้อัปโหลด
+    } else {
+        // ไม่อนุญาต และส่งข้อความผิดพลาด
+        cb(new Error('รองรับเฉพาะไฟล์รูปภาพ (JPEG, PNG, GIF) เท่านั้น!'), false); 
+    }
+};
+
+// สร้าง instance ของ multer ด้วยการตั้งค่า storage และ fileFilter
+const upload = multer({
+    storage: storage,       // ใช้ storage ที่กำหนดไว้ด้านบน
+    fileFilter: fileFilter, // ใช้ filter ที่กำหนดไว้
+    limits: { fileSize: 5 * 1024 * 1024 } // จำกัดขนาดไฟล์ไม่เกิน 5 MB (5 * 1024 * 1024 bytes)
+});
+
+// Middleware สำหรับการอัปโหลดรูปภาพโปรไฟล์เดี่ยว
+// 'emp_pic' คือชื่อ field ใน FormData ที่ Frontend ส่งมา
+exports.uploadImage = upload.single('emp_pic'); 
 
 // [GET] /api/v1/employees - ดึงข้อมูลพนักงานทั้งหมด
 exports.getAllEmployees = async (req, res) => {
@@ -68,14 +115,23 @@ exports.getEmployeeById = async (req, res) => {
 exports.createEmployee = async (req, res) => {
     try {
         const data = req.body;
-        let emp_pic = req.file ? req.file.buffer : null;
+        // req.file จะมีข้อมูลไฟล์ที่อัปโหลด (ถ้ามี)
+        // เราจะเก็บแค่ชื่อไฟล์ลงในฐานข้อมูล
+        const emp_pic_filename = req.file ? req.file.filename : null; 
 
         if (!data.emp_password) {
+            // ถ้าไม่มีรหัสผ่าน ให้ลบไฟล์ที่อาจถูกอัปโหลดไปแล้วทิ้ง (ถ้ามี)
+            if (req.file) {
+                fs.unlink(req.file.path, (unlinkErr) => {
+                    if (unlinkErr) console.error("Failed to delete uploaded file due to missing password:", unlinkErr);
+                });
+            }
             return res.status(400).json({ message: 'กรุณากรอกรหัสผ่าน' });
         }
         
         const hashedPassword = await bcrypt.hash(data.emp_password, 10);
-        const fullData = { ...data, emp_password: hashedPassword, emp_pic };
+        // ส่งชื่อไฟล์แทน buffer ของรูปภาพ
+        const fullData = { ...data, emp_password: hashedPassword, emp_pic: emp_pic_filename };
 
         // สร้างพนักงานใหม่ พร้อมส่ง companyId เพื่อระบุว่าพนักงานคนนี้สังกัดบริษัทใด
         const newEmployee = await Employee.create(fullData, req.companyId);
@@ -86,6 +142,13 @@ exports.createEmployee = async (req, res) => {
         });
     } catch (err) {
         console.error('API Error [createEmployee]:', err);
+        // ถ้าเกิด Error หลังอัปโหลดไฟล์แล้ว แต่ก่อนบันทึก DB (เช่น DB Error)
+        // ควรลบไฟล์ที่อัปโหลดไปแล้วทิ้ง เพื่อไม่ให้มีไฟล์ขยะตกค้าง
+        if (req.file) {
+            fs.unlink(req.file.path, (unlinkErr) => {
+                if (unlinkErr) console.error("Failed to delete uploaded file after DB error:", unlinkErr);
+            });
+        }
         res.status(500).json({ message: err.message || 'เกิดข้อผิดพลาดในการสร้างพนักงาน' });
     }
 };
@@ -100,15 +163,43 @@ exports.updateEmployee = async (req, res) => {
         // ต้องกรองด้วย companyId เพื่อให้แน่ใจว่ากำลังอัปเดตพนักงานที่อยู่ในบริษัทเดียวกัน
         const results = await Employee.getById(emp_id, req.companyId);
         if (!results.length) {
+            // ถ้าไม่พบพนักงานในบริษัทนี้ ให้ลบไฟล์ที่อาจถูกอัปโหลดใหม่ทิ้ง (ถ้ามี)
+            if (req.file) {
+                fs.unlink(req.file.path, (unlinkErr) => {
+                    if (unlinkErr) console.error("Failed to delete newly uploaded file due to employee not found:", unlinkErr);
+                });
+            }
             return res.status(404).json({ message: 'ไม่พบข้อมูลพนักงานที่จะอัปเดต' });
         }
 
         const existingEmployee = results[0];
-        const emp_pic = req.file ? req.file.buffer : existingEmployee.emp_pic;
+        let emp_pic_filename = existingEmployee.emp_pic; // ค่าเริ่มต้นคือชื่อไฟล์รูปเดิมใน DB
 
-        // ไม่ควรอัปเดตรหัสผ่านและ username ผ่านฟังก์ชันนี้
+        if (req.file) { // ถ้ามีการอัปโหลดไฟล์รูปใหม่
+            // ลบรูปเก่าทิ้งก่อน (ถ้ามี) เพื่อไม่ให้มีไฟล์ขยะตกค้าง
+            if (existingEmployee.emp_pic) {
+                const oldFilePath = path.join(__dirname, '..', 'public', 'uploads', 'profile_pics', existingEmployee.emp_pic);
+                fs.unlink(oldFilePath, (unlinkErr) => {
+                    if (unlinkErr) console.error("Failed to delete old profile pic:", unlinkErr);
+                });
+            }
+            emp_pic_filename = req.file.filename; // ใช้ชื่อไฟล์ใหม่ที่ Multer สร้างให้
+        } else if (data.emp_pic_removed === 'true') { // เพิ่ม Logic ถ้า Frontend ส่ง flag มาว่าลบรูป
+            // ถ้า Frontend บอกว่ารูปถูกลบ และมีรูปเก่าอยู่
+            if (existingEmployee.emp_pic) {
+                const oldFilePath = path.join(__dirname, '..', 'public', 'uploads', 'profile_pics', existingEmployee.emp_pic);
+                fs.unlink(oldFilePath, (unlinkErr) => {
+                    if (unlinkErr) console.error("Failed to delete old profile pic (explicit remove):", unlinkErr);
+                });
+            }
+            emp_pic_filename = null; // ตั้งค่าใน DB เป็น NULL
+        }
+        // ถ้าไม่มี req.file และ data.emp_pic_removed ไม่ใช่ 'true'
+        // emp_pic_filename จะยังคงเป็นค่าเดิมจาก DB (existingEmployee.emp_pic)
+
         const { emp_password, emp_username, ...updateData } = data;
-        const fullData = { ...updateData, emp_pic };
+        // ส่งชื่อไฟล์ (หรือ null) แทน buffer ของรูปภาพ
+        const fullData = { ...updateData, emp_pic: emp_pic_filename };
         
         // อัปเดตข้อมูลพนักงาน พร้อมส่ง companyId
         await Employee.update(emp_id, fullData, req.companyId);
@@ -119,6 +210,13 @@ exports.updateEmployee = async (req, res) => {
         res.status(200).json(updatedEmployee);
     } catch (err) {
         console.error('API Error [updateEmployee]:', err);
+        // ถ้าเกิด Error หลังอัปโหลดไฟล์ใหม่แล้ว แต่ก่อนบันทึก DB (เช่น DB Error)
+        // ควรลบไฟล์ที่อัปโหลดใหม่นั้นทิ้ง
+        if (req.file) {
+            fs.unlink(req.file.path, (unlinkErr) => {
+                if (unlinkErr) console.error("Failed to delete newly uploaded file due to update error:", unlinkErr);
+            });
+        }
         res.status(500).json({ message: 'เกิดข้อผิดพลาดในการอัปเดตข้อมูล' });
     }
 };
@@ -130,18 +228,23 @@ exports.deleteEmployee = async (req, res) => {
         const loggedInEmpId = req.user.emp_id;
         const loggedInCompanyId = req.companyId;
 
-        // ตรวจสอบว่าพนักงานที่ต้องการลบอยู่ในบริษัทเดียวกันกับผู้ใช้ที่ล็อกอินหรือไม่
         const employeeToDelete = await Employee.getById(empIdToDelete, loggedInCompanyId);
         if (!employeeToDelete || employeeToDelete.length === 0) {
             return res.status(404).json({ message: 'ไม่พบพนักงานในบริษัทของคุณที่จะลบ' });
         }
 
-        // ห้ามลบตัวเอง
         if (empIdToDelete === loggedInEmpId) {
             return res.status(403).json({ message: 'คุณไม่สามารถลบตัวเองได้' });
         }
 
-        // ลบพนักงาน พร้อมส่ง companyId เพื่อให้แน่ใจว่าลบได้เฉพาะพนักงานในบริษัทตัวเอง
+        // ลบไฟล์รูปภาพเก่าก่อนลบข้อมูลพนักงานจาก DB
+        if (employeeToDelete[0].emp_pic) {
+            const filePath = path.join(__dirname, '..', 'public', 'uploads', 'profile_pics', employeeToDelete[0].emp_pic);
+            fs.unlink(filePath, (unlinkErr) => {
+                if (unlinkErr) console.error("Failed to delete profile pic during employee deletion:", unlinkErr);
+            });
+        }
+
         await Employee.delete(empIdToDelete, loggedInCompanyId);
         res.status(200).json({ message: `ลบพนักงาน ID: ${empIdToDelete} สำเร็จ` });
     } catch (err) {
