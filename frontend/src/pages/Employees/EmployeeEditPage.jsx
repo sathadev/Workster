@@ -3,16 +3,21 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import api from '../../api/axios';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPlus } from '@fortawesome/free-solid-svg-icons';
+import { faPlus, faTimesCircle } from '@fortawesome/free-solid-svg-icons'; // เพิ่ม faTimesCircle สำหรับปุ่มลบรูป
 
-// Helper function แปลง Buffer รูปภาพ
-function arrayBufferToBase64(buffer) {
-    if (!buffer || !buffer.data) return '';
-    let binary = '';
-    const bytes = new Uint8Array(buffer.data);
-    for (let i = 0; i < bytes.byteLength; i++) { binary += String.fromCharCode(bytes[i]); }
-    return window.btoa(binary);
-}
+// <--- ลบ Helper function แปลง Buffer รูปภาพ arrayBufferToBase64 ทิ้งไปเลย
+// function arrayBufferToBase64(buffer) {
+//     if (!buffer || !buffer.data) return '';
+//     let binary = '';
+//     const bytes = new Uint8Array(buffer.data);
+//     for (let i = 0; i < bytes.byteLength; i++) { binary += String.fromCharCode(bytes[i]); }
+//     return window.btoa(binary);
+// }
+// --->
+
+// กำหนด BASE_URL_UPLOAD สำหรับรูปภาพ
+// ต้องตรงกับ URL ที่ Express Serve Static Files ใน app.js
+const BASE_URL_UPLOAD = 'http://localhost:5000/uploads/profile_pics/'; // <--- เพิ่ม: URL สำหรับรูปภาพ
 
 function EmployeeEditPage() {
     const { id } = useParams();
@@ -21,30 +26,34 @@ function EmployeeEditPage() {
     const [formData, setFormData] = useState({});
     const [positions, setPositions] = useState([]);
     const [imageFile, setImageFile] = useState(null);
-    const [imagePreview, setImagePreview] = useState('');
+    const [imagePreview, setImagePreview] = useState('/images/profile.jpg'); // เริ่มต้นด้วยรูป default
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [isImageRemoved, setIsImageRemoved] = useState(false); // <--- เพิ่ม: State สำหรับติดตามว่ารูปถูกลบหรือไม่
 
-    // --- ส่วน Logic ทั้งหมด (useEffect, handleChange, handleSubmit) ยังคงเหมือนเดิม ---
     // 1. ดึงข้อมูลพนักงานและรายการตำแหน่งงานเมื่อเปิดหน้า
-   useEffect(() => {
+    useEffect(() => {
         const fetchData = async () => {
             try {
                 setLoading(true);
                 // 2. (แก้ไข) เปลี่ยนมาใช้ 'api' ทั้งสองจุด และใช้ path สั้นๆ
                 const [employeeRes, positionsRes] = await Promise.all([
-                    api.get(`/employees/${id}`), // <-- แก้ไข (ใช้ path จาก main.jsx)
-                    api.get('/positions')              // <-- แก้ไข
+                    api.get(`/employees/${id}`),
+                    api.get('/positions')
                 ]);
                 
                 setFormData(employeeRes.data.employee);
                 setPositions(positionsRes.data);
                 
+                // <--- เปลี่ยน Logic การแสดงรูปภาพ
                 if (employeeRes.data.employee.emp_pic) {
-                    setImagePreview(`data:image/jpeg;base64,${arrayBufferToBase64(employeeRes.data.employee.emp_pic)}`);
+                    setImagePreview(`${BASE_URL_UPLOAD}${employeeRes.data.employee.emp_pic}`);
+                    setIsImageRemoved(false); // ตั้งค่าเป็น false ถ้ามีรูป
                 } else {
                     setImagePreview('/images/profile.jpg');
+                    setIsImageRemoved(true); // ตั้งค่าเป็น true ถ้าไม่มีรูป
                 }
+                // --->
             } catch (err) {
                 setError("เกิดข้อผิดพลาดในการดึงข้อมูล");
             } finally {
@@ -61,23 +70,38 @@ function EmployeeEditPage() {
     const handleFileChange = (e) => {
         if (e.target.files[0]) {
             setImageFile(e.target.files[0]);
-            setImagePreview(URL.createObjectURL(e.target.files[0]));
+            setImagePreview(URL.createObjectURL(e.target.files[0])); // แสดง preview จาก File object
+            setIsImageRemoved(false); // เมื่อเลือกรูปใหม่ ถือว่าไม่ได้ลบรูปแล้ว
         }
     };
 
-  const handleSubmit = async (e) => {
+    // <--- เพิ่ม: ฟังก์ชันสำหรับลบรูปโปรไฟล์
+    const handleRemoveImage = () => {
+        setImageFile(null); // เคลียร์ไฟล์ที่เลือกไว้
+        setImagePreview('/images/profile.jpg'); // แสดงรูป default
+        setIsImageRemoved(true); // ตั้งค่าสถานะว่ารูปถูกลบแล้ว
+    };
+    // --->
+
+    const handleSubmit = async (e) => {
         e.preventDefault();
         const dataToSubmit = new FormData();
-        ['emp_name', 'jobpos_id', 'emp_email', 'emp_tel', 'emp_address'].forEach(key => {
+        // เพิ่ม emp_status ไปด้วย เพราะอยู่ใน updateEmployee ของ backend
+        ['emp_name', 'jobpos_id', 'emp_email', 'emp_tel', 'emp_address', 'emp_status'].forEach(key => { // <--- เพิ่ม 'emp_status'
             dataToSubmit.append(key, formData[key]);
         });
         
         if (imageFile) {
-            dataToSubmit.append('emp_pic', imageFile);
+            dataToSubmit.append('emp_pic', imageFile); // ส่ง File object ถ้ามีการเลือกรูปใหม่
+        } else if (isImageRemoved) {
+            // ถ้าผู้ใช้กดปุ่มลบรูป หรือไม่มีรูปตั้งแต่แรก
+            dataToSubmit.append('emp_pic_removed', 'true'); // ส่ง flag ไปบอก Backend ว่าต้องการลบรูป
         }
+        // ถ้า !imageFile และ !isImageRemoved (คือไม่ได้เลือกรูปใหม่และไม่ได้กดลบรูป)
+        // จะไม่ append 'emp_pic' หรือ 'emp_pic_removed' เลย
+        // Backend จะใช้ค่า emp_pic เดิมจาก DB
 
         try {
-            // 3. (แก้ไข) เปลี่ยนมาใช้ 'api' สำหรับการอัปเดตข้อมูล
             await api.put(`/employees/${id}`, dataToSubmit, {
                 headers: { 'Content-Type': 'multipart/form-data' }
             });
@@ -89,10 +113,9 @@ function EmployeeEditPage() {
         }
     };
 
-    if (loading) return <div>Loading...</div>;
+    if (loading) return <div>กำลังโหลด...</div>;
     if (error) return <div className="alert alert-danger">{error}</div>;
 
-    // --- REFACTORED: ปรับปรุง JSX ให้เหมือนต้นฉบับ .ejs ---
     return (
         <div>
             <div className="d-flex justify-content-between align-items-center mb-3">
@@ -115,6 +138,19 @@ function EmployeeEditPage() {
                                     <FontAwesomeIcon icon={faPlus} />
                                 </label>
                                 <input name="emp_pic" type="file" id="fileInput" style={{ display: 'none' }} accept="image/*" onChange={handleFileChange} />
+                                {/* <--- เพิ่ม: ปุ่มลบรูปภาพ (จะแสดงเมื่อมีรูปภาพ) */}
+                                {imagePreview !== '/images/profile.jpg' && !isImageRemoved && (
+                                    <button
+                                        type="button"
+                                        onClick={handleRemoveImage}
+                                        className="btn btn-danger btn-sm rounded-circle d-flex align-items-center justify-content-center"
+                                        style={{ position: 'absolute', top: 5, right: 5, cursor: 'pointer', width: '30px', height: '30px', zIndex: 10 }}
+                                        title="ลบรูปภาพ"
+                                    >
+                                        <FontAwesomeIcon icon={faTimesCircle} />
+                                    </button>
+                                )}
+                                {/* ---> */}
                             </div>
                         </div>
 
@@ -155,6 +191,17 @@ function EmployeeEditPage() {
                                     <textarea id="emp_address" name="emp_address" value={formData.emp_address || ''} onChange={handleChange} className="form-control" rows="3"></textarea>
                                 </div>
                             </div>
+                            {/* <--- เพิ่ม: Field สำหรับ emp_status (ถ้ามีใน DB และต้องการแก้ไข) */}
+                            <div className="row mb-3">
+                                <label htmlFor="emp_status" className="col-sm-3 col-form-label">สถานะพนักงาน :</label>
+                                <div className="col-sm-9">
+                                    <select id="emp_status" name="emp_status" value={formData.emp_status || 'active'} onChange={handleChange} className="form-select">
+                                        <option value="active">ทำงานอยู่</option>
+                                        <option value="resigned">ลาออกแล้ว</option>
+                                    </select>
+                                </div>
+                            </div>
+                            {/* ---> */}
                         </div>
                     </div>
                     <div className="d-flex justify-content-end mt-4">

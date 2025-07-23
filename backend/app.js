@@ -6,7 +6,6 @@ require('dotenv').config();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
-
 // Middleware ที่จำเป็น
 app.use(cors({
     origin: "http://localhost:5173",
@@ -14,6 +13,8 @@ app.use(cors({
 }));
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
+
+app.use('/uploads', express.static(path.join(__dirname, 'public', 'uploads')));
 
 app.use((req, res, next) => {
     console.log('--- Detective Middleware ---');
