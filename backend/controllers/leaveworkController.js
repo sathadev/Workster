@@ -1,13 +1,15 @@
 // backend/controllers/leaveworkController.js
 const LeaveworkModel = require('../models/leaveworkModel');
 
-// [GET] /api/v1/leave-requests -> (Admin) ดึงคำขอทั้งหมด
+// [GET] /api/v1/leave-requests -> (Admin) ดึงคำขอทั้งหมด (พร้อม Search, Sort, Filter, Pagination)
 exports.getAllLeaveRequests = async (req, res) => {
     try {
-        // ส่ง req.companyId ไปยัง Model
-        const requests = await LeaveworkModel.getAllLeaveRequests(req.companyId); // <-- เพิ่ม req.companyId
+        console.log('Controller: getAllLeaveRequests called with query:', req.query, 'and companyId:', req.companyId); // Debug Log
+        // ส่ง req.query (ซึ่งมี search, leaveworktype_id, status, sort, order, page, limit) และ req.companyId ไปยัง Model
+        const requests = await LeaveworkModel.getAllLeaveRequests(req.query, req.companyId);
         res.status(200).json(requests);
     } catch (err) {
+        console.error("API Error [getAllLeaveRequests]:", err);
         res.status(500).json({ message: "เกิดข้อผิดพลาดในการดึงข้อมูลคำขอลา" });
     }
 };
@@ -16,8 +18,8 @@ exports.getAllLeaveRequests = async (req, res) => {
 exports.getMyLeaveRequests = async (req, res) => {
     try {
         const { emp_id } = req.user;
-        // ส่ง req.companyId ไปยัง Model
-        const myRequests = await LeaveworkModel.getLeaveByEmpId(emp_id, req.companyId); // <-- เพิ่ม req.companyId
+        console.log('Controller: getMyLeaveRequests called for emp_id:', emp_id, 'and companyId:', req.companyId); // Debug Log
+        const myRequests = await LeaveworkModel.getLeaveByEmpId(emp_id, req.companyId);
         res.status(200).json(myRequests);
     } catch (err) {
         console.error("API Error [getMyLeaveRequests]:", err);
@@ -28,9 +30,9 @@ exports.getMyLeaveRequests = async (req, res) => {
 // [POST] /api/v1/leave-requests -> (User) สร้างคำขอลาใหม่
 exports.createLeaveRequest = async (req, res) => {
     try {
-        // ส่ง req.companyId ไปยัง Model
         const data = { ...req.body, emp_id: req.user.emp_id };
-        const newRequest = await LeaveworkModel.createLeaveRequest(data, req.companyId); // <-- เพิ่ม req.companyId
+        console.log('Controller: createLeaveRequest called with data:', data, 'and companyId:', req.companyId); // Debug Log
+        const newRequest = await LeaveworkModel.createLeaveRequest(data, req.companyId);
         res.status(201).json(newRequest);
     } catch (err) {
         console.error("API Error [createLeaveRequest]:", err);
@@ -47,11 +49,11 @@ exports.updateLeaveStatus = async (req, res) => {
         if (!status || !['approved', 'rejected'].includes(status)) {
             return res.status(400).json({ message: "กรุณาส่งสถานะที่ถูกต้อง (approved หรือ rejected)" });
         }
-
-        // ส่ง req.companyId ไปยัง Model
-        const updatedRequest = await LeaveworkModel.updateLeaveStatus(id, status, req.companyId); // <-- เพิ่ม req.companyId
+        console.log(`Controller: updateLeaveStatus called for ID ${id} with status ${status} and companyId:`, req.companyId); // Debug Log
+        const updatedRequest = await LeaveworkModel.updateLeaveStatus(id, status, req.companyId);
         res.status(200).json(updatedRequest);
     } catch (err) {
+        console.error("API Error [updateLeaveStatus]:", err);
         res.status(500).json({ message: "เกิดข้อผิดพลาดในการอัปเดตสถานะ" });
     }
 };
