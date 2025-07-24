@@ -50,6 +50,19 @@ exports.getEvaluationById = async (req, res) => {
 // [POST] /api/v1/evaluations -> บันทึกผลการประเมินใหม่
 exports.createEvaluation = async (req, res) => {
     try {
+        // ======================= เพิ่มส่วนนี้เข้าไป =======================
+        const today = new Date();
+        const month = today.getMonth(); // เดือน (0-11), ธันวาคมคือ 11
+        const date = today.getDate();   // วันที่ (1-31)
+
+        // ตรวจสอบว่าไม่อยู่ในช่วงสัปดาห์สุดท้ายของเดือนธันวาคม (วันที่ 25-31)
+        if (month !== 11 || date < 25) {
+            return res.status(403).json({ 
+                message: 'การประเมินผลสามารถทำได้เฉพาะสัปดาห์สุดท้ายของเดือนธันวาคมเท่านั้น' 
+            });
+        }
+        // =================================================================
+
         // req.body ควรจะมีหน้าตาประมาณ { emp_id: 4, q1: 5, q2: 4, ... }
         const evaluationData = {
             emp_id: parseInt(req.body.emp_id, 10),
@@ -64,13 +77,14 @@ exports.createEvaluation = async (req, res) => {
             return res.status(400).json({ message: 'ไม่พบรหัสพนักงาน' });
         }
 
-        const newEvaluation = await Evaluation.saveEvaluation(evaluationData, req.companyId); // ส่ง companyId
-        res.status(201).json(newEvaluation); // 201 Created
+        const newEvaluation = await Evaluation.saveEvaluation(evaluationData, req.companyId);
+        res.status(201).json(newEvaluation);
     } catch (err) {
         console.error("API Error [createEvaluation]:", err);
         res.status(500).json({ message: 'เกิดข้อผิดพลาดในการบันทึกข้อมูล' });
     }
 };
+
 
 // [GET] /api/v1/evaluations/result/:id -> ดึงผลประเมินพร้อมข้อมูลพนักงาน
 exports.getEvaluationResultById = async (req, res) => {

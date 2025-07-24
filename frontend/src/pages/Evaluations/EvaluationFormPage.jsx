@@ -2,41 +2,69 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import api from '../../api/axios';
-import EvaluationQuestion from '../../components/EvaluationQuestion'; // <-- Import component ใหม่
+import EvaluationQuestion from '../../components/EvaluationQuestion';
 
 const initialScores = { q1: '', q2: '', q3: '', q4: '', q5: '' };
 
 function EvaluationFormPage() {
-    const { empId } = useParams(); // รับ empId ของคนที่จะถูกประเมินจาก URL
+    const { empId } = useParams();
     const navigate = useNavigate();
 
     const [employee, setEmployee] = useState(null);
     const [scores, setScores] = useState(initialScores);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    
+    // ======================= 1. เพิ่ม State และ useEffect สำหรับตรวจสอบช่วงเวลา =======================
+    const [isEvaluationPeriod, setIsEvaluationPeriod] = useState(false);
 
-    // 1. ดึงข้อมูลของพนักงานที่จะประเมิน
     useEffect(() => {
-        const fetchEmployee = async () => {
-            try {
-                setLoading(true);
-                // เราจะใช้ API เดิมในการดึงข้อมูลพนักงาน
-                const response = await api.get(`/employees/${empId}`);
-                setEmployee(response.data.employee);
-            } catch (err) {
-                setError("ไม่สามารถโหลดข้อมูลพนักงานได้");
-            } finally {
-                setLoading(false);
+        const checkEvaluationPeriod = () => {
+            const today = new Date();
+            const month = today.getMonth(); // 0-11 (ธันวาคม คือ 11)
+            const date = today.getDate();   // 1-31
+
+            // ตรวจสอบว่าเป็นเดือนธันวาคม และวันที่ 25-31 หรือไม่
+            if (month === 11 && date >= 25) {
+                setIsEvaluationPeriod(true);
+            } else {
+                // สำหรับการทดสอบ สามารถ uncomment บรรทัดล่างเพื่อให้ประเมินได้ตลอดเวลา
+                // setIsEvaluationPeriod(true);
+                setIsEvaluationPeriod(false);
             }
         };
-        fetchEmployee();
-    }, [empId]);
+
+        checkEvaluationPeriod();
+    }, []);
+    // =============================================================================================
+
+    // ======================= 2. ปรับ useEffect ที่ดึงข้อมูลพนักงาน =======================
+    useEffect(() => {
+        // ดึงข้อมูลพนักงานต่อเมื่ออยู่ในช่วงเวลาประเมินเท่านั้น
+        if (isEvaluationPeriod) {
+            const fetchEmployee = async () => {
+                try {
+                    setLoading(true);
+                    const response = await api.get(`/employees/${empId}`);
+                    setEmployee(response.data.employee);
+                } catch (err) {
+                    setError("ไม่สามารถโหลดข้อมูลพนักงานได้");
+                } finally {
+                    setLoading(false);
+                }
+            };
+            fetchEmployee();
+        } else {
+            // ถ้าไม่อยู่ในช่วงเวลาให้หยุดโหลด เพื่อให้แสดงหน้า "นอกช่วงเวลา" ได้
+            setLoading(false);
+        }
+    }, [empId, isEvaluationPeriod]); // เพิ่ม isEvaluationPeriod ใน dependency array
+    // ====================================================================================
 
     const handleScoreChange = (e) => {
         setScores({ ...scores, [e.target.name]: e.target.value });
     };
 
-    // 2. ส่งข้อมูลคะแนนไปที่ Backend
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
@@ -46,17 +74,42 @@ function EvaluationFormPage() {
             };
             await api.post('/evaluations', evaluationData);
             alert('บันทึกการประเมินผลสำเร็จ!');
-            navigate('/evaluations'); // กลับไปหน้ารายชื่อเพื่อประเมินคนต่อไป
+            navigate('/evaluations');
         } catch (err) {
-            alert('เกิดข้อผิดพลาดในการบันทึกข้อมูล');
+            // แสดงข้อความ error จาก backend ถ้ามี
+            const errorMessage = err.response?.data?.message || 'เกิดข้อผิดพลาดในการบันทึกข้อมูล';
+            alert(errorMessage);
             console.error(err);
         }
     };
 
-    if (loading) return <div>กำลังโหลด...</div>;
+    if (loading) return <div className="text-center mt-5">กำลังโหลด...</div>;
+
+    // ======================= 3. เพิ่มเงื่อนไขการแสดงผล (Conditional Rendering) =======================
+    // หากไม่อยู่ในช่วงเวลาประเมิน ให้แสดงข้อความนี้
+    if (!isEvaluationPeriod) {
+        return (
+            <div className="text-center mt-5">
+                <div className="card shadow-sm mx-auto" style={{maxWidth: '500px'}}>
+                    <div className="card-body p-5">
+                        <h4 className="fw-bold text-danger">นอกช่วงเวลาการประเมิน</h4>
+                        <p className="text-muted mt-3">
+                            ระบบจะเปิดให้ประเมินพนักงานได้ในช่วงสัปดาห์สุดท้ายของเดือนธันวาคมเท่านั้น
+                        </p>
+                        <button onClick={() => navigate(-1)} className="btn btn-primary fw-bold px-4 mt-3">
+                            กลับไปหน้าก่อนหน้า
+                        </button>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+    // =================================================================================================
+
     if (error) return <div className="alert alert-danger">{error}</div>;
     if (!employee) return <div className="alert alert-warning">ไม่พบข้อมูลพนักงาน</div>;
 
+    // หากอยู่ในช่วงเวลาประเมิน ให้แสดงฟอร์มตามปกติ
     return (
         <div>
             <h4 className="fw-bold">การประเมินผล</h4>
