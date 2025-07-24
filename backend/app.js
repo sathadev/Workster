@@ -16,14 +16,14 @@ app.use(express.json());
 
 app.use('/uploads', express.static(path.join(__dirname, 'public', 'uploads')));
 
-app.use((req, res, next) => {
-    console.log('--- Detective Middleware ---');
-    console.log('Request Path:', req.path);
-    console.log('Request Headers:', req.headers);
-    console.log('Request Body (after parsing):', req.body);
-    console.log('--------------------------');
-    next(); // ส่งต่อไปยัง Middleware หรือ Route ตัวถัดไป
-});
+// app.use((req, res, next) => {
+//     console.log('--- Detective Middleware ---');
+//     console.log('Request Path:', req.path);
+//     console.log('Request Headers:', req.headers);
+//     console.log('Request Body (after parsing):', req.body);
+//     console.log('--------------------------');
+//     next(); // ส่งต่อไปยัง Middleware หรือ Route ตัวถัดไป
+// });
 
 const authRoute = require('./routes/authRoute');
 const EmpRoute = require('./routes/employeeRoutes');
