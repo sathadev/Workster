@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>WorkSter - สมัครบัญชีผู้ใช้</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://kit.fontawesome.com/a62630f63f.js" crossorigin="anonymous"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@100..900&display=swap');
+    
+    html, body {
+      font-family: "Noto Sans Thai", sans-serif;
+    }
+
+    .sidebar {
+      background-color: #f8f9fa;
+      min-height: 100vh;
+      padding-top: 20px;
+    }
+    .sidebar a {
+      display: block;
+      padding: 10px 20px;
+      color: #000;
+      text-decoration: none;
+    }
+    .sidebar a:hover {
+      background-color: #e2e6ea;
+      border-radius: 5px;
+    }
+    .card-green {
+      background-color: #a7f9a2;
+    }
+    .card-yellow {
+      background-color: #f9f59a;
+    }
+    .card-red {
+      background-color: #f9a2a2;
+    }
+
+    /* เส้นขอบรอบนอกของตาราง */
+    .table {
+      border: 2px solid #dee2e6; /* เส้นขอบรอบตาราง */
+    }
+
+    /* เส้นขอบใต้หัวข้อ */
+    .table .profile {
+      border-bottom: 2px solid #dee2e6; /* เส้นขอบใต้หัวข้อ */
+      text-align: center; /* จัดกลางหัวข้อ */
+    }
+
+    /* ลบเส้นขอบในเซลล์ */
+    .table td, .table th {
+      border: none; /* ไม่มีเส้นขอบในเซลล์ */
+    }
+
+    /* จัดรูปภาพให้เป็นวงกลม และให้ครอบคลุมพื้นที่ */
+    .profile-image {
+      width: 40px;
+      height: 40px;
+      object-fit: cover; /* ให้รูปภาพครอบคลุมพื้นที่โดยไม่เพี้ยน */
+      border-radius: 50%;
+    }
+
+    /* จัดให้อยู่ตรงกลาง */
+    .profile-cell {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    /* Custom styles for the registration card */
+    .registration-card {
+      max-width: 600px;
+      margin: 50px 0; /* ✨ แก้ไขบรรทัดนี้เพื่อจัดชิดซ้าย */
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    .form-label-custom {
+      min-width: 120px; /* Adjust as needed for label alignment */
+      text-align: right;
+      padding-right: 15px;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end; /* Align label text to the right */
+    }
+    .form-control-custom {
+      flex-grow: 1;
+    }
+    .row-custom {
+      display: flex;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <nav class="navbar navbar-dark" style="background-color: #1E56A0; padding: 10px;">
+    <div class="container-fluid">
+      <span class="navbar-brand mb-0 h1 fs-4">WorkSter</span>
+      <span class="text-white fs-3"><i class="fa-solid fa-circle-user" style="color: #ffffff;"></i></span>
+    </div>
+  </nav>
+
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-md-2 sidebar">
+        
+      </div>
+  
+      <div class="col-md-10 p-4">
+        <h3 class="mb-4">สมัครบัญชีผู้ใช้</h3>
+        <div class="card registration-card">
+          <h5 class="card-title mb-4">ข้อมูลการเข้าใช้งานระบบ</h5>
+          <form>
+            <div class="row-custom">
+              <label for="username" class="form-label-custom">Username :</label>
+              <input type="text" class="form-control form-control-custom" id="username">
+            </div>
+            <div class="row-custom">
+              <label for="email" class="form-label-custom">Email :</label>
+              <input type="email" class="form-control form-control-custom" id="email">
+            </div>
+            <div class="row-custom">
+              <label for="password" class="form-label-custom">Password :</label>
+              <input type="password" class="form-control form-control-custom" id="password">
+            </div>
+            <div class="d-flex justify-content-end mt-4">
+              <button type="submit" class="btn btn-secondary" style="background-color: #e0e0e0; color: #333; border: none; padding: 8px 25px;">ถัดไป</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
