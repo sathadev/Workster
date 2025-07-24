@@ -1,5 +1,5 @@
 // frontend/src/pages/Evaluations/EvaluationPage.jsx
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import api from '../../api/axios';
 import { useAuth } from '../../context/AuthContext';
@@ -15,7 +15,7 @@ function EvaluationPage() {
     const { user } = useAuth();
     const navigate = useNavigate();
     
-    // --- State Management (ส่วนนี้เหมือนเดิม) ---
+    // --- State Management ---
     const [employees, setEmployees] = useState([]);
     const [meta, setMeta] = useState({});
     const [loading, setLoading] = useState(true);
@@ -31,12 +31,10 @@ function EvaluationPage() {
     const [currentPage, setCurrentPage] = useState(1);
     const [refetchTrigger, setRefetchTrigger] = useState(0);
     
-    // ======================= 1. เพิ่ม State สองส่วนกลับมาครบถ้วน =======================
     const [showSelfEvalModal, setShowSelfEvalModal] = useState(false);
     const [isEvaluationPeriod, setIsEvaluationPeriod] = useState(false);
-    // =================================================================================
 
-    // useEffect สำหรับตรวจสอบช่วงเวลา
+    // useEffect สำหรับตรวจสอบช่วงเวลาการประเมิน
     useEffect(() => {
         const checkEvaluationPeriod = () => {
             const today = new Date();
@@ -53,9 +51,12 @@ function EvaluationPage() {
             }
         };
         checkEvaluationPeriod();
-    }, []);
+        // Set up an interval to check daily or on relevant time changes if needed
+        // const interval = setInterval(checkEvaluationPeriod, 24 * 60 * 60 * 1000); // Check daily
+        // return () => clearInterval(interval); // Clear on unmount
+    }, []); // ไม่มี dependencies เพราะ check แค่ครั้งเดียวเมื่อ component mount
 
-    // Effect อื่นๆ (เหมือนเดิม)
+    // Effect สำหรับดึงข้อมูลตำแหน่ง
     useEffect(() => {
         const fetchPositions = async () => {
             try {
@@ -68,6 +69,7 @@ function EvaluationPage() {
         fetchPositions();
     }, []); 
 
+    // Effect สำหรับดึงข้อมูลพนักงาน
     useEffect(() => {
         const fetchEmployeesForEvaluation = async () => {
             if (!isSorting) setLoading(true);
@@ -94,10 +96,9 @@ function EvaluationPage() {
         fetchEmployeesForEvaluation();
     }, [filters, sortConfig, currentPage, refetchTrigger, isSorting]);
 
-    // ======================= 2. แก้ไข handleEvaluateClick ให้สมบูรณ์ =======================
+    // Handle การคลิกปุ่ม "ประเมินผล"
     const handleEvaluateClick = (employeeId) => {
         // ตรวจสอบการประเมินตัวเองก่อนเป็นอันดับแรก
-        // ฟังก์ชันนี้จะทำงานเมื่อคลิกปุ่มเท่านั้น ซึ่งปุ่มจะกดได้ก็ต่อเมื่ออยู่ใน isEvaluationPeriod
         if (employeeId === user.emp_id) {
             setShowSelfEvalModal(true); // ถ้าใช่ ให้แสดง Modal แจ้งเตือน
             return; // และหยุดทำงานทันที
@@ -106,9 +107,8 @@ function EvaluationPage() {
         // ถ้าไม่ใช่การประเมินตัวเอง ก็ไปที่หน้าฟอร์ม
         navigate(`/evaluations/form/${employeeId}`);
     };
-    // =======================================================================================
 
-    // Handlers อื่นๆ (เหมือนเดิม)
+    // Handlers สำหรับ Search, Sort, Filter และ Pagination
     const handleFilterChange = (e) => {
         const { name, value } = e.target;
         setCurrentPage(1);
@@ -140,19 +140,86 @@ function EvaluationPage() {
     };
     
     if (loading) return <div className="text-center mt-5">กำลังโหลดข้อมูล...</div>;
-    if (error) return <div className="alert alert-danger">{error}</div>;
+
+    // --- การแสดงผล Error Message ที่ปรับปรุง ---
+    if (error) {
+        return (
+            <div className="alert alert-danger mt-5">
+                <FontAwesomeIcon icon={faExclamationTriangle} className="me-2" />
+                {error}
+            </div>
+        );
+    }
 
     return (
         <div>
-            {/* ส่วนหัวและ Filter (เหมือนเดิม) */}
             <div className="d-flex justify-content-between align-items-center mb-3">
                 <h4 className="fw-bold">การประเมินผล</h4>
                 <Link to="/evaluations/history" className="btn btn-outline-secondary">
                     <FontAwesomeIcon icon={faHistory} className="me-2" /> ประวัติการประเมิน
                 </Link>
             </div>
-            {/* ... (โค้ดส่วน Filter) ... */}
+            <p>หน้าหลัก / การประเมินผล</p>
             
+            {/* Warning Message เมื่อไม่อยู่ในช่วงเวลาประเมิน */}
+            {!isEvaluationPeriod && (
+                <div className="alert alert-warning py-2 mb-3">
+                    <FontAwesomeIcon icon={faInfoCircle} className="me-2" />
+                    <span className="fw-bold">ยังไม่อยู่ในช่วงเวลาการประเมิน</span> การประเมินผลสามารถทำได้ในช่วงวันที่ 25-31 ธันวาคม ของทุกปี
+                </div>
+            )}
+
+            {/* --- Filter & Search Section (เหมือนเดิม) --- */}
+            <div className="row g-2 mb-3">
+                <div className="col-md-4">
+                    <form onSubmit={handleSearchSubmit} className="search-form">
+                        <div className="input-group w-100">
+                            <input 
+                                type="text" 
+                                className="form-control" 
+                                placeholder="ค้นหาตามชื่อพนักงาน..."
+                                value={searchInput} 
+                                onChange={(e) => setSearchInput(e.target.value)} 
+                            />
+                            <button className="btn btn-outline-secondary" type="submit">
+                                <FontAwesomeIcon icon={faSearch} />
+                            </button>
+                            {filters.search && (
+                                <button onClick={clearSearch} className="btn btn-outline-danger" type="button" title="ล้างการค้นหา">
+                                    <FontAwesomeIcon icon={faTimes} className="me-1" />
+                                </button>
+                            )}
+                        </div>
+                    </form>
+                </div>
+                <div className="col-md-4">
+                    <div className="input-group">
+                        <label className="input-group-text">ตำแหน่ง</label>
+                        <select
+                            className="form-select"
+                            name="jobpos_id"
+                            value={filters.jobpos_id}
+                            onChange={handleFilterChange}
+                        >
+                            <option value="">ทั้งหมด</option>
+                            {positions.map(pos => (
+                                <option key={pos.jobpos_id} value={pos.jobpos_id}>
+                                    {pos.jobpos_name}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            {filters.search && !error && (
+                <div className="alert alert-info py-2">
+                    <FontAwesomeIcon icon={faInfoCircle} className="me-2" />
+                    ผลการค้นหา "<strong>{filters.search}</strong>" พบ {meta.totalItems || 0} รายการ
+                </div>
+            )}
+            {/* ------------------------------------------------------------- */}
+
             <div className="table-responsive">
                 <table className="table table-hover table-bordered text-center align-middle">
                     <thead className="table-light">
@@ -172,7 +239,6 @@ function EvaluationPage() {
                                 <td>{emp.emp_name}</td>
                                 <td>{emp.jobpos_name}</td>
                                 <td>
-                                    {/* 3. ปุ่มที่ใช้ Logic ที่แก้ไขแล้ว */}
                                     <button 
                                         className={`btn ${isEvaluationPeriod ? 'btn-primary' : 'btn-secondary'} rounded-pill px-3`}
                                         onClick={() => handleEvaluateClick(emp.emp_id)}
@@ -200,11 +266,29 @@ function EvaluationPage() {
             {/* Pagination (เหมือนเดิม) */}
             {meta && meta.totalPages > 1 && (
                 <div className="d-flex justify-content-between align-items-center mt-3">
-                    {/* ... โค้ด Pagination ... */}
+                    <span className="text-muted">
+                        หน้า {meta.currentPage || 1} / {meta.totalPages || 1} (ทั้งหมด {meta.totalItems || 0} รายการ)
+                    </span>
+                    <div className="btn-group">
+                        <button
+                            className="btn btn-outline-secondary"
+                            onClick={() => handlePageChange(currentPage - 1)}
+                            disabled={currentPage === 1}
+                        >
+                            ก่อนหน้า
+                        </button>
+                        <button
+                            className="btn btn-outline-secondary"
+                            onClick={() => handlePageChange(currentPage + 1)}
+                            disabled={!meta.totalPages || currentPage >= meta.totalPages}
+                        >
+                            ถัดไป
+                        </button>
+                    </div>
                 </div>
             )}
             
-            {/* ======================= 4. นำ Modal สำหรับแจ้งเตือนกลับมา ======================= */}
+            {/* Modal สำหรับแจ้งเตือนการประเมินตัวเอง */}
             <Modal show={showSelfEvalModal} onHide={() => setShowSelfEvalModal(false)} centered>
                 <Modal.Header closeButton className="bg-warning">
                     <Modal.Title><FontAwesomeIcon icon={faExclamationTriangle} className="me-2" />แจ้งเตือน</Modal.Title>
@@ -218,7 +302,6 @@ function EvaluationPage() {
                     </Button>
                 </Modal.Footer>
             </Modal>
-            {/* =================================================================================== */}
         </div>
     );
 }
