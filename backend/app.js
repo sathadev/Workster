@@ -6,7 +6,6 @@ require('dotenv').config();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
-
 // Middleware ที่จำเป็น
 app.use(cors({
     origin: "http://localhost:5173",
@@ -15,14 +14,16 @@ app.use(cors({
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 
-app.use((req, res, next) => {
-    console.log('--- Detective Middleware ---');
-    console.log('Request Path:', req.path);
-    console.log('Request Headers:', req.headers);
-    console.log('Request Body (after parsing):', req.body);
-    console.log('--------------------------');
-    next(); // ส่งต่อไปยัง Middleware หรือ Route ตัวถัดไป
-});
+app.use('/uploads', express.static(path.join(__dirname, 'public', 'uploads')));
+
+// app.use((req, res, next) => {
+//     console.log('--- Detective Middleware ---');
+//     console.log('Request Path:', req.path);
+//     console.log('Request Headers:', req.headers);
+//     console.log('Request Body (after parsing):', req.body);
+//     console.log('--------------------------');
+//     next(); // ส่งต่อไปยัง Middleware หรือ Route ตัวถัดไป
+// });
 
 const authRoute = require('./routes/authRoute');
 const EmpRoute = require('./routes/employeeRoutes');
