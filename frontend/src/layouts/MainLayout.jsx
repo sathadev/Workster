@@ -54,9 +54,7 @@ function MainLayout() {
 
             {/* Main Body */}
             <div className="main-layout">
-                {/* --- REFACTORED: อัปเดต Sidebar ให้มีลิงก์ครบถ้วน --- */}
                 <nav className="sidebar">
-                    {/* ตรวจสอบว่ามี user object อยู่จริงก่อนแสดงเมนู */}
                     {user ? (
                         <>
                             {/* เมนูสำหรับ HR/Admin */}
@@ -77,10 +75,10 @@ function MainLayout() {
                             <div className="sidebar-header">รายการ พนักงาน</div>
                             <NavLink to="/profile" className="sidebar-link">ข้อมูลส่วนตัว</NavLink>
                             <NavLink to="/leave-request/new" className="sidebar-link">แจ้งลางาน</NavLink>
+                            <NavLink to="/my-leave-history" className="sidebar-link">ประวัติการแจ้งลาของฉัน</NavLink> {/* <--- เพิ่ม: Link ใหม่ */}
                             <NavLink to="/my-salary" className="sidebar-link">ดูข้อมูลเงินเดือน</NavLink>
                         </>
                     ) : (
-                        // กรณีที่ไม่มี user (เผื่อไว้)
                         <NavLink to="/login" className="sidebar-link">กรุณาเข้าสู่ระบบ</NavLink>
                     )}
                 </nav>

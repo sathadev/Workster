@@ -1,39 +1,36 @@
-// frontend/src/pages/Leavework/LeaveRequestListPage.jsx
-import { useState, useEffect, useCallback } from 'react'; // <--- เพิ่ม useCallback
+// frontend/src/pages/Leavework/LeaveRequestHistoryPage.jsx
+import { useState, useEffect } from 'react';
 import api from '../../api/axios';
-import StatusBadge from '../../components/StatusBadge'; // Import component ใหม่
+import StatusBadge from '../../components/StatusBadge';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { 
-    faSearch, faInbox, faTimes, faInfoCircle, // ไอคอนสำหรับ Search และ Info
-    faSort, faSortUp, faSortDown , faHistory
+    faSearch, faInbox, faTimes, faInfoCircle, 
+    faSort, faSortUp, faSortDown 
 } from '@fortawesome/free-solid-svg-icons';
-import { Link } from 'react-router-dom'; // <--- เพิ่ม: Import Link เข้ามา
+import { Link } from 'react-router-dom'; // เพิ่ม Link เข้ามา
 
-function LeaveRequestListPage() {
-    // --- State Management สำหรับ Search, Sort, Filter และ Pagination ---
+function LeaveRequestHistoryPage() {
     const [leaveRequests, setLeaveRequests] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [isSorting, setIsSorting] = useState(false); // สำหรับควบคุม Loading State ตอน Sort
+    const [isSorting, setIsSorting] = useState(false); 
 
-    const [searchInput, setSearchInput] = useState(''); // ค่าที่ผู้ใช้พิมพ์ในช่องค้นหา
+    const [searchInput, setSearchInput] = useState(''); 
     const [filters, setFilters] = useState({ 
-        search: '',         // คำค้นหาที่ถูก apply แล้ว (ชื่อพนักงาน)
-        leaveworktype_id: '', // ประเภทการลาที่เลือก (ค่าว่าง = ทั้งหมด)
-        status: 'pending'   // <--- เปลี่ยน: Default filter เป็น 'pending'
+        search: '',         
+        leaveworktype_id: '', 
+        status: ['approved', 'rejected'] // Default filter เป็น approved และ rejected
     });
-    const [sortConfig, setSortConfig] = useState({ key: 'leavework_daterequest', direction: 'desc' }); // Default sort by request date (latest first)
-    const [currentPage, setCurrentPage] = useState(1); // หน้าปัจจุบันสำหรับ Pagination
-    const [meta, setMeta] = useState({}); // ข้อมูล Meta สำหรับ Pagination (totalItems, totalPages)
+    const [sortConfig, setSortConfig] = useState({ key: 'leavework_daterequest', direction: 'desc' }); 
+    const [currentPage, setCurrentPage] = useState(1); 
+    const [meta, setMeta] = useState({}); 
 
-    const [leaveTypes, setLeaveTypes] = useState([]); // สำหรับ dropdown ประเภทการลา
+    const [leaveTypes, setLeaveTypes] = useState([]); 
 
-    // Effect สำหรับดึงข้อมูลประเภทการลา
     useEffect(() => {
         const fetchLeaveTypes = async () => {
             try {
-                const response = await api.get('/leave-types'); // สมมติว่า API นี้ดึงประเภทการลาทั้งหมด
-                console.log('Frontend: Leave Types fetched:', response.data); // Debug Log
+                const response = await api.get('/leave-types');
                 setLeaveTypes(response.data);
             } catch (err) {
                 console.error("Failed to fetch leave types for filter:", err);
@@ -42,60 +39,30 @@ function LeaveRequestListPage() {
         fetchLeaveTypes();
     }, []);
 
-    // <--- ย้าย fetchData ออกมานอก useEffect และใช้ useCallback
-    const fetchData = useCallback(async () => {
-        setLoading(true);
-        setError(null); 
-        try {
-            // สร้าง Parameters สำหรับส่งไป Backend API
-            const params = {
-                ...filters, 
-                sort: sortConfig.key,           
-                order: sortConfig.direction,    
-                page: currentPage,              
-                limit: 10                       
-            };
-            console.log('Frontend: Fetching leave requests with params:', params); // Debug Log
-            const response = await api.get('/leave-requests', { params });
-            console.log('Frontend: Leave requests response:', response.data); // Debug Log
-            setLeaveRequests(response.data.data || []); // สมมติว่า Backend คืนค่าเป็น { data: [], meta: {} }
-            setMeta(response.data.meta || {});
-        } catch (err) {
-            console.error("Failed to fetch leave requests:", err.response?.data || err.message); // Debug Log
-            setError("เกิดข้อผิดพลาดในการดึงข้อมูลคำขอลา");
-        } finally {
-            setLoading(false);
-        }
-    }, [filters, sortConfig, currentPage]); // Dependencies ของ useCallback
-
-    // Effect สำหรับเรียก fetchData
     useEffect(() => {
+        const fetchData = async () => {
+            setLoading(true);
+            setError(null); 
+            try {
+                const params = {
+                    ...filters, 
+                    sort: sortConfig.key,           
+                    order: sortConfig.direction,    
+                    page: currentPage,              
+                    limit: 10                       
+                };
+                const response = await api.get('/leave-requests', { params });
+                setLeaveRequests(response.data.data || []); 
+                setMeta(response.data.meta || {});
+            } catch (err) {
+                console.error("Failed to fetch leave requests:", err.response?.data || err.message);
+                setError("เกิดข้อผิดพลาดในการดึงข้อมูลคำขอลา");
+            } finally {
+                setLoading(false);
+            }
+        };
         fetchData();
-    }, [fetchData]); // Dependency: fetchData
-    // --->
-
-    // ฟังก์ชันสำหรับอัปเดตสถานะ (อนุมัติ/ปฏิเสธ)
-    const handleUpdateStatus = async (id, status) => {
-        if (!window.confirm(`คุณแน่ใจหรือไม่ที่จะ "${status === 'approved' ? 'อนุมัติ' : 'ปฏิเสธ'}" คำขอนี้?`)) {
-            return;
-        }
-        try {
-            console.log(`Frontend: Updating leave status for ID ${id} to ${status}`); // Debug Log
-            const response = await api.patch(`/leave-requests/${id}/status`, { status });
-            console.log('Frontend: Update status response:', response.data); // Debug Log
-            
-            // หลังจากอัปเดตสถานะแล้ว ให้ดึงข้อมูลใหม่ทั้งหมด เพื่อให้คำขอที่อัปเดตหายไปจากรายการ pending
-            // หรือจะกรองออกจาก state โดยตรงก็ได้ แต่การ fetch ใหม่จะง่ายกว่า
-            setLeaveRequests(prevRequests => prevRequests.filter(req => req.leavework_id !== id));
-            // อาจจะต้องปรับ meta.totalItems ด้วยถ้ามีการกรองออก
-            // หรือแค่เรียก fetchData() อีกครั้งเพื่อให้โหลดข้อมูลใหม่ทั้งหมด
-            fetchData(); // <--- เรียก fetchData ใหม่เพื่อให้รายการอัปเดต
-            alert(`อัปเดตสถานะเป็น "${status}" สำเร็จ`);
-        } catch (err) {
-            alert('เกิดข้อผิดพลาดในการอัปเดตสถานะ');
-            console.error('Frontend: Update status error:', err.response?.data || err.message); // Debug Log
-        }
-    };
+    }, [filters, sortConfig, currentPage]); 
     
     const formatDate = (dateString) => new Date(dateString).toLocaleDateString('th-TH', {
         year: 'numeric',
@@ -103,26 +70,26 @@ function LeaveRequestListPage() {
         day: 'numeric'
     });
 
-    // --- Handlers สำหรับ Search, Sort, Filter และ Pagination ---
     const handleSearchInputChange = (e) => {
         setSearchInput(e.target.value);
     };
 
     const handleSearchSubmit = (e) => {
         e.preventDefault(); 
-        setCurrentPage(1); // เมื่อค้นหาใหม่ ให้กลับไปหน้าแรก
-        setFilters(prev => ({ ...prev, search: searchInput })); // Apply คำค้นหา
+        setCurrentPage(1); 
+        setFilters(prev => ({ ...prev, search: searchInput })); 
     };
 
     const clearSearch = () => {
-        setSearchInput(''); // ล้างค่าในช่อง input
-        setCurrentPage(1); // กลับไปหน้าแรก
-        setFilters(prev => ({ ...prev, search: '' })); // ล้างคำค้นหาที่ถูก apply
+        setSearchInput(''); 
+        setCurrentPage(1); 
+        setFilters(prev => ({ ...prev, search: '' })); 
     };
 
     const handleFilterChange = (e) => {
         const { name, value } = e.target;
-        setCurrentPage(1); // เมื่อ Filter เปลี่ยน ให้กลับไปหน้าแรก
+        setCurrentPage(1); 
+        // ไม่ต้องมี logic สำหรับ status === '' แล้ว เพราะ dropdown ถูกลบออกไป
         setFilters(prevFilters => ({
             ...prevFilters,
             [name]: value 
@@ -130,7 +97,7 @@ function LeaveRequestListPage() {
     };
     
     const handleSort = (key) => {
-        setCurrentPage(1); // เมื่อ Sort ใหม่ ให้กลับไปหน้าแรก
+        setCurrentPage(1); 
         let direction = 'asc';
         // ถ้าคลิกที่คอลัมน์เดิม ให้สลับทิศทาง
         if (sortConfig.key === key && sortConfig.direction === 'asc') {
@@ -144,24 +111,19 @@ function LeaveRequestListPage() {
             setCurrentPage(newPage);
         }
     };
-    // -------------------------------------------------------------
 
     if (loading) return <div className="text-center mt-5">กำลังโหลด...</div>;
     if (error) return <div className="alert alert-danger">{error}</div>;
 
     return (
         <div>
-            <div className="d-flex justify-content-between align-items-center mb-3">
-                <h4 className="fw-bold">รายการคำขอลา (รอดำเนินการ)</h4> {/* เปลี่ยน Title */}
-                <Link to="/leave-requests/history" className="btn btn-outline-secondary">
-                    <FontAwesomeIcon icon={faHistory} className="me-2" /> ประวัติการลา
-                </Link>
-            </div>
-            <p>หน้าหลัก / รายการคำขอลา</p>      
+            <h4 className="fw-bold">ประวัติคำขอลา (อนุมัติ/ไม่อนุมัติ)</h4>
+            <p>หน้าหลัก / ประวัติคำขอลา</p>
 
             {/* --- Filter & Search Section --- */}
             <div className="row g-2 mb-3">
-                <div className="col-md-4"> {/* ช่องค้นหา */}
+                {/* ช่องค้นหา: เปลี่ยนเป็น col-md-6 */}
+                <div className="col-md-6"> 
                     <form onSubmit={handleSearchSubmit} className="search-form">
                         <div className="input-group w-100">
                             <input 
@@ -182,7 +144,8 @@ function LeaveRequestListPage() {
                         </div>
                     </form>
                 </div>
-                <div className="col-md-4"> {/* Dropdown ประเภทการลา */}
+                {/* Dropdown ประเภทการลา: เปลี่ยนเป็น col-md-6 */}
+                <div className="col-md-6"> 
                     <div className="input-group">
                         <label className="input-group-text">ประเภทการลา</label>
                         <select
@@ -200,6 +163,25 @@ function LeaveRequestListPage() {
                         </select>
                     </div>
                 </div>
+                {/* <--- ลบ: Dropdown สถานะออกไป เพราะหน้านี้แสดงเฉพาะ approved/rejected */}
+                {/*
+                <div className="col-md-4">
+                    <div className="input-group">
+                        <label className="input-group-text">สถานะ</label>
+                        <select
+                            className="form-select"
+                            name="status"
+                            value={Array.isArray(filters.status) ? '' : filters.status}
+                            onChange={handleFilterChange}
+                        >
+                            <option value="">ทั้งหมด</option>
+                            <option value="approved">อนุมัติ</option>
+                            <option value="rejected">ไม่อนุมัติ</option>
+                        </select>
+                    </div>
+                </div>
+                */}
+                {/* ---> */}
             </div>
 
             {filters.search && !error && (
@@ -230,7 +212,9 @@ function LeaveRequestListPage() {
                             <th onClick={() => handleSort('leavework_status')} style={{ cursor: 'pointer' }}>
                                 สถานะ {sortConfig.key === 'leavework_status' && <FontAwesomeIcon icon={sortConfig.direction === 'asc' ? faSortUp : faSortDown} />}
                             </th>
-                            <th>ดำเนินการ</th>
+                            {/* <--- ลบ: คอลัมน์ "ดำเนินการ" ออกไปจากหน้านี้ */}
+                            {/* <th>ดำเนินการ</th> */}
+                            {/* ---> */}
                         </tr>
                     </thead>
                     <tbody>
@@ -243,22 +227,26 @@ function LeaveRequestListPage() {
                                 <td>
                                     <StatusBadge status={leave.leavework_status} />
                                 </td>
+                                {/* <--- ลบ: ปุ่มดำเนินการออกไปจากหน้านี้ */}
+                                {/*
                                 <td style={{minWidth: '180px'}}>
-                                    {leave.leavework_status === 'pending' ? ( // <--- แสดงปุ่มเฉพาะเมื่อสถานะเป็น pending
+                                    {leave.leavework_status === 'pending' ? (
                                         <div className="d-flex justify-content-center gap-2">
                                             <button onClick={() => handleUpdateStatus(leave.leavework_id, 'approved')} className="btn btn-success btn-sm">อนุมัติ</button>
                                             <button onClick={() => handleUpdateStatus(leave.leavework_id, 'rejected')} className="btn btn-danger btn-sm">ไม่อนุมัติ</button>
                                         </div>
                                     ) : (
-                                        <span className="text-muted">-</span> // <--- ถ้าไม่ใช่ pending ก็ไม่แสดงปุ่ม
+                                        <span className="text-muted">-</span>
                                     )}
                                 </td>
+                                */}
+                                {/* ---> */}
                             </tr>
                         )) : (
                             <tr>
-                                <td colSpan="6" className="text-center text-muted p-4"> {/* colSpan เป็น 6 ตามจำนวนคอลัมน์ */}
+                                <td colSpan="5" className="text-center text-muted p-4"> {/* colSpan เป็น 5 ตามจำนวนคอลัมน์ที่เหลือ */}
                                     <FontAwesomeIcon icon={faInbox} className="fa-2x mb-2 d-block"/>
-                                    {filters.search || filters.leaveworktype_id || filters.status ? 'ไม่พบข้อมูลคำขอลาที่รอดำเนินการตามเงื่อนไข' : 'ไม่มีคำขอลาที่รอดำเนินการ'} {/* <--- ปรับข้อความ */}
+                                    {filters.search || filters.leaveworktype_id || filters.status ? 'ไม่พบข้อมูลคำขอลาตามเงื่อนไข' : 'ไม่มีประวัติคำขอลา'} {/* <--- ปรับข้อความ */}
                                 </td>
                             </tr>
                         )}
@@ -295,4 +283,4 @@ function LeaveRequestListPage() {
     );
 }
 
-export default LeaveRequestListPage;
+export default LeaveRequestHistoryPage;

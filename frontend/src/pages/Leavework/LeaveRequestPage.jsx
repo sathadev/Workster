@@ -1,8 +1,8 @@
-// frontend/src/pages/LeaveRequestPage.jsx
+// frontend/src/pages/Leavework/LeaveRequestPage.jsx
 import { useState, useEffect, useCallback } from 'react';
 import api from '../../api/axios';
 import { Link } from 'react-router-dom';
-import StatusBadge from '../../components/StatusBadge';
+// import StatusBadge from '../../components/StatusBadge'; // <--- ลบ: ไม่จำเป็นแล้วในหน้านี้
 
 const initialFormData = {
     leaveworktype_id: '',
@@ -12,33 +12,27 @@ const initialFormData = {
 };
 
 function LeaveRequestPage() {
-    const [myRequests, setMyRequests] = useState([]);
     const [leaveTypes, setLeaveTypes] = useState([]);
     const [formData, setFormData] = useState(initialFormData);
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(true); // ยังคงใช้ loading สำหรับการโหลด leaveTypes
     const [error, setError] = useState(null);
 
-    // --- ส่วน Logic ทั้งหมด (fetchData, handleChange, handleSubmit) ยังคงเหมือนเดิม ---
-    const fetchData = useCallback(async () => {
-        try {
-            setLoading(true);
-            const [requestsRes, typesRes] = await Promise.all([
-                api.get('/leave-requests/my-requests'),
-                api.get('/leave-types')
-            ]);
-            setMyRequests(requestsRes.data);
-            setLeaveTypes(typesRes.data);
-        } catch (err) {
-            console.error("Failed to fetch data:", err);
-            setError("เกิดข้อผิดพลาดในการโหลดข้อมูล");
-        } finally {
-            setLoading(false);
-        }
-    }, []);
-
+    // Effect สำหรับดึงข้อมูลประเภทการลา (ยังคงจำเป็น)
     useEffect(() => {
-        fetchData();
-    }, [fetchData]);
+        const fetchLeaveTypes = async () => {
+            try {
+                setLoading(true);
+                const response = await api.get('/leave-types'); // ดึงประเภทการลา
+                setLeaveTypes(response.data);
+            } catch (err) {
+                console.error("Failed to fetch leave types:", err);
+                setError("เกิดข้อผิดพลาดในการโหลดข้อมูลประเภทการลา");
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchLeaveTypes();
+    }, []);
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -49,24 +43,23 @@ function LeaveRequestPage() {
         try {
             await api.post('/leave-requests', formData);
             alert('ยื่นใบลาสำเร็จ!');
-            setFormData(initialFormData);
-            fetchData();
+            setFormData(initialFormData); // รีเซ็ตฟอร์ม
+            // ไม่ต้องเรียก fetchData() อีกต่อไป เพราะไม่มีตารางประวัติในหน้านี้แล้ว
         } catch (err) {
             alert(err.response?.data?.message || 'เกิดข้อผิดพลาดในการยื่นใบลา');
             console.error(err);
         }
     };
     
-    const formatDate = (dateString) => new Date(dateString).toLocaleDateString('th-TH', { year: 'numeric', month: '2-digit', day: '2-digit' });
+    // const formatDate = (dateString) => new Date(dateString).toLocaleDateString('th-TH', { year: 'numeric', month: '2-digit', day: '2-digit' }); // <--- ลบ: ไม่จำเป็นแล้ว
 
     if (loading) return <div className="text-center mt-5">กำลังโหลด...</div>;
     if (error) return <div className="alert alert-danger">{error}</div>;
 
-    // --- REFACTORED: ปรับปรุง JSX ในส่วนของ <form> ---
     return (
         <div>
             <h4 className="fw-bold">แจ้งขอลางาน</h4>
-            <p>หน้าหลัก</p>
+            <p>หน้าหลัก / แจ้งขอลางาน</p> {/* อัปเดต Breadcrumb */}
 
             <div className="card p-4 mb-4">
                 <form onSubmit={handleSubmit}>
@@ -108,36 +101,6 @@ function LeaveRequestPage() {
                     </div>
                 </form>
             </div>
-
-            {/* ส่วนของตารางประวัติ (เหมือนเดิม) */}
-            <h5 className="fw-bold">ประวัติการแจ้งลา</h5>
-            <table className="table table-hover mt-3 text-center align-middle">
-                {/* ... เนื้อหาตารางเหมือนเดิม ... */}
-                <thead className="table-light">
-                    <tr>
-                        <th>วันที่ลา</th>
-                        <th>ประเภทการลา</th>
-                        <th>เหตุผล</th>
-                        <th>สถานะ</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {myRequests.length > 0 ? myRequests.map((leave) => (
-                        <tr key={leave.leavework_id}>
-                            <td>{formatDate(leave.leavework_datestart)} - {formatDate(leave.leavework_end)}</td>
-                            <td>{leave.leaveworktype_name}</td>
-                            <td>{leave.leavework_description}</td>
-                            <td>
-                                <StatusBadge status={leave.leavework_status} />
-                            </td>
-                        </tr>
-                    )) : (
-                        <tr>
-                            <td colSpan="5" className="text-muted text-center p-4">ยังไม่มีการแจ้งลางาน</td>
-                        </tr>
-                    )}
-                </tbody>
-            </table>
         </div>
     );
 }
