@@ -1,53 +1,129 @@
 // backend/models/evaluationModel.js
 const util = require('util');
-const db = require('../config/db');
+const db = require('../config/db'); // <--- ตรวจสอบว่า Path ถูกต้อง
 
-const query = util.promisify(db.query).bind(db);
+// ทำให้ db.query ใช้กับ async/await ได้
+const query = util.promisify(db.query).bind(db); // <--- บรรทัดนี้ต้องอยู่ใน Model
 
-// --- 1. แยกฟังก์ชัน getById ออกมาเป็นฟังก์ชัน helper (ต้องรับ companyId ด้วย) ---
-const getById = async (id, companyId) => { // <-- รับ companyId
-    const sql = `SELECT * FROM evaluatework WHERE evaluatework_id = ? AND company_id = ?`; // <-- เพิ่ม WHERE clause
-    const results = await query(sql, [id, companyId]); // <-- ส่ง companyId
+// --- ฟังก์ชัน helper ที่แยกออกมา ---
+const getById = async (id, companyId) => {
+    const sql = `SELECT * FROM evaluatework WHERE evaluatework_id = ? AND company_id = ?`;
+    const results = await query(sql, [id, companyId]);
     return results[0] || null;
 };
 
-// --- 2. สร้าง Object หลักสำหรับ Export ---
+// --- สร้าง Object หลักสำหรับ Export ---
 const Evaluation = {
-    getAllEvaluations: async (companyId) => { // <-- รับ companyId
-        const sql = `
+    // ดึงประวัติการประเมินทั้งหมด (พร้อม Search, Sort, Filter, Pagination)
+    getAllEvaluations: async (options = {}, companyId) => { // <--- รับ options และ companyId
+        const { 
+            search = '', 
+            year = '', 
+            sort = 'create_at', // Default sort key
+            order = 'desc',    // Default sort order
+            page = 1, 
+            limit = 10 
+        } = options;
+
+        let params = [companyId]; // เริ่มต้นด้วย companyId
+        let whereClauses = ['e.company_id = ?']; // กรองตามบริษัทเสมอ
+
+        // 1. Search (ค้นหาตามชื่อพนักงาน)
+        if (search) {
+            whereClauses.push(`emp.emp_name LIKE ?`);
+            params.push(`%${search}%`);
+        }
+
+        // 2. Filter (กรองตามปีที่ประเมิน)
+        if (year) {
+            whereClauses.push(`YEAR(e.create_at) = ?`);
+            params.push(parseInt(year));
+        }
+
+        // สร้าง WHERE clause จากเงื่อนไขทั้งหมด
+        const whereSql = `WHERE ${whereClauses.join(' AND ')}`;
+
+        // SQL สำหรับนับจำนวนทั้งหมด (สำหรับ Pagination)
+        const countSql = `
+            SELECT COUNT(e.evaluatework_id) as total
+            FROM evaluatework e
+            JOIN employee emp ON e.emp_id = emp.emp_id
+            ${whereSql}
+        `;
+        console.log('getAllEvaluations Count SQL:', countSql); // Debug Log
+        console.log('getAllEvaluations Count Params:', params); // Debug Log
+        const [totalResult] = await query(countSql, params);
+        const totalItems = totalResult.total;
+        const totalPages = Math.ceil(totalItems / limit) || 1;
+
+        // SQL สำหรับดึงข้อมูลจริง
+        const sortableColumns = {
+            create_at: 'e.create_at',
+            emp_name: 'emp.emp_name',
+            evaluatework_totalscore: 'e.evaluatework_totalscore'
+        };
+        const sortColumn = sortableColumns[sort] || 'e.create_at';
+        const sortDirection = order.toUpperCase() === 'DESC' ? 'DESC' : 'ASC';
+
+        const dataSql = `
             SELECT e.evaluatework_id, e.create_at, emp.emp_name, e.evaluatework_totalscore, emp.emp_id
             FROM evaluatework e
             JOIN employee emp ON e.emp_id = emp.emp_id
-            WHERE e.company_id = ? -- <-- เพิ่ม WHERE clause
-            ORDER BY e.create_at DESC
+            ${whereSql}
+            ORDER BY ${sortColumn} ${sortDirection}
+            LIMIT ? OFFSET ?
         `;
-        return await query(sql, [companyId]); // <-- ส่ง companyId
+        
+        const offset = (page - 1) * limit;
+        const finalParams = [...params, parseInt(limit), parseInt(offset)];
+        console.log('getAllEvaluations Data SQL:', dataSql); // Debug Log
+        console.log('getAllEvaluations Data Params:', finalParams); // Debug Log
+        const evaluations = await query(dataSql, finalParams);
+
+        return {
+            data: evaluations,
+            meta: { totalItems, totalPages, currentPage: parseInt(page), itemsPerPage: parseInt(limit) },
+        };
     },
 
-    saveEvaluation: async (data, companyId) => { // <-- รับ companyId
+    // ฟังก์ชันใหม่สำหรับดึงปีทั้งหมดที่มีข้อมูลการประเมิน
+    getAllEvaluationYears: async (companyId) => {
+        const sql = `
+            SELECT DISTINCT YEAR(create_at) as year
+            FROM evaluatework
+            WHERE company_id = ? AND create_at IS NOT NULL
+            ORDER BY year DESC
+        `;
+        console.log('getAllEvaluationYears SQL:', sql); // Debug Log
+        console.log('getAllEvaluationYears Params:', [companyId]); // Debug Log
+        const results = await query(sql, [companyId]);
+        return results.map(row => String(row.year));
+    },
+
+    saveEvaluation: async (data, companyId) => {
         const sql = `
             INSERT INTO evaluatework
             (emp_id, evaluatework_score1, evaluatework_score2, evaluatework_score3, evaluatework_score4, evaluatework_score5, evaluatework_totalscore, create_at, company_id)
             VALUES (?, ?, ?, ?, ?, ?, ?, NOW(), ?)
-        `; // <-- เพิ่ม company_id
+        `;
         const totalScore = [data.q1, data.q2, data.q3, data.q4, data.q5].reduce((sum, score) => sum + score, 0);
-        const params = [data.emp_id, data.q1, data.q2, data.q3, data.q4, data.q5, totalScore, companyId]; // <-- ส่ง companyId
+        const params = [data.emp_id, data.q1, data.q2, data.q3, data.q4, data.q5, totalScore, companyId];
 
         const result = await query(sql, params);
         
-        return await getById(result.insertId, companyId); // <-- ส่ง companyId
+        return await getById(result.insertId, companyId);
     },
 
-    getByEmployeeId: async (emp_id, companyId) => { // <-- รับ companyId
+    getByEmployeeId: async (emp_id, companyId) => {
         const sql = `
             SELECT * FROM evaluatework
             WHERE emp_id = ? AND company_id = ?
             ORDER BY create_at DESC
-        `; // <-- เพิ่ม WHERE clause
-        return await query(sql, [emp_id, companyId]); // <-- ส่ง companyId
+        `;
+        return await query(sql, [emp_id, companyId]);
     },
     
-    getById: getById // Export ฟังก์ชัน helper ไปด้วย
+    getById: getById
 };
 
 module.exports = Evaluation;
