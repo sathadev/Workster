@@ -1,21 +1,20 @@
-// frontend/src/pages/MySalaryPage.jsx
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
 import api from '../../api/axios';
 import { useAuth } from '../../context/AuthContext';
-import SalaryDetailItem from '../../components/SalaryDetailItem'; // <-- Import component ใหม่
+import SalaryDetailItem from '../../components/SalaryDetailItem';
 
 function MySalaryPage() {
-    const { user } = useAuth(); // ดึงข้อมูล user ที่ล็อกอินอยู่
+    const { user } = useAuth();
     const [salaryData, setSalaryData] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
     useEffect(() => {
         const fetchMySalary = async () => {
-            if (!user) return; // ถ้ายังไม่มีข้อมูล user ให้ข้ามไปก่อน
+            if (!user) return;
             try {
                 setLoading(true);
+                // API endpoint นี้จะคืนค่าที่คำนวณแล้วกลับมา
                 const response = await api.get('/salaries/me');
                 setSalaryData(response.data);
             } catch (err) {
@@ -45,10 +44,19 @@ function MySalaryPage() {
                 <SalaryDetailItem label="ค่าตำแหน่ง / เบี้ยเลี้ยง" value={salaryData.salary_allowance} />
                 <SalaryDetailItem label="โบนัส" value={salaryData.salary_bonus} />
                 <SalaryDetailItem label="ค่าล่วงเวลา (OT)" value={salaryData.salary_ot} />
-                <SalaryDetailItem label="หักเงิน" value={salaryData.salary_deduction} className="text-danger" />
+
+                {/* --- CHANGE: ใช้ค่าที่คำนวณใหม่ --- */}
+                {/* salary_deduction ตอนนี้คือยอดหักทั้งหมด (manual + auto) */}
+                <SalaryDetailItem 
+                    label="หักเงิน" 
+                    value={salaryData.salary_deduction} 
+                    className="text-danger" 
+                />
                 
                 <hr />
 
+                {/* --- CHANGE: ใช้ค่าที่คำนวณใหม่ --- */}
+                {/* total_salary ตอนนี้คือยอดสุทธิ (net salary) */}
                 <SalaryDetailItem 
                     label="เงินเดือนสุทธิ" 
                     value={salaryData.total_salary} 

@@ -1,12 +1,12 @@
-// frontend/src/pages/SalaryListPage.jsx
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../../api/axios';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { 
-    faEdit, faMagnifyingGlass, faTimes, faInfoCircle, faInbox,
-    faSort, faSortUp, faSortDown 
+    faEdit, faMagnifyingGlass, faTimes, faInbox,
+    faSortUp, faSortDown 
 } from '@fortawesome/free-solid-svg-icons';
+import { Button } from 'react-bootstrap'; // <-- นำ Button ออกจาก import นี้
 import './SalaryListPage.css';
 
 function SalaryListPage() {
@@ -16,28 +16,22 @@ function SalaryListPage() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [isSorting, setIsSorting] = useState(false);
-
-    // State สำหรับการค้นหาและ Filter
     const [searchInput, setSearchInput] = useState('');
     const [filters, setFilters] = useState({
         search: '',
         jobpos_id: ''
     });
     const [positions, setPositions] = useState([]);
-
-    // State สำหรับการเรียงลำดับและแบ่งหน้า
     const [sortConfig, setSortConfig] = useState({ key: 'emp_name', direction: 'asc' });
     const [currentPage, setCurrentPage] = useState(1);
     
     // --- Effects ---
-    // ดึงข้อมูลตำแหน่งงานมาใส่ใน dropdown filter
     useEffect(() => {
         api.get('/positions')
            .then(res => setPositions(res.data))
            .catch(err => console.error("Failed to fetch positions", err));
     }, []);
 
-    // ดึงข้อมูลเงินเดือนใหม่ทุกครั้งที่ state เหล่านี้เปลี่ยน
     useEffect(() => {
         const fetchSalaries = async () => {
             if (!isSorting) setLoading(true);
@@ -48,7 +42,7 @@ function SalaryListPage() {
                     sort: sortConfig.key,
                     order: sortConfig.direction,
                     page: currentPage,
-                    limit: 15 // แสดงหน้าละ 15 รายการ
+                    limit: 15
                 };
                 const response = await api.get('/salaries', { params });
                 setSalaries(response.data.data || []);
@@ -65,6 +59,8 @@ function SalaryListPage() {
     }, [filters, sortConfig, currentPage]);
 
     // --- Handlers ---
+    // *** ไม่ต้องมี handleProcessPayroll อีกต่อไป ***
+
     const handleFilterChange = (e) => {
         setCurrentPage(1);
         setFilters(prev => ({ ...prev, [e.target.name]: e.target.value }));
@@ -105,6 +101,7 @@ function SalaryListPage() {
 
     return (
         <div>
+            {/* *** นำปุ่มและ div ที่ครอบออกไป เหลือแค่ h4 *** */}
             <h4 className="fw-bold mb-3">จัดการเงินเดือน</h4>
 
             {/* --- Filter Section --- */}
