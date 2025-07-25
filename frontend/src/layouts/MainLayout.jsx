@@ -75,7 +75,7 @@ function MainLayout() {
                             <div className="sidebar-header">รายการ พนักงาน</div>
                             <NavLink to="/profile" className="sidebar-link">ข้อมูลส่วนตัว</NavLink>
                             <NavLink to="/leave-request/new" className="sidebar-link">แจ้งลางาน</NavLink>
-                            <NavLink to="/my-leave-history" className="sidebar-link">ประวัติการแจ้งลาของฉัน</NavLink> {/* <--- เพิ่ม: Link ใหม่ */}
+                            <NavLink to="/my-leave-history" className="sidebar-link">ประวัติการแจ้งลา</NavLink> {/* <--- เพิ่ม: Link ใหม่ */}
                             <NavLink to="/my-salary" className="sidebar-link">ดูข้อมูลเงินเดือน</NavLink>
                         </>
                     ) : (

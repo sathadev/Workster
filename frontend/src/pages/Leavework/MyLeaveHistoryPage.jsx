@@ -68,8 +68,13 @@ function MyLeaveHistoryPage() {
                         )) : (
                             <tr>
                                 <td colSpan="4" className="text-center text-muted p-4">
-                                    <FontAwesomeIcon icon={faInbox} className="fa-2x mb-2 d-block"/>
-                                    ยังไม่มีการแจ้งลางาน
+                                    <div className="d-flex flex-column justify-content-center align-items-center">
+                                        <FontAwesomeIcon icon={faInbox} className="fa-2x mb-2"/>
+                                        <h7 className="mb-0">
+                                            ยังไม่มีการแจ้งลางาน
+                                        </h7>
+                                    </div>
+                                    
                                 </td>
                             </tr>
                         )}
