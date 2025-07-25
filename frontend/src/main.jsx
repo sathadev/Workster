@@ -23,7 +23,7 @@ import EmployeeAddPage from './pages/Employees/EmployeeAddPage.jsx';
 import LeaveRequestListPage from './pages/Leavework/LeaveRequestListPage.jsx';
 import LeaveRequestPage from './pages/Leavework/LeaveRequestPage.jsx';
 import MyLeaveHistoryPage from './pages/Leavework/MyLeaveHistoryPage.jsx';
-import LeaveRequestHistoryPage from './pages/Leavework/LeaveRequestHistoryPage.jsx'; // <--- เพิ่ม: Import หน้าประวัติคำขอลาสำหรับ HR
+import LeaveRequestHistoryPage from './pages/Leavework/LeaveRequestHistoryPage.jsx';
 import SalaryListPage from './pages/Salary/SalaryListPage.jsx';
 import SalaryEditPage from './pages/Salary/SalaryEditPage.jsx';
 import MySalaryPage from './pages/Salary/MySalaryPage.jsx';
@@ -34,7 +34,10 @@ import EvaluationResultPage from './pages/Evaluations/EvaluationResultPage.jsx';
 import PositionListPage from './pages/Jobpos/PositionListPage.jsx';
 import PositionDetailPage from './pages/Jobpos/PositionDetailPage.jsx';
 import SettingsPage from './pages/SettingsPage.jsx';
-import ProfilePage from './pages/Employees/ProfilePage.jsx'; 
+import ProfilePage from './pages/Employees/ProfilePage.jsx';
+// --- เพิ่ม: Import RegisterUserPage จากตำแหน่งใหม่ ---
+import RegisterUserPage from './pages/Auth/RegisterUserPage.jsx'; // ตรวจสอบเส้นทางให้ถูกต้อง
+// ----------------------------------------------------
 
 
 // สร้าง "แผนที่" ของเว็บไซต์
@@ -72,19 +75,19 @@ const router = createBrowserRouter([
                 element: <EmployeeAddPage />
             },
             {
-                path: "leave-requests", // สำหรับ Admin ดูรายการคำขอลาที่รอดำเนินการ (Pending)
+                path: "leave-requests",
                 element: <LeaveRequestListPage />
             },
             {
-                path: "leave-request/new", // สำหรับพนักงานยื่นใบลาใหม่
+                path: "leave-request/new",
                 element: <LeaveRequestPage />
             },
             {
-                path: "my-leave-history", // สำหรับพนักงานดูประวัติการลาของตัวเอง
+                path: "my-leave-history",
                 element: <MyLeaveHistoryPage />
             },
             {
-                path: "leave-requests/history", // <--- เพิ่ม: Route สำหรับประวัติคำขอลาสำหรับ HR
+                path: "leave-requests/history",
                 element: <LeaveRequestHistoryPage />
             },
             {
@@ -123,15 +126,20 @@ const router = createBrowserRouter([
                 path: "positions/view/:id",
                 element: <PositionDetailPage />
             },
-            { 
-                path: "settings", 
-                element: <SettingsPage /> 
+            {
+                path: "settings",
+                element: <SettingsPage />
             }
         ],
     },
     {
         path: "/login",
         element: <LoginPage />,
+    },
+    {
+        // --- เพิ่ม: Route สำหรับหน้าสมัครผู้ใช้ (อยู่นอก ProtectedRoute) ---
+        path: "/register", // หรือชื่อ path ที่คุณต้องการ เช่น /register-company-admin
+        element: <RegisterUserPage />,
     },
 ]);
 

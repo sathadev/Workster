@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>WorkSter - บริหารงานบุคคลยุคใหม่ ครบ จบ ในที่เดียว</title>
+    <meta name="description" content="WorkSter ระบบบริหารงานบุคคล (HRM) ครบวงจร ทั้งการจัดการพนักงาน เงินเดือน การลา ประเมินผล และการรับสมัครงาน สมัครใช้งานวันนี้!">
+    <meta name="keywords" content="WorkSter, HRM, HR Software, Human Resources, โปรแกรมบริหารบุคคล, จัดการพนักงาน, เงินเดือน, ลา, ประเมินผล, สมัครงาน">
+    <meta name="author" content="WorkSter Team">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://kit.fontawesome.com/a62630f63f.js" crossorigin="anonymous"></script>
+
+    <style>
+        /* Google Fonts - Noto Sans Thai */
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@300;400;500;700&display=swap');
+
+        body {
+            font-family: 'Noto Sans Thai', sans-serif;
+            background-color: #f8f9fa;
+            color: #333;
+        }
+
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.8rem;
+        }
+
+        .hero-section {
+            background: linear-gradient(to right, #1E56A0, #3E8DCF); /* Gradient background */
+            color: #fff;
+            padding: 8rem 0;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('https://via.placeholder.com/1500x800/1E56A0/3E8DCF?text=HR+Management') no-repeat center center; /* Placeholder image */
+            background-size: cover;
+            opacity: 0.15; /* Adjust opacity of background image */
+            z-index: 0;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero-title {
+            font-size: 3.5rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .hero-subtitle {
+            font-size: 1.5rem;
+            margin-bottom: 3rem;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .btn-hero {
+            font-size: 1.1rem;
+            padding: 0.8rem 2.5rem;
+            border-radius: 50px;
+            margin: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary-hero {
+            background-color: #007bff; /* Primary blue for main CTA */
+            border-color: #007bff;
+            color: #fff;
+        }
+        .btn-primary-hero:hover {
+            background-color: #0056b3;
+            border-color: #0056b3;
+            transform: translateY(-2px);
+        }
+
+        .btn-outline-light-hero {
+            border-color: #fff;
+            color: #fff;
+        }
+        .btn-outline-light-hero:hover {
+            background-color: #fff;
+            color: #1E56A0;
+            transform: translateY(-2px);
+        }
+
+        .features-section {
+            padding: 5rem 0;
+            background-color: #fff;
+        }
+
+        .feature-card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            padding: 2rem;
+            text-align: center;
+            margin-bottom: 2rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.12);
+        }
+
+        .feature-icon {
+            font-size: 3rem;
+            color: #1E56A0;
+            margin-bottom: 1.5rem;
+        }
+
+        .feature-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: #1E56A0;
+        }
+
+        .about-section {
+            padding: 5rem 0;
+            background-color: #e9ecef;
+        }
+
+        .call-to-action-section {
+            background-color: #1E56A0;
+            color: #fff;
+            padding: 4rem 0;
+            text-align: center;
+        }
+
+        .footer {
+            background-color: #343a40;
+            color: #bbb;
+            padding: 3rem 0;
+            font-size: 0.9rem;
+        }
+
+        .footer a {
+            color: #bbb;
+            text-decoration: none;
+        }
+
+        .footer a:hover {
+            color: #fff;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .hero-section {
+                padding: 6rem 0;
+            }
+            .hero-title {
+                font-size: 2.5rem;
+            }
+            .hero-subtitle {
+                font-size: 1.2rem;
+            }
+            .btn-hero {
+                display: block;
+                width: 80%;
+                margin: 1rem auto;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="#">WorkSter</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" aria-current="page" href="#home">หน้าหลัก</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#features">คุณสมบัติ</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#about">เกี่ยวกับเรา</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#contact">ติดต่อ</a>
+                    </li>
+                    <li class="nav-item ms-lg-3">
+                        <button class="btn btn-primary-hero btn-sm" onclick="location.href='/register';">
+                            <i class="fas fa-user-plus me-2"></i> สมัครใช้บริการ
+                        </button>
+                    </li>
+                    <li class="nav-item ms-lg-2">
+                        <button class="btn btn-outline-light-hero btn-sm" onclick="location.href='/login';">
+                            <i class="fas fa-sign-in-alt me-2"></i> เข้าสู่ระบบ
+                        </button>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <section id="home" class="hero-section">
+        <div class="container hero-content">
+            <h1 class="hero-title">บริหารงานบุคคลยุคใหม่ <br>ครบ จบ ในที่เดียว</h1>
+            <p class="hero-subtitle">
+                WorkSter คือระบบ HRM (Human Resource Management) ที่ออกแบบมาเพื่อธุรกิจของคุณ
+                ช่วยจัดการพนักงาน เงินเดือน การลา ประเมินผล และการรับสมัครงานได้อย่างมีประสิทธิภาพ
+            </p>
+            <div class="hero-buttons">
+                <button class="btn btn-primary-hero btn-lg" onclick="location.href='/register';">
+                    <i class="fas fa-user-plus me-2"></i> เริ่มต้นใช้งานฟรี
+                </button>
+                <button class="btn btn-outline-light-hero btn-lg" onclick="location.href='/login';">
+                    <i class="fas fa-sign-in-alt me-2"></i> เข้าสู่ระบบ
+                </button>
+                <button class="btn btn-outline-light-hero btn-lg" onclick="location.href='/apply-job';">
+                    <i class="fas fa-briefcase me-2"></i> สมัครงาน
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <section id="features" class="features-section">
+        <div class="container">
+            <h2 class="text-center mb-5 feature-title">คุณสมบัติเด่นของ WorkSter</h2>
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="feature-card">
+                        <i class="fas fa-users feature-icon"></i>
+                        <h3 class="feature-title">จัดการข้อมูลพนักงาน</h3>
+                        <p>จัดเก็บและเรียกดูข้อมูลพนักงานได้อย่างเป็นระบบ พร้อมประวัติการทำงาน</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="feature-card">
+                        <i class="fas fa-dollar-sign feature-icon"></i>
+                        <h3 class="feature-title">ระบบเงินเดือนและค่าตอบแทน</h3>
+                        <p>คำนวณเงินเดือน หักภาษี ประกันสังคม ได้อย่างถูกต้องและรวดเร็ว</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="feature-card">
+                        <i class="fas fa-calendar-alt feature-icon"></i>
+                        <h3 class="feature-title">การจัดการการลา</h3>
+                        <p>ยื่นคำขอลา อนุมัติ ติดตามสถานะการลาได้ทุกที่ทุกเวลา</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="feature-card">
+                        <i class="fas fa-chart-line feature-icon"></i>
+                        <h3 class="feature-title">ประเมินผลการปฏิบัติงาน</h3>
+                        <p>กำหนดเกณฑ์การประเมิน ติดตามเป้าหมาย และให้ Feedback พนักงาน</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="feature-card">
+                        <i class="fas fa-bullhorn feature-icon"></i>
+                        <h3 class="feature-title">ประกาศรับสมัครงาน</h3>
+                        <p>สร้างประกาศงาน จัดการผู้สมัคร และนัดสัมภาษณ์ได้อย่างง่ายดาย</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="feature-card">
+                        <i class="fas fa-cogs feature-icon"></i>
+                        <h3 class="feature-title">ตั้งค่าและปรับแต่ง</h3>
+                        <p>ระบบยืดหยุ่น ปรับแต่งให้เข้ากับโครงสร้างและนโยบายบริษัทของคุณ</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="about" class="about-section">
+        <div class="container">
+            <h2 class="text-center mb-5 feature-title">เกี่ยวกับ WorkSter</h2>
+            <div class="row align-items-center">
+                <div class="col-md-6 text-center mb-4 mb-md-0">
+                    <img src="https://via.placeholder.com/400x300?text=About+Us" class="img-fluid rounded shadow-sm" alt="เกี่ยวกับ WorkSter">
+                </div>
+                <div class="col-md-6">
+                    <p class="lead">
+                        WorkSter มุ่งมั่นที่จะเป็นผู้นำด้านระบบบริหารทรัพยากรบุคคล ที่ช่วยให้ธุรกิจทุกขนาดสามารถ
+                        จัดการบุคลากรได้อย่างมีประสิทธิภาพสูงสุด เราเชื่อว่าการบริหารจัดการ HR ที่ดี
+                        คือรากฐานสำคัญของการเติบโตขององค์กร
+                    </p>
+                    <p>
+                        ทีมงานของเราประกอบด้วยผู้เชี่ยวชาญด้าน HR และเทคโนโลยี ที่พร้อมพัฒนาและปรับปรุงระบบ
+                        ให้ตอบโจทย์ความต้องการที่หลากหลายของธุรกิจในยุคดิจิทัล
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="contact" class="call-to-action-section">
+        <div class="container">
+            <h2 class="hero-title mb-4">พร้อมยกระดับงาน HR ของคุณหรือยัง?</h2>
+            <p class="hero-subtitle">
+                เริ่มต้นประสบการณ์ใหม่กับ WorkSter วันนี้! ไม่มีค่าใช้จ่ายในการเริ่มต้น
+            </p>
+            <button class="btn btn-lg btn-outline-light-hero" onclick="location.href='/register';">
+                <i class="fas fa-clipboard-list me-2"></i> สมัครใช้งานฟรี!
+            </button>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6 text-center text-md-start mb-3 mb-md-0">
+                    &copy; 2025 WorkSter. All rights reserved.
+                </div>
+                <div class="col-md-6 text-center text-md-end">
+                    <a href="#home" class="me-3">หน้าหลัก</a>
+                    <a href="#features" class="me-3">คุณสมบัติ</a>
+                    <a href="#about" class="me-3">เกี่ยวกับเรา</a>
+                    <a href="mailto:info@workster.com">ติดต่อเรา</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Optional: Add any custom JavaScript here if needed for interactive elements
+        // For example, smooth scrolling for internal links (if not using react-router-dom)
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+
+        // Placeholder for future dynamic content or analytics if needed
+        console.log("WorkSter Landing Page Loaded!");
+    </script>
+</body>
+</html>
