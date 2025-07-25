@@ -173,9 +173,9 @@ function LeaveRequestListPage() {
                                 <td colSpan="6" className="text-center text-muted p-4">
                                     <div className="d-flex flex-column justify-content-center align-items-center">
                                         <FontAwesomeIcon icon={faInbox} className="fa-2x mb-2"/>
-                                        <h5 className="mb-0">
+                                        <h7 className="mb-0">
                                             {filters.search || filters.leaveworktype_id ? 'ไม่พบข้อมูลตามเงื่อนไข' : 'ไม่พบข้อมูลคำขอลาที่รอดำเนินการตามเงื่อนไข'}
-                                        </h5>
+                                        </h7>
                                     </div>
                                 </td>
                             </tr>
