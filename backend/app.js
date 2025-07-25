@@ -35,6 +35,7 @@ const evaluationRoutes = require('./routes/evaluationRoutes');
 const aboutRoutes = require('./routes/aboutRoutes');
 const dashboardRoutes = require('./routes/dashboardRoutes');
 const attendanceRoutes = require('./routes/attendanceRoutes');
+const companyRoutes = require('./routes/companyRoutes'); 
 
 const API_PREFIX = '/api/v1';
 app.use(`${API_PREFIX}/auth`, authRoute);
@@ -47,6 +48,8 @@ app.use(`${API_PREFIX}/dashboard`, dashboardRoutes);
 app.use(`${API_PREFIX}/attendance`, attendanceRoutes);
 app.use(`${API_PREFIX}/leave-types`, leaveTypesRoutes);
 app.use(`${API_PREFIX}/leave-requests`, leaveworkRoutes);
+app.use(`${API_PREFIX}/companies`, companyRoutes);
+
 // -------------------------------------------------------------
 
 app.listen(PORT, () => {

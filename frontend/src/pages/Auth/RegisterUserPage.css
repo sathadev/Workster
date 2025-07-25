@@ -1,0 +1,53 @@
+/* frontend/src/pages/Auth/RegisterUserPage.css */
+
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@100..900&display=swap');
+
+html, body {
+  font-family: "Noto Sans Thai", sans-serif;
+}
+
+.sidebar {
+  background-color: #f8f9fa;
+  min-height: 100vh;
+  padding-top: 20px;
+}
+
+.sidebar a {
+  display: block;
+  padding: 10px 20px;
+  color: #000;
+  text-decoration: none;
+}
+
+.sidebar a:hover {
+  background-color: #e2e6ea;
+  border-radius: 5px;
+}
+
+.registration-card {
+  max-width: 100%;
+  width: 60%;
+  margin: 50px 0 50px 20px; /* ชิดซ้าย มี margin-left 20px */
+  padding: 30px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.form-label-custom {
+  min-width: 120px;
+  text-align: right;
+  padding-right: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.form-control-custom {
+  flex-grow: 1;
+}
+
+.row-custom {
+  display: flex;
+  align-items: center;
+  margin-bottom: 15px;
+}
