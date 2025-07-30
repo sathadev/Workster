@@ -13,52 +13,41 @@ function EvaluationHistoryPage() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     
-    // --- State Management สำหรับ Search, Sort, Filter และ Pagination ---
-    const [searchInput, setSearchInput] = useState(''); // ค่าที่ผู้ใช้พิมพ์ในช่องค้นหา
+    const [searchInput, setSearchInput] = useState('');
     const [filters, setFilters] = useState({ 
-        search: '', // ค่าค้นหาที่ถูก apply แล้ว
-        year: ''    // ปีที่เลือกสำหรับกรอง (ค่าว่าง = ทั้งหมด)
+        search: '',
+        year: ''
     });
-    const [sortConfig, setSortConfig] = useState({ key: 'create_at', direction: 'desc' }); // Default sort by evaluation date (latest first)
-    const [currentPage, setCurrentPage] = useState(1); // หน้าปัจจุบันสำหรับ Pagination
-    const [meta, setMeta] = useState({}); // ข้อมูล Meta สำหรับ Pagination (totalItems, totalPages)
+    const [sortConfig, setSortConfig] = useState({ key: 'create_at', direction: 'desc' });
+    const [currentPage, setCurrentPage] = useState(1);
+    const [meta, setMeta] = useState({});
 
-    // <--- แก้ไข: State สำหรับเก็บปีที่มีข้อมูลจริง
     const [actualAvailableYears, setActualAvailableYears] = useState([]); 
-    // --->
 
-    // Effect สำหรับดึงประวัติการประเมิน
     useEffect(() => {
         const fetchHistory = async () => {
             setLoading(true);
             setError(null); 
             try {
-                // สร้าง Parameters สำหรับส่งไป Backend API
                 const params = {
-                    search: filters.search, // คำค้นหา
-                    year: filters.year,     // ปีที่กรอง
-                    sort: sortConfig.key,   // ฟิลด์สำหรับเรียงลำดับ
-                    order: sortConfig.direction, // ทิศทางการเรียงลำดับ
-                    page: currentPage,      // หน้าปัจจุบัน
-                    limit: 10               // จำนวนรายการต่อหน้า (สามารถปรับได้)
+                    search: filters.search,
+                    year: filters.year,
+                    sort: sortConfig.key,
+                    order: sortConfig.direction,
+                    page: currentPage,
+                    limit: 10
                 };
-                // เรียก API เพื่อดึงข้อมูลประวัติการประเมิน (ต้องปรับ Backend ให้รองรับ params เหล่านี้)
                 const response = await api.get('/evaluations', { params });
-                setEvaluations(response.data.data || []); // สมมติว่า Backend คืนค่าเป็น { data: [], meta: {} }
+                setEvaluations(response.data.data || []);
                 setMeta(response.data.meta || {});
 
-                // <--- เพิ่ม: ดึงปีที่มีข้อมูลจริงหลังจากโหลด evaluations
-                // ดึงปีที่ไม่ซ้ำกันจาก create_at ของข้อมูลที่ได้มา
                 const yearsFromData = [...new Set(
                     (response.data.data || [])
                         .map(item => new Date(item.create_at).getFullYear())
-                        .filter(year => !isNaN(year)) // กรองปีที่ไม่ใช่ตัวเลข
-                )].sort((a, b) => b - a); // เรียงจากมากไปน้อย
+                        .filter(year => !isNaN(year))
+                )].sort((a, b) => b - a);
 
-                // เพิ่มตัวเลือก "ทั้งหมด" เข้าไป
                 setActualAvailableYears(['', ...yearsFromData.map(String)]);
-                // --->
-
             } catch (err) {
                 console.error("Failed to fetch evaluation history:", err);
                 setError("เกิดข้อผิดพลาดในการดึงข้อมูลประวัติ");
@@ -67,45 +56,38 @@ function EvaluationHistoryPage() {
             }
         };
         fetchHistory();
-    }, [filters, sortConfig, currentPage]); // Dependencies: เมื่อ filters, sortConfig, currentPage เปลี่ยน จะดึงข้อมูลใหม่
+    }, [filters, sortConfig, currentPage]);
 
-    // Handler สำหรับการเปลี่ยนแปลงค่าในช่องค้นหา
     const handleSearchInputChange = (e) => {
         setSearchInput(e.target.value);
     };
 
-    // Handler สำหรับการ Submit Form ค้นหา (กด Enter หรือคลิกปุ่มค้นหา)
     const handleSearchSubmit = (e) => {
         e.preventDefault(); 
-        setCurrentPage(1); // เมื่อค้นหาใหม่ ให้กลับไปหน้าแรก
-        setFilters(prev => ({ ...prev, search: searchInput })); // Apply คำค้นหา
+        setCurrentPage(1);
+        setFilters(prev => ({ ...prev, search: searchInput }));
     };
 
-    // Handler สำหรับปุ่ม "ล้างการค้นหา"
     const clearSearch = () => {
-        setSearchInput(''); // ล้างค่าในช่อง input
-        setCurrentPage(1); // กลับไปหน้าแรก
-        setFilters(prev => ({ ...prev, search: '' })); // ล้างคำค้นหาที่ถูก apply
+        setSearchInput('');
+        setCurrentPage(1);
+        setFilters(prev => ({ ...prev, search: '' }));
     };
 
-    // Handler สำหรับการเปลี่ยนแปลงค่าใน Dropdown ปีที่ประเมิน
     const handleYearChange = (e) => {
-        setCurrentPage(1); // เมื่อ Filter ปีเปลี่ยน ให้กลับไปหน้าแรก
-        setFilters(prev => ({ ...prev, year: e.target.value })); // Apply ปีที่เลือก
+        setCurrentPage(1);
+        setFilters(prev => ({ ...prev, year: e.target.value }));
     };
     
-    // Handler สำหรับการเรียงลำดับตาราง
     const handleSort = (key) => {
-        setCurrentPage(1); // เมื่อ Sort ใหม่ ให้กลับไปหน้าแรก
+        setCurrentPage(1);
         let direction = 'asc';
-        // ถ้าคลิกที่คอลัมน์เดิม ให้สลับทิศทาง
         if (sortConfig.key === key && sortConfig.direction === 'asc') {
             direction = 'desc';
         }
-        setSortConfig({ key, direction }); // Apply การเรียงลำดับ
+        setSortConfig({ key, direction });
     };
 
-    // Handler สำหรับการเปลี่ยนหน้า Pagination
     const handlePageChange = (newPage) => {
         if (newPage >= 1 && (!meta.totalPages || newPage <= meta.totalPages)) {
             setCurrentPage(newPage);
@@ -118,94 +100,90 @@ function EvaluationHistoryPage() {
         day: 'numeric'
     });
 
-    if (loading) return <div className="text-center mt-5">กำลังโหลด...</div>;
+    if (loading) return <div className="text-center mt-5 text-muted">กำลังโหลด...</div>;
     if (error) return <div className="alert alert-danger">{error}</div>;
 
     return (
         <div>
-            <h4 className="fw-bold">ประวัติการประเมินผล</h4>
-            <p><Link to="/evaluations">การประเมินผล</Link> / ประวัติการประเมิน</p>
+            <h4 className="fw-bold text-dark" style={{ fontSize: '1.8rem' }}>ประวัติการประเมินผล</h4>
+            <p className="text-muted" style={{ fontSize: '0.95rem' }}>
+                <Link to="/evaluations" className="text-secondary text-decoration-none link-primary-hover">การประเมินผล</Link> / <span className="text-dark">ประวัติการประเมิน</span>
+            </p>
             
-            {/* --- Filter & Search Section --- */}
-            <div className="row g-2 mb-3"> {/* เพิ่ม mb-3 เพื่อให้มีระยะห่างกับตาราง */}
-                <div className="col-md-5"> {/* ช่องค้นหา */}
+            <div className="row g-2 mb-3 mt-4"> {/* เพิ่ม mt-4 */}
+                <div className="col-md-5">
                     <form onSubmit={handleSearchSubmit} className="search-form">
-                        <div className="input-group w-100"> {/* ใช้ w-100 เพื่อให้เต็มความกว้าง col */}
+                        <div className="input-group w-100">
                             <input 
                                 type="text" 
                                 className="form-control" 
                                 placeholder="ค้นหาตามชื่อพนักงาน..."
                                 value={searchInput} 
                                 onChange={handleSearchInputChange} 
+                                style={{ fontSize: '1rem' }} /* ปรับขนาดฟอนต์ใน input */
                             />
-                            <button className="btn btn-outline-secondary" type="submit">
+                            <button className="btn btn-outline-secondary" type="submit" style={{ fontSize: '1rem' }}>
                                 <FontAwesomeIcon icon={faSearch} />
                             </button>
-                            {filters.search && ( // แสดงปุ่มล้างเมื่อมีคำค้นหาที่ถูก apply แล้ว
-                                <button onClick={clearSearch} className="btn btn-outline-danger" type="button" title="ล้างการค้นหา">
+                            {filters.search && (
+                                <button onClick={clearSearch} className="btn btn-outline-danger" type="button" title="ล้างการค้นหา" style={{ fontSize: '1rem' }}>
                                     <FontAwesomeIcon icon={faTimes} className="me-1" />
                                 </button>
                             )}
                         </div>
                     </form>
                 </div>
-                <div className="col-md-3 offset-md-4"> {/* Dropdown ปีที่ประเมิน (จัดไปทางขวา) */}
+                <div className="col-md-3 offset-md-4">
                     <div className="input-group">
-                        <label className="input-group-text">ปีที่ประเมิน</label>
+                        <label className="input-group-text bg-light text-dark" style={{ fontSize: '1rem' }}>ปีที่ประเมิน</label> {/* ปรับสีพื้นหลังและฟอนต์ */}
                         <select
                             className="form-select"
                             name="year"
                             value={filters.year}
                             onChange={handleYearChange}
+                            style={{ fontSize: '1rem' }} /* ปรับขนาดฟอนต์ใน select */
                         >
-                            {/* <--- แก้ไข: ใช้ actualAvailableYears แทน availableYears */}
                             {actualAvailableYears.map(year => (
                                 <option key={year} value={year}>
                                     {year === '' ? 'ทั้งหมด' : year}
                                 </option>
                             ))}
-                            {/* ---> */}
                         </select>
                     </div>
                 </div>
             </div>
 
             {filters.search && !error && (
-                <div className="alert alert-info py-2">
+                <div className="alert alert-info py-2" style={{ fontSize: '1rem' }}>
                     <FontAwesomeIcon icon={faInfoCircle} className="me-2" />
                     ผลการค้นหา "<strong>{filters.search}</strong>" พบ {meta.totalItems || 0} รายการ
                 </div>
             )}
-            {/* ------------------------------------------------------------- */}
 
-            {/* ตารางแสดงข้อมูล */}
             <div className="table-responsive">
                 <table className="table table-hover table-bordered text-center align-middle">
                     <thead className="table-light">
                         <tr>
-                            {/* Header สำหรับ Sort วันที่ประเมิน */}
-                            <th onClick={() => handleSort('create_at')} style={{ cursor: 'pointer' }}>
+                            <th onClick={() => handleSort('create_at')} style={{ cursor: 'pointer', fontSize: '1.05rem', color: '#333' }}>
                                 วันที่ประเมิน {sortConfig.key === 'create_at' && <FontAwesomeIcon icon={sortConfig.direction === 'asc' ? faSortUp : faSortDown} />}
                             </th>
-                            {/* Header สำหรับ Sort ชื่อ-สกุล */}
-                            <th onClick={() => handleSort('emp_name')} style={{ cursor: 'pointer' }}>
+                            <th onClick={() => handleSort('emp_name')} style={{ cursor: 'pointer', fontSize: '1.05rem', color: '#333' }}>
                                 ชื่อ - สกุล {sortConfig.key === 'emp_name' && <FontAwesomeIcon icon={sortConfig.direction === 'asc' ? faSortUp : faSortDown} />}
                             </th>
-                            {/* Header สำหรับ Sort คะแนนรวม */}
-                            <th onClick={() => handleSort('evaluatework_totalscore')} style={{ cursor: 'pointer' }}>
+                            <th onClick={() => handleSort('evaluatework_totalscore')} style={{ cursor: 'pointer', fontSize: '1.05rem', color: '#333' }}>
                                 คะแนนรวม {sortConfig.key === 'evaluatework_totalscore' && <FontAwesomeIcon icon={sortConfig.direction === 'asc' ? faSortUp : faSortDown} />}
                             </th>
-                            <th>การประเมินผล</th>
+                            <th style={{ fontSize: '1.05rem', color: '#333' }}>การประเมินผล</th>
                         </tr>
                     </thead>
                     <tbody>
                         {evaluations.length > 0 ? evaluations.map(evaluation => (
                             <tr key={evaluation.evaluatework_id}>
-                                <td>{formatDate(evaluation.create_at)}</td>
-                                <td>{evaluation.emp_name}</td>
-                                <td>{evaluation.evaluatework_totalscore}</td>
+                                <td style={{ fontSize: '0.98rem' }}>{formatDate(evaluation.create_at)}</td>
+                                <td style={{ fontSize: '0.98rem' }}>{evaluation.emp_name}</td>
+                                <td style={{ fontSize: '0.98rem' }}>{evaluation.evaluatework_totalscore}</td>
                                 <td>
-                                    <Link to={`/evaluations/result/${evaluation.evaluatework_id}`} className="btn btn-primary rounded-pill px-3">
+                                    <Link to={`/evaluations/result/${evaluation.evaluatework_id}`} className="btn btn-primary rounded-pill px-3" style={{ fontSize: '0.95rem' }}>
                                         ผลการประเมิน
                                     </Link>
                                 </td>
@@ -214,7 +192,7 @@ function EvaluationHistoryPage() {
                             <tr>
                                 <td colSpan="4" className="text-center text-muted p-4">
                                     <FontAwesomeIcon icon={faInbox} className="fa-2x mb-2 d-block"/>
-                                    {filters.search || filters.year ? `ไม่พบข้อมูลตามเงื่อนไข` : 'ไม่พบข้อมูล'}
+                                    <span style={{ fontSize: '1rem' }}>{filters.search || filters.year ? `ไม่พบข้อมูลตามเงื่อนไข` : 'ไม่พบข้อมูล'}</span>
                                 </td>
                             </tr>
                         )}
@@ -222,10 +200,9 @@ function EvaluationHistoryPage() {
                 </table>
             </div>
 
-            {/* --- Pagination Section --- */}
             {meta && meta.totalPages > 1 && (
                 <div className="d-flex justify-content-between align-items-center mt-3">
-                    <span className="text-muted">
+                    <span className="text-muted" style={{ fontSize: '0.9rem' }}>
                         หน้า {meta.currentPage || 1} / {meta.totalPages || 1} (ทั้งหมด {meta.totalItems || 0} รายการ)
                     </span>
                     <div className="btn-group">
@@ -233,6 +210,7 @@ function EvaluationHistoryPage() {
                             className="btn btn-outline-secondary"
                             onClick={() => handlePageChange(currentPage - 1)}
                             disabled={currentPage === 1}
+                            style={{ fontSize: '0.95rem' }}
                         >
                             ก่อนหน้า
                         </button>
@@ -240,13 +218,13 @@ function EvaluationHistoryPage() {
                             className="btn btn-outline-secondary"
                             onClick={() => handlePageChange(currentPage + 1)}
                             disabled={!meta.totalPages || currentPage >= meta.totalPages}
+                            style={{ fontSize: '0.95rem' }}
                         >
                             ถัดไป
                         </button>
                     </div>
                 </div>
             )}
-            {/* ------------------------------------------------------------- */}
         </div>
     );
 }

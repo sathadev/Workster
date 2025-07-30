@@ -1,53 +1,152 @@
 /* frontend/src/pages/Auth/RegisterUserPage.css */
 
-@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@100..900&display=swap');
+/*
+* @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@100..900&display=swap');
+* html, body {
+* font-family: "Noto Sans Thai", sans-serif;
+* }
+*
+* **หมายเหตุ:** ส่วนนี้ควรถูกจัดการในไฟล์ CSS หลักของโปรเจกต์ (เช่น index.css)
+* เพื่อให้ font-family เป็นไปตามธีม WorkSter ทั้งหมด
+*
+* **หมายเหตุ:** สไตล์ Sidebar ที่นี่ควรถูกลบออก เพื่อป้องกันความซ้ำซ้อนกับ index.css หรือ MainLayout.css
+* หากหน้านี้ไม่มี Sidebar หรือ Sidebar ถูกจัดการจาก Layout หลักอยู่แล้ว
+* .sidebar {
+* background-color: #f8f9fa;
+* min-height: 100vh;
+* padding-top: 20px;
+* }
+* .sidebar a {
+* display: block;
+* padding: 10px 20px;
+* color: #000;
+* text-decoration: none;
+* }
+* .sidebar a:hover {
+* background-color: #e2e6ea;
+* border-radius: 5px;
+* }
+*/
 
-html, body {
-  font-family: "Noto Sans Thai", sans-serif;
-}
-
-.sidebar {
-  background-color: #f8f9fa;
-  min-height: 100vh;
-  padding-top: 20px;
-}
-
-.sidebar a {
-  display: block;
-  padding: 10px 20px;
-  color: #000;
-  text-decoration: none;
-}
-
-.sidebar a:hover {
-  background-color: #e2e6ea;
-  border-radius: 5px;
-}
 
 .registration-card {
-  max-width: 100%;
-  width: 60%;
-  margin: 50px 0 50px 20px; /* ชิดซ้าย มี margin-left 20px */
-  padding: 30px;
-  border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    max-width: 100%;
+    width: 60%; /* คงความกว้าง 60% */
+    margin: 50px auto; /* เปลี่ยนเป็นจัดกึ่งกลางแนวนอนแทน margin-left 20px */
+    padding: 30px;
+    border-radius: 12px; /* เพิ่มความโค้งมนให้ดูทันสมัยขึ้น */
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1); /* ปรับเงาให้ดูสวยงามขึ้น */
+    background-color: #fff; /* ให้พื้นหลังเป็นสีขาว */
+    font-family: "Noto Sans Thai", sans-serif; /* ให้แน่ใจว่าใช้ฟอนต์ไทย */
+    color: #333; /* สีข้อความหลัก */
 }
 
+/* ปรับ responsive สำหรับการ์ดบนหน้าจอเล็ก */
+@media (max-width: 992px) {
+    .registration-card {
+        width: 80%; /* ขยายความกว้างบน Tablet */
+        margin: 30px auto; /* ลด margin บนและล่าง */
+    }
+}
+
+@media (max-width: 768px) {
+    .registration-card {
+        width: 95%; /* เกือบเต็มความกว้างบนมือถือ */
+        margin: 20px auto; /* ลด margin บนและล่างอีก */
+        padding: 20px; /* ลด padding */
+    }
+}
+
+
 .form-label-custom {
-  min-width: 120px;
-  text-align: right;
-  padding-right: 15px;
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
+    min-width: 120px;
+    text-align: right;
+    padding-right: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    font-weight: 500; /* เพิ่มน้ำหนักฟอนต์เล็กน้อย */
+    color: #555; /* สีข้อความ label */
+    font-size: 1rem; /* ขนาดฟอนต์ label */
+    font-family: "Noto Sans Thai", sans-serif; /* ให้แน่ใจว่าใช้ฟอนต์ไทย */
 }
 
 .form-control-custom {
-  flex-grow: 1;
+    flex-grow: 1;
+    border-radius: 0.5rem; /* ทำให้ input มีความโค้งมน */
+    font-size: 1rem; /* ขนาดฟอนต์ใน input */
+    padding: 0.75rem 1rem; /* ปรับ padding */
+    font-family: "Noto Sans Thai", sans-serif; /* ให้แน่ใจว่าใช้ฟอนต์ไทย */
+    color: #333; /* สีข้อความใน input */
+}
+
+/* ปรับสี focus outline ให้สอดคล้องกับ Bootstrap primary */
+.form-control-custom:focus {
+    border-color: #80bdff;
+    box-shadow: 0 0 0 0.25rem rgba(0, 123, 255, 0.25);
 }
 
 .row-custom {
-  display: flex;
-  align-items: center;
-  margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+/* ปรับ responsive สำหรับ label และ input ใน .row-custom */
+@media (max-width: 768px) {
+    .row-custom {
+        flex-direction: column; /* จัดเป็นแนวตั้งบนมือถือ */
+        align-items: flex-start; /* ชิดซ้าย */
+        margin-bottom: 10px;
+    }
+    .form-label-custom {
+        text-align: left; /* จัดชิดซ้ายบนมือถือ */
+        padding-right: 0;
+        margin-bottom: 5px; /* เพิ่มระยะห่างด้านล่าง label */
+        width: 100%; /* ให้ label เต็มความกว้าง */
+        min-width: unset; /* ลบ min-width */
+        justify-content: flex-start;
+    }
+    .form-control-custom {
+        width: 100%; /* ให้ input เต็มความกว้าง */
+    }
+}
+
+/* สไตล์สำหรับปุ่ม submit และ cancel */
+.btn-register {
+    background-color: #007bff; /* ใช้สีน้ำเงินหลักของ Bootstrap */
+    border-color: #007bff;
+    color: #fff;
+    font-family: "Noto Sans Thai", sans-serif;
+    font-weight: bold;
+    font-size: 1.1rem;
+    padding: 0.75rem 2rem;
+    border-radius: 0.5rem;
+    transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+.btn-register:hover {
+    background-color: #0056b3;
+    border-color: #0056b3;
+}
+
+.btn-cancel {
+    background-color: #6c757d; /* สีเทา secondary ของ Bootstrap */
+    border-color: #6c757d;
+    color: #fff;
+    font-family: "Noto Sans Thai", sans-serif;
+    font-weight: normal;
+    font-size: 1.1rem;
+    padding: 0.75rem 2rem;
+    border-radius: 0.5rem;
+    transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+.btn-cancel:hover {
+    background-color: #5a6268;
+    border-color: #545b62;
+}
+
+/* สำหรับข้อความ Alert/Error */
+.alert {
+    font-family: "Noto Sans Thai", sans-serif;
+    font-size: 0.95rem;
 }

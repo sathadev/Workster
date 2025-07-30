@@ -8,26 +8,11 @@ import {
     faPlus, faMagnifyingGlass, faTimes, faInbox, faInfoCircle,
     faExclamationTriangle
 } from '@fortawesome/free-solid-svg-icons';
-import './EmployeeListPage.css';
+import './EmployeeListPage.css'; // ตรวจสอบว่ามีไฟล์นี้อยู่จริง
 
-// <--- ลบ Helper function arrayBufferToBase64 ทิ้งไปเลย เพราะเราจะไม่ใช้แล้ว
-// function arrayBufferToBase64(buffer) {
-//     if (!buffer || !buffer.data) return '';
-//     let binary = '';
-//     const bytes = new Uint8Array(buffer.data);
-//     bytes.forEach((byte) => {
-//         binary += String.fromCharCode(byte);
-//     });
-//     return window.btoa(binary);
-// }
-// --->
-
-// กำหนด BASE_URL_UPLOAD สำหรับรูปภาพ
-// ต้องตรงกับ URL ที่ Express Serve Static Files ใน app.js
-const BASE_URL_UPLOAD = 'http://localhost:5000/uploads/profile_pics/'; // <--- เพิ่ม: URL สำหรับรูปภาพ
+const BASE_URL_UPLOAD = 'http://localhost:5000/uploads/profile_pics/';
 
 function EmployeeListPage() {
-    // --- State Management ---
     const [employees, setEmployees] = useState([]);
     const [meta, setMeta] = useState({});
     const [loading, setLoading] = useState(true);
@@ -48,7 +33,6 @@ function EmployeeListPage() {
 
     const navigate = useNavigate();
 
-    // --- Effects ---
     useEffect(() => {
         const fetchPositions = async () => {
             try {
@@ -89,7 +73,6 @@ function EmployeeListPage() {
         fetchEmployees();
     }, [filters, sortConfig, currentPage, refetchTrigger]);
 
-    // --- Handlers ---
     const handleFilterChange = (e) => {
         const { name, value } = e.target;
         setCurrentPage(1);
@@ -143,102 +126,107 @@ function EmployeeListPage() {
             }
         }
     };
-    // --- Render ---
-    if (loading) return <div className="text-center mt-5">กำลังโหลดข้อมูล...</div>;
+
+    if (loading) return <div className="text-center mt-5 text-muted">กำลังโหลดข้อมูล...</div>;
+    if (error) return <div className="alert alert-danger" style={{ fontSize: '0.95rem' }}>{error}</div>;
 
     return (
         <div>
             <div className="d-flex justify-content-between align-items-center mb-3">
-                <h1 className="fw-bold h4 mb-0">พนักงาน</h1>
-                <button onClick={() => navigate('/employees/add')} className="btn btn-outline-secondary">
+                {/* ลบ inline style font-size: '2rem' ออกจาก h4 เพื่อให้ดึงค่าจาก index.css (1.8rem) */}
+                <h4 className="fw-bold text-dark mb-0">พนักงาน</h4> 
+                <button onClick={() => navigate('/employees/add')} className="btn btn-outline-secondary" style={{ fontSize: '1rem' }}>
                     <FontAwesomeIcon icon={faPlus} className="me-2" /> บันทึกข้อมูลพนักงานใหม่
                 </button>
             </div>
 
-            {error && <div className="alert alert-danger"><FontAwesomeIcon icon={faExclamationTriangle} className="me-2" />{error}</div>}
+            {error && <div className="alert alert-danger" style={{ fontSize: '0.95rem' }}><FontAwesomeIcon icon={faExclamationTriangle} className="me-2" />{error}</div>}
 
             {/* --- Filter Section --- */}
-            <div className="row g-2 mb-1">
-                <div className="col-md-7">
-
-                    <form onSubmit={handleSearchSubmit} className="mb-3 search-form">
-                        <div className="input-group w-50">
-                            <input
-                                type="text"
-                                className="form-control"
-                                placeholder="ค้นหาชื่อพนักงานหรือตำแหน่ง..."
-                                value={searchInput}
-                                onChange={(e) => setSearchInput(e.target.value)}
-                            />
-                            <button className="btn btn-outline-secondary" type="submit">
-                                <FontAwesomeIcon icon={faMagnifyingGlass} />
-                            </button>
-                            {filters.search && (
-                                <button onClick={clearSearch} className="btn btn-outline-danger" type="button" title="ล้างการค้นหา">
-                                    <FontAwesomeIcon icon={faTimes} className="me-1" />
+            <div className="card shadow-sm p-4 mt-4">
+                <div className="row g-2 mb-1">
+                    <div className="col-md-7">
+                        <form onSubmit={handleSearchSubmit} className="mb-3 search-form">
+                            <div className="input-group w-50">
+                                <input
+                                    type="text"
+                                    className="form-control"
+                                    placeholder="ค้นหาชื่อพนักงานหรือตำแหน่ง..."
+                                    value={searchInput}
+                                    onChange={(e) => setSearchInput(e.target.value)}
+                                    style={{ fontSize: '1rem' }}
+                                />
+                                <button className="btn btn-outline-secondary" type="submit" style={{ fontSize: '1rem' }}>
+                                    <FontAwesomeIcon icon={faMagnifyingGlass} />
                                 </button>
-                            )}
+                                {filters.search && (
+                                    <button onClick={clearSearch} className="btn btn-outline-danger" type="button" title="ล้างการค้นหา" style={{ fontSize: '1rem' }}>
+                                        <FontAwesomeIcon icon={faTimes} className="me-1" />
+                                    </button>
+                                )}
+                            </div>
+                        </form>
+                    </div>
+                    <div className="col-md-3">
+                        <div className="input-group">
+                            <label className="input-group-text bg-light text-dark" style={{ fontSize: '1rem' }}>ตำแหน่ง</label>
+                            <select
+                                className="form-select"
+                                name="jobpos_id"
+                                value={filters.jobpos_id}
+                                onChange={handleFilterChange}
+                                style={{ fontSize: '1rem' }}
+                            >
+                                <option value="">ทุกตำแหน่ง</option>
+                                {positions.map(pos => (
+                                    <option key={pos.jobpos_id} value={pos.jobpos_id}>
+                                        {pos.jobpos_name}
+                                    </option>
+                                ))}
+                            </select>
                         </div>
-                    </form>
+                    </div>
+                    <div className="col-md-2">
+                        <div className="input-group">
+                            <label className="input-group-text bg-light text-dark" style={{ fontSize: '1rem' }}>สถานะ</label>
+                            <select
+                                className="form-select"
+                                name="status"
+                                value={filters.status}
+                                onChange={handleFilterChange}
+                                style={{ fontSize: '1rem' }}
+                            >
+                                <option value="active">ทำงานอยู่</option>
+                                <option value="resigned">ลาออกแล้ว</option>
+                                <option value="">ทั้งหมด</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
 
-                </div>
-                <div className="col-md-3">
-                    <div className="input-group">
-                        <label className="input-group-text">ตำแหน่ง</label>
-                        <select
-                            className="form-select"
-                            name="jobpos_id"
-                            value={filters.jobpos_id}
-                            onChange={handleFilterChange}
-                        >
-                            <option value="">ทุกตำแหน่ง</option>
-                            {positions.map(pos => (
-                                <option key={pos.jobpos_id} value={pos.jobpos_id}>
-                                    {pos.jobpos_name}
-                                </option>
-                            ))}
-                        </select>
+                {filters.search && !error && (
+                    <div className="alert alert-info py-2" style={{ fontSize: '0.95rem' }}>
+                        <FontAwesomeIcon icon={faInfoCircle} className="me-2" />
+                        ผลการค้นหา "<strong>{filters.search}</strong>" พบ {meta.totalItems || 0} รายการ
                     </div>
-                </div>
-                <div className="col-md-2">
-                    <div className="input-group">
-                        <label className="input-group-text">สถานะ</label>
-                        <select
-                            className="form-select"
-                            name="status"
-                            value={filters.status}
-                            onChange={handleFilterChange}
-                        >
-                            <option value="active">ทำงานอยู่</option>
-                            <option value="resigned">ลาออกแล้ว</option>
-                            <option value="">ทั้งหมด</option>
-                        </select>
-                    </div>
-                </div>
+                )}
             </div>
-
-            {filters.search && !error && (
-                <div className="alert alert-info py-2">
-                    <FontAwesomeIcon icon={faInfoCircle} className="me-2" />
-                    ผลการค้นหา "<strong>{filters.search}</strong>" พบ {meta.totalItems || 0} รายการ
-                </div>
-            )}
 
             {/* --- Table and Pagination Section --- */}
             {!error && (
-                <>
+                <div className="card shadow-sm p-4 mt-4">
                     <div className="table-responsive">
                         <table className="table table-hover table-bordered text-center align-middle">
                             <thead className="table-light">
                                 <tr>
-                                    <th className="profile">โปรไฟล์</th>
-                                    <th onClick={() => handleSort('emp_name')} style={{ cursor: 'pointer' }}>
+                                    <th className="profile" style={{ fontSize: '1.05rem', color: '#333' }}>โปรไฟล์</th>
+                                    <th onClick={() => handleSort('emp_name')} style={{ cursor: 'pointer', fontSize: '1.05rem', color: '#333' }}>
                                         ชื่อ - สกุล {sortConfig.key === 'emp_name' && <FontAwesomeIcon icon={sortConfig.direction === 'asc' ? faSortUp : faSortDown} />}
                                     </th>
-                                    <th onClick={() => handleSort('jobpos_id')} style={{ cursor: 'pointer' }}>
+                                    <th onClick={() => handleSort('jobpos_id')} style={{ cursor: 'pointer', fontSize: '1.05rem', color: '#333' }}>
                                         ตำแหน่ง {sortConfig.key === 'jobpos_id' && <FontAwesomeIcon icon={sortConfig.direction === 'asc' ? faSortUp : faSortDown} />}
                                     </th>
-                                    <th>จัดการ</th>
+                                    <th style={{ fontSize: '1.05rem', color: '#333' }}>จัดการ</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -246,23 +234,21 @@ function EmployeeListPage() {
                                     <tr key={employee.emp_id}>
                                         <td className="profile-cell">
                                             <img
-                                                // <--- เปลี่ยน src ให้ชี้ไปยังไฟล์ใน Server
                                                 src={employee.emp_pic ? `${BASE_URL_UPLOAD}${employee.emp_pic}` : '/images/profile.jpg'}
-                                                // --->
                                                 alt={employee.emp_name}
                                                 className="profile-image"
                                             />
                                         </td>
-                                        <td>{employee.emp_name}</td>
-                                        <td>{employee.jobpos_name}</td>
+                                        <td style={{ fontSize: '0.98rem' }}>{employee.emp_name}</td>
+                                        <td style={{ fontSize: '0.98rem' }}>{employee.jobpos_name}</td>
                                         <td style={{ minWidth: '220px' }}>
-                                            <Link to={`/employees/view/${employee.emp_id}`} className="btn btn-info btn-sm me-2 text-white" title="ดูรายละเอียด">
+                                            <Link to={`/employees/view/${employee.emp_id}`} className="btn btn-info btn-sm me-2 text-white" title="ดูรายละเอียด" style={{ fontSize: '0.95rem' }}>
                                                 <FontAwesomeIcon icon={faEye} className='me-1' /> ดู
                                             </Link>
-                                            <Link to={`/employees/edit/${employee.emp_id}`} className="btn btn-primary btn-sm me-2" title="แก้ไข">
+                                            <Link to={`/employees/edit/${employee.emp_id}`} className="btn btn-primary btn-sm me-2" title="แก้ไข" style={{ fontSize: '0.95rem' }}>
                                                 <FontAwesomeIcon icon={faEdit} className='me-1' /> แก้ไข
                                             </Link>
-                                            <button onClick={() => handleDelete(employee.emp_id, employee.emp_name)} className="btn btn-danger btn-sm" title="ลบ">
+                                            <button onClick={() => handleDelete(employee.emp_id, employee.emp_name)} className="btn btn-danger btn-sm" title="ลบ" style={{ fontSize: '0.95rem' }}>
                                                 <FontAwesomeIcon icon={faTrash} className='me-1' /> ลบ
                                             </button>
                                         </td>
@@ -272,7 +258,9 @@ function EmployeeListPage() {
                                         <td colSpan="4" className="text-muted py-5 text-center">
                                             <div className="d-flex flex-column align-items-center">
                                                 <FontAwesomeIcon icon={faInbox} className="fa-3x mb-3" />
-                                                <h4 className="mb-0">{filters.search || filters.jobpos_id || filters.status ? 'ไม่พบข้อมูลตามเงื่อนไข' : 'ไม่มีข้อมูลพนักงาน'}</h4>
+                                                <span className="mb-0 text-muted" style={{ fontSize: '1.05rem' }}>
+                                                    {filters.search || filters.jobpos_id || filters.status ? 'ไม่พบข้อมูลตามเงื่อนไข' : 'ไม่มีข้อมูลพนักงาน'}
+                                                </span>
                                             </div>
                                         </td>
                                     </tr>
@@ -283,7 +271,7 @@ function EmployeeListPage() {
 
                     {meta && meta.totalPages > 1 && (
                         <div className="d-flex justify-content-between align-items-center mt-3">
-                            <span className="text-muted">
+                            <span className="text-muted" style={{ fontSize: '0.9rem' }}>
                                 หน้า {meta.currentPage || 1} / {meta.totalPages || 1} (ทั้งหมด {meta.totalItems || 0} รายการ)
                             </span>
                             <div className="btn-group">
@@ -291,6 +279,7 @@ function EmployeeListPage() {
                                     className="btn btn-outline-secondary"
                                     onClick={() => handlePageChange(currentPage - 1)}
                                     disabled={currentPage === 1}
+                                    style={{ fontSize: '0.95rem' }}
                                 >
                                     ก่อนหน้า
                                 </button>
@@ -298,13 +287,14 @@ function EmployeeListPage() {
                                     className="btn btn-outline-secondary"
                                     onClick={() => handlePageChange(currentPage + 1)}
                                     disabled={!meta.totalPages || currentPage >= meta.totalPages}
+                                    style={{ fontSize: '0.95rem' }}
                                 >
                                     ถัดไป
                                 </button>
                             </div>
                         </div>
                     )}
-                </>
+                </div>
             )}
         </div>
     );

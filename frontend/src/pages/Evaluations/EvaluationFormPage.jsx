@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import api from '../../api/axios';
-import EvaluationQuestion from '../../components/EvaluationQuestion';
+import EvaluationQuestion from '../../components/EvaluationQuestion'; // สมมติว่าคอมโพเนนต์นี้จัดการสไตล์ภายในได้ดี
 
 const initialScores = { q1: '', q2: '', q3: '', q4: '', q5: '' };
 
@@ -15,7 +15,6 @@ function EvaluationFormPage() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     
-    // ======================= 1. เพิ่ม State และ useEffect สำหรับตรวจสอบช่วงเวลา =======================
     const [isEvaluationPeriod, setIsEvaluationPeriod] = useState(false);
 
     useEffect(() => {
@@ -36,11 +35,8 @@ function EvaluationFormPage() {
 
         checkEvaluationPeriod();
     }, []);
-    // =============================================================================================
 
-    // ======================= 2. ปรับ useEffect ที่ดึงข้อมูลพนักงาน =======================
     useEffect(() => {
-        // ดึงข้อมูลพนักงานต่อเมื่ออยู่ในช่วงเวลาประเมินเท่านั้น
         if (isEvaluationPeriod) {
             const fetchEmployee = async () => {
                 try {
@@ -55,11 +51,9 @@ function EvaluationFormPage() {
             };
             fetchEmployee();
         } else {
-            // ถ้าไม่อยู่ในช่วงเวลาให้หยุดโหลด เพื่อให้แสดงหน้า "นอกช่วงเวลา" ได้
             setLoading(false);
         }
-    }, [empId, isEvaluationPeriod]); // เพิ่ม isEvaluationPeriod ใน dependency array
-    // ====================================================================================
+    }, [empId, isEvaluationPeriod]);
 
     const handleScoreChange = (e) => {
         setScores({ ...scores, [e.target.name]: e.target.value });
@@ -76,24 +70,21 @@ function EvaluationFormPage() {
             alert('บันทึกการประเมินผลสำเร็จ!');
             navigate('/evaluations');
         } catch (err) {
-            // แสดงข้อความ error จาก backend ถ้ามี
             const errorMessage = err.response?.data?.message || 'เกิดข้อผิดพลาดในการบันทึกข้อมูล';
             alert(errorMessage);
             console.error(err);
         }
     };
 
-    if (loading) return <div className="text-center mt-5">กำลังโหลด...</div>;
+    if (loading) return <div className="text-center mt-5 text-muted">กำลังโหลด...</div>;
 
-    // ======================= 3. เพิ่มเงื่อนไขการแสดงผล (Conditional Rendering) =======================
-    // หากไม่อยู่ในช่วงเวลาประเมิน ให้แสดงข้อความนี้
     if (!isEvaluationPeriod) {
         return (
             <div className="text-center mt-5">
                 <div className="card shadow-sm mx-auto" style={{maxWidth: '500px'}}>
                     <div className="card-body p-5">
-                        <h4 className="fw-bold text-danger">นอกช่วงเวลาการประเมิน</h4>
-                        <p className="text-muted mt-3">
+                        <h4 className="fw-bold text-danger" style={{ fontSize: '1.8rem' }}>นอกช่วงเวลาการประเมิน</h4>
+                        <p className="text-secondary mt-3" style={{ fontSize: '1.05rem' }}>
                             ระบบจะเปิดให้ประเมินพนักงานได้ในช่วงสัปดาห์สุดท้ายของเดือนธันวาคมเท่านั้น
                         </p>
                         <button onClick={() => navigate(-1)} className="btn btn-primary fw-bold px-4 mt-3">
@@ -104,35 +95,36 @@ function EvaluationFormPage() {
             </div>
         );
     }
-    // =================================================================================================
 
     if (error) return <div className="alert alert-danger">{error}</div>;
     if (!employee) return <div className="alert alert-warning">ไม่พบข้อมูลพนักงาน</div>;
 
-    // หากอยู่ในช่วงเวลาประเมิน ให้แสดงฟอร์มตามปกติ
     return (
         <div>
-            <h4 className="fw-bold">การประเมินผล</h4>
-            <p><Link to="/evaluations">หน้าหลัก</Link> / แบบฟอร์มการประเมิน</p>
+            <h4 className="fw-bold text-dark" style={{ fontSize: '2rem' }}>การประเมินผล</h4> {/* ใช้ text-dark เพื่อสีที่คมชัดขึ้น */}
+            <p className="text-muted" style={{ fontSize: '0.95rem' }}>
+                <Link to="/evaluations" className="text-secondary text-decoration-none link-primary-hover">หน้าหลัก</Link> / <span className="text-dark">แบบฟอร์มการประเมิน</span>
+            </p>
 
-            <div className="card shadow-sm">
-                <div className="card-header bg-light text-center">
-                    <h5 className="mb-0">แบบฟอร์มการประเมิน</h5>
+            <div className="card shadow-sm mt-4"> {/* เพิ่ม mt-4 */}
+                <div className="card-header text-center bg-gradient-primary-custom text-white py-3">
+                    <h5 className="mb-0 fw-bold" style={{ fontSize: '1.5rem' }}>แบบฟอร์มการประเมิน</h5>
                 </div>
                 <form onSubmit={handleSubmit}>
                     <div className="card-body px-md-5">
                         <div className="mb-4 text-start">
-                            <p><strong>ชื่อ - สกุล:</strong> {employee.emp_name}</p>
-                            <p><strong>ตำแหน่ง:</strong> {employee.jobpos_name}</p>
+                            <p className="mb-1" style={{ fontSize: '1.05rem' }}><strong>ชื่อ - สกุล:</strong> <span className="text-dark">{employee.emp_name}</span></p>
+                            <p className="mb-0" style={{ fontSize: '1.05rem' }}><strong>ตำแหน่ง:</strong> <span className="text-dark">{employee.jobpos_name}</span></p>
                         </div>
                         <table className="table table-bordered align-middle">
                             <thead className="table-light">
                                 <tr>
-                                    <th className="text-center">หัวข้อการประเมิน</th>
-                                    <th className="text-center" style={{width: '120px'}}>ค่าน้ำหนัก</th>
+                                    <th className="text-center text-dark" style={{ fontSize: '1.05rem' }}>หัวข้อการประเมิน</th>
+                                    <th className="text-center text-dark" style={{width: '120px', fontSize: '1.05rem'}}>ค่าน้ำหนัก</th>
                                 </tr>
                             </thead>
                             <tbody>
+                                {/* สมมติว่า EvaluationQuestion จัดการเรื่องฟอนต์และสีภายในได้เอง */}
                                 <EvaluationQuestion questionNumber={1} title="ความสามารถในการเรียนรู้งาน" weight={20} selectedValue={scores.q1} onChange={handleScoreChange} />
                                 <EvaluationQuestion questionNumber={2} title="ข้อปฏิบัติและการปฏิบัติตามกฎ/ข้อบังคับ" weight={20} selectedValue={scores.q2} onChange={handleScoreChange} />
                                 <EvaluationQuestion questionNumber={3} title="ความรับผิดชอบต่องานที่ทำ" weight={20} selectedValue={scores.q3} onChange={handleScoreChange} />

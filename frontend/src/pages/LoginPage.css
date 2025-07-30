@@ -1,43 +1,52 @@
 /* frontend/src/pages/LoginPage.css */
 .login-body {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
-  background-color: #f8f9fa; /* สีพื้นหลังอ่อนๆ */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background: linear-gradient(to right, #1E56A0, #3E8DCF); /* ใช้ gradient background คล้าย hero section */
+    font-family: 'Noto Sans Thai', sans-serif; /* ให้แน่ใจว่าใช้ Noto Sans Thai ที่นี่ด้วย */
 }
 
 .login-container {
-  width: 100%;
-  max-width: 400px;
-  text-align: center;
-  background-color: #fff;
-  padding: 2.5rem;
-  border-radius: 1rem;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 400px;
+    text-align: center;
+    background-color: rgba(255, 255, 255, 0.95); /* เพิ่มความโปร่งใสเล็กน้อย */
+    padding: 2.5rem;
+    border-radius: 1rem;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2); /* ปรับเงาให้ดูโดดเด่นขึ้น */
 }
 
 .login-logo {
-  width: 100px;
-  margin-bottom: 1.5rem;
+    width: 160px; /* ขยายโลโก้ให้ใหญ่ขึ้นเล็กน้อย */
+    margin-bottom: 1rem; /* เพิ่มระยะห่างด้านล่าง */
 }
 
 .form-control {
-  border-radius: 0.5rem;
-  margin-bottom: 1rem;
-  padding: 0.75rem 1rem;
+    border-radius: 0.5rem;
+    margin-bottom: 1rem;
+    padding: 0.75rem 1rem;
+    font-size: 1rem; /* ขนาดฟอนต์ใน input */
 }
 
 .btn-login {
-  background-color: #1E56A0;
-  color: white;
-  border-radius: 0.5rem;
-  width: 100%;
-  padding: 0.75rem;
-  font-weight: bold;
-  border: none;
+    background-color: #007bff; /* ใช้สี Primary Blue ของ Bootstrap */
+    color: white;
+    border-radius: 0.5rem;
+    width: 100%;
+    padding: 0.75rem;
+    font-weight: bold;
+    border: none;
+    font-size: 1.1rem; /* ขนาดฟอนต์ของปุ่ม */
+    transition: background-color 0.3s ease;
 }
 
 .btn-login:hover {
-  background-color: #174a8c;
+    background-color: #0056b3;
+}
+
+/* Adjust font size for error message */
+.login-container .alert-danger {
+    font-size: 0.95rem;
 }

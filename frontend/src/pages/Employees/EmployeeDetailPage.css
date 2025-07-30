@@ -1,25 +1,79 @@
 /* frontend/src/pages/EmployeeDetailPage.css */
+
 .detail-card {
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1); /* ปรับเงาให้ดูสวยขึ้น */
     border: none;
-    border-radius: 0.75rem;
+    border-radius: 0.75rem; /* เพิ่มความโค้งมนเล็กน้อย */
+    background-color: #fff; /* ให้พื้นหลังเป็นสีขาวชัดเจน */
+    font-family: "Noto Sans Thai", sans-serif; /* ให้แน่ใจว่าใช้ฟอนต์ไทย */
+    color: #333; /* สีข้อความหลัก */
 }
+
 .profile-details .row {
     margin-bottom: 0.75rem;
-    font-size: 1rem;
+    font-size: 1rem; /* ขนาดฟอนต์สำหรับข้อมูลทั่วไป */
+    color: #333; /* สีข้อความข้อมูล */
 }
-.profile-details .label {
-    font-weight: 600;
-    color: #6c757d;
-}
-.summary-card {
-    color: white;
-    border: none;
-    border-radius: 0.5rem;
-}
-.card-green { background-color: #28a745; }
-.card-yellow { background-color: #ffc107; }
-.card-red { background-color: #dc3545; }
 
-.summary-card .card-title { font-weight: 300; }
-.summary-card .card-value { font-size: 2.5rem; font-weight: 700; }
+.profile-details .label {
+    font-weight: 500; /* ปรับน้ำหนักฟอนต์ */
+    color: #6c757d; /* สีข้อความ label (เทา) */
+    font-size: 0.95rem; /* ขนาดฟอนต์ label ให้เล็กกว่าข้อมูลเล็กน้อย */
+}
+
+/* --- Summary Card Styles (ปรับให้เหมือน Dashboard Summary) --- */
+.summary-card {
+    border: none;
+    border-radius: 0.75rem; /* เพิ่มความโค้งมน */
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08); /* เพิ่มเงาให้ดูสวยขึ้น */
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+    color: #ffffff !important; /* ตั้งค่าสีข้อความเริ่มต้นเป็นสีขาว สำหรับ gradient backgrounds */
+}
+
+.summary-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+}
+
+/* ใช้ Gradient Backgrounds สำหรับ Summary Cards */
+.summary-card.card-green { 
+    background: linear-gradient(135deg, #28a745, #218838); /* เขียว */
+}
+.summary-card.card-yellow { 
+    background: linear-gradient(135deg, #ffc107, #e0a800); /* เหลือง */
+    color: #333 !important; /* ทำให้ตัวหนังสือสีเข้ม อ่านง่ายบนพื้นสีเหลือง */
+}
+.summary-card.card-red { 
+    background: linear-gradient(135deg, #dc3545, #c82333); /* แดง */
+}
+
+.summary-card .card-title { 
+    font-weight: 500; /* ปรับน้ำหนักฟอนต์ */
+    font-size: 1.05rem; /* ปรับขนาดฟอนต์ */
+    /* สีจะถูกกำหนดโดย .summary-card (white หรือ #333) */
+    color: rgba(255, 255, 255, 0.85); /* สีข้อความ title ในการ์ด gradient (ขาวโปร่งแสง) */
+}
+.summary-card.card-yellow .card-title {
+    color: rgba(0, 0, 0, 0.75); /* สีข้อความ title สำหรับการ์ดเหลือง (ดำโปร่งแสง) */
+}
+
+
+.summary-card .card-value { 
+    font-size: 2.75rem; /* ปรับขนาดฟอนต์ตัวเลขให้ใหญ่ขึ้น */
+    font-weight: 700;
+    /* สีจะถูกกำหนดโดย .summary-card (white หรือ #333) */
+    color: #ffffff; /* สีตัวเลขในการ์ด gradient */
+}
+.summary-card.card-yellow .card-value {
+    color: #333; /* สีตัวเลขสำหรับการ์ดเหลือง */
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .profile-details .row {
+        font-size: 0.95rem; /* ลดขนาดฟอนต์บนมือถือ */
+    }
+    .summary-card .card-value {
+        font-size: 2.2rem; /* ลดขนาดตัวเลขบนมือถือ */
+    }
+}

@@ -1,7 +1,7 @@
 // frontend/src/pages/Leavework/LeaveRequestHistoryPage.jsx
 import { useState, useEffect } from 'react';
 import api from '../../api/axios';
-import StatusBadge from '../../components/StatusBadge';
+import StatusBadge from '../../components/StatusBadge'; // สมมติว่า StatusBadge จัดการสไตล์ภายในได้ดี
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { 
     faSearch, faInbox, faTimes, faInfoCircle, 
@@ -10,7 +10,6 @@ import {
 import { Link } from 'react-router-dom';
 
 function LeaveRequestHistoryPage() {
-    // --- State Management (เหมือนเดิม) ---
     const [leaveRequests, setLeaveRequests] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -25,7 +24,6 @@ function LeaveRequestHistoryPage() {
     const [meta, setMeta] = useState({}); 
     const [leaveTypes, setLeaveTypes] = useState([]); 
 
-    // --- Data Fetching Hooks (เหมือนเดิม) ---
     useEffect(() => {
         const fetchLeaveTypes = async () => {
             try {
@@ -62,7 +60,6 @@ function LeaveRequestHistoryPage() {
         fetchData();
     }, [filters, sortConfig, currentPage]); 
     
-    // --- Helper Functions and Handlers (เหมือนเดิม) ---
     const formatDate = (dateString) => new Date(dateString).toLocaleDateString('th-TH', {
         year: 'numeric',
         month: 'long',
@@ -99,18 +96,18 @@ function LeaveRequestHistoryPage() {
         }
     };
 
-    if (loading) return <div className="text-center mt-5">กำลังโหลด...</div>;
-    if (error) return <div className="alert alert-danger">{error}</div>;
+    if (loading) return <div className="text-center mt-5 text-muted">กำลังโหลด...</div>;
+    if (error) return <div className="alert alert-danger" style={{ fontSize: '0.95rem' }}>{error}</div>;
 
-    // ======================= UX Improvement: โครงสร้าง JSX ที่แก้ไขใหม่ =======================
     return (
         <div>
-            <h4 className="fw-bold">ประวัติคำขอลา (อนุมัติ/ไม่อนุมัติ)</h4>
-            <p><Link to="/">หน้าหลัก</Link> / ประวัติคำขอลา</p> {/* ใช้ Link เพื่อ Navigation ที่ดีกว่า */}
+            <h4 className="fw-bold text-dark" style={{ fontSize: '1.8rem' }}>ประวัติคำขอลา (อนุมัติ/ไม่อนุมัติ)</h4> {/* ปรับ h4 */}
+            <p className="text-muted" style={{ fontSize: '0.95rem' }}> {/* ปรับ breadcrumb */}
+                <Link to="/" className="text-secondary text-decoration-none link-primary-hover">หน้าหลัก</Link> / <span className="text-dark">ประวัติคำขอลา</span>
+            </p>
 
-            {/* ใช้ Card ครอบเนื้อหาหลักทั้งหมดเพื่อให้ดูเป็นกลุ่มก้อนและจัดกลาง */}
-            <div className="card shadow-sm">
-                <div className="card-body p-4">
+            <div className="card shadow-sm mt-4"> {/* เพิ่ม shadow-sm และ mt-4 */}
+                <div className="card-body p-4"> {/* เพิ่ม padding เพื่อความสวยงาม */}
                     {/* --- Filter & Search Section --- */}
                     <div className="row g-3 mb-3">
                         <div className="col-md-6"> 
@@ -122,12 +119,13 @@ function LeaveRequestHistoryPage() {
                                         placeholder="ค้นหาตามชื่อพนักงาน..."
                                         value={searchInput} 
                                         onChange={handleSearchInputChange} 
+                                        style={{ fontSize: '1rem' }} /* ปรับ input font-size */
                                     />
-                                    <button className="btn btn-outline-secondary" type="submit">
+                                    <button className="btn btn-outline-secondary" type="submit" style={{ fontSize: '1rem' }}>
                                         <FontAwesomeIcon icon={faSearch} />
                                     </button>
                                     {filters.search && (
-                                        <button onClick={clearSearch} className="btn btn-outline-danger" type="button" title="ล้างการค้นหา">
+                                        <button onClick={clearSearch} className="btn btn-outline-danger" type="button" title="ล้างการค้นหา" style={{ fontSize: '1rem' }}>
                                             <FontAwesomeIcon icon={faTimes} />
                                         </button>
                                     )}
@@ -136,12 +134,13 @@ function LeaveRequestHistoryPage() {
                         </div>
                         <div className="col-md-6"> 
                             <div className="input-group">
-                                <label className="input-group-text">ประเภทการลา</label>
+                                <label className="input-group-text bg-light text-dark" style={{ fontSize: '1rem' }}>ประเภทการลา</label> {/* ปรับ label */}
                                 <select
                                     className="form-select"
                                     name="leaveworktype_id"
                                     value={filters.leaveworktype_id}
                                     onChange={handleFilterChange}
+                                    style={{ fontSize: '1rem' }} /* ปรับ select font-size */
                                 >
                                     <option value="">ทั้งหมด</option>
                                     {leaveTypes.map(type => (
@@ -155,7 +154,7 @@ function LeaveRequestHistoryPage() {
                     </div>
 
                     {filters.search && !error && (
-                        <div className="alert alert-info py-2">
+                        <div className="alert alert-info py-2" style={{ fontSize: '0.95rem' }}> {/* ปรับขนาด alert */}
                             <FontAwesomeIcon icon={faInfoCircle} className="me-2" />
                             ผลการค้นหา "<strong>{filters.search}</strong>" พบ {meta.totalItems || 0} รายการ
                         </div>
@@ -166,17 +165,17 @@ function LeaveRequestHistoryPage() {
                         <table className="table table-hover table-bordered text-center align-middle">
                             <thead className="table-light">
                                 <tr>
-                                    <th onClick={() => handleSort('emp_name')} style={{ cursor: 'pointer' }}>
+                                    <th onClick={() => handleSort('emp_name')} style={{ cursor: 'pointer', fontSize: '1.05rem', color: '#333' }}> {/* ปรับ th */}
                                         ชื่อ - สกุล {sortConfig.key === 'emp_name' && <FontAwesomeIcon icon={sortConfig.direction === 'asc' ? faSortUp : faSortDown} />}
                                     </th>
-                                    <th onClick={() => handleSort('leaveworktype_id')} style={{ cursor: 'pointer' }}>
+                                    <th onClick={() => handleSort('leaveworktype_id')} style={{ cursor: 'pointer', fontSize: '1.05rem', color: '#333' }}>
                                         ประเภทการลา {sortConfig.key === 'leaveworktype_id' && <FontAwesomeIcon icon={sortConfig.direction === 'asc' ? faSortUp : faSortDown} />}
                                     </th>
-                                    <th>หมายเหตุ</th>
-                                    <th onClick={() => handleSort('leavework_daterequest')} style={{ cursor: 'pointer' }}>
+                                    <th style={{ fontSize: '1.05rem', color: '#333' }}>หมายเหตุ</th>
+                                    <th onClick={() => handleSort('leavework_daterequest')} style={{ cursor: 'pointer', fontSize: '1.05rem', color: '#333' }}>
                                         วันที่ลา {sortConfig.key === 'leavework_daterequest' && <FontAwesomeIcon icon={sortConfig.direction === 'asc' ? faSortUp : faSortDown} />}
                                     </th>
-                                    <th onClick={() => handleSort('leavework_status')} style={{ cursor: 'pointer' }}>
+                                    <th onClick={() => handleSort('leavework_status')} style={{ cursor: 'pointer', fontSize: '1.05rem', color: '#333' }}>
                                         สถานะ {sortConfig.key === 'leavework_status' && <FontAwesomeIcon icon={sortConfig.direction === 'asc' ? faSortUp : faSortDown} />}
                                     </th>
                                 </tr>
@@ -184,17 +183,17 @@ function LeaveRequestHistoryPage() {
                             <tbody>
                                 {leaveRequests.length > 0 ? leaveRequests.map((leave) => (
                                     <tr key={leave.leavework_id}>
-                                        <td>{leave.emp_name}</td>
-                                        <td>{leave.leaveworktype_name}</td>
-                                        <td>{leave.leavework_description}</td>
-                                        <td>{formatDate(leave.leavework_datestart)} - {formatDate(leave.leavework_end)}</td>
+                                        <td style={{ fontSize: '0.98rem' }}>{leave.emp_name}</td> {/* ปรับ td */}
+                                        <td style={{ fontSize: '0.98rem' }}>{leave.leaveworktype_name}</td>
+                                        <td style={{ fontSize: '0.98rem' }}>{leave.leavework_description}</td>
+                                        <td style={{ fontSize: '0.98rem' }}>{formatDate(leave.leavework_datestart)} - {formatDate(leave.leavework_end)}</td>
                                         <td><StatusBadge status={leave.leavework_status} /></td>
                                     </tr>
                                 )) : (
                                     <tr>
                                         <td colSpan="5" className="text-center text-muted p-4">
                                             <FontAwesomeIcon icon={faInbox} className="fa-2x mb-2 d-block"/>
-                                            {filters.search || filters.leaveworktype_id ? 'ไม่พบข้อมูลคำขอลาตามเงื่อนไข' : 'ไม่มีประวัติคำขอลา'}
+                                            <span style={{ fontSize: '1.05rem' }}>{filters.search || filters.leaveworktype_id ? 'ไม่พบข้อมูลคำขอลาตามเงื่อนไข' : 'ไม่มีประวัติคำขอลา'}</span>
                                         </td>
                                     </tr>
                                 )}
@@ -205,7 +204,7 @@ function LeaveRequestHistoryPage() {
                     {/* --- Pagination Section --- */}
                     {meta && meta.totalPages > 1 && (
                         <div className="d-flex justify-content-between align-items-center mt-3">
-                            <span className="text-muted">
+                            <span className="text-muted" style={{ fontSize: '0.9rem' }}>
                                 หน้า {meta.currentPage || 1} / {meta.totalPages || 1} (ทั้งหมด {meta.totalItems || 0} รายการ)
                             </span>
                             <div className="btn-group">
@@ -213,6 +212,7 @@ function LeaveRequestHistoryPage() {
                                     className="btn btn-outline-secondary"
                                     onClick={() => handlePageChange(currentPage - 1)}
                                     disabled={currentPage === 1}
+                                    style={{ fontSize: '0.95rem' }} /* ปรับปุ่ม pagination */
                                 >
                                     ก่อนหน้า
                                 </button>
@@ -220,6 +220,7 @@ function LeaveRequestHistoryPage() {
                                     className="btn btn-outline-secondary"
                                     onClick={() => handlePageChange(currentPage + 1)}
                                     disabled={!meta.totalPages || currentPage >= meta.totalPages}
+                                    style={{ fontSize: '0.95rem' }}
                                 >
                                     ถัดไป
                                 </button>

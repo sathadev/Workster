@@ -1,13 +1,13 @@
 // frontend/src/pages/HomePage.jsx
 import { useState, useEffect, useCallback } from 'react';
-import api from '../api/axios'; // Make sure this is correctly configured with interceptors
+import api from '../api/axios';
 import { useAuth } from '../context/AuthContext';
-import ClockInOut from '../components/ClockInOut';
+import ClockInOut from '../components/ClockInOut'; // Assuming ClockInOut and DashboardSummary handle their internal styles well
 import DashboardSummary from '../components/DashboardSummary';
-import './HomePage.css';
+import './HomePage.css'; // Make sure this CSS file is imported
 
 function HomePage() {
-    const { user } = useAuth(); // We need 'user' here to conditionally fetch summary for admins
+    const { user } = useAuth();
     const [dashboardData, setDashboardData] = useState({
         userAttendance: null,
         summary: null,
@@ -17,27 +17,24 @@ function HomePage() {
 
     const fetchData = useCallback(async () => {
         try {
-            // Start loading state
             setLoading(true);
-            setError(null); // Clear previous errors
+            setError(null);
 
             const promises = [
-                // Always fetch user attendance
                 api.get('/attendance/today'),
             ];
 
-            // Only fetch dashboard summary if the user is an admin (jobpos_id <= 3)
             if (user && user.jobpos_id <= 3) {
                 promises.push(api.get('/dashboard/summary'));
             } else {
-                promises.push(Promise.resolve({ data: null })); // Resolve immediately for non-admins
+                promises.push(Promise.resolve({ data: null }));
             }
             
             const [userAttendanceRes, summaryRes] = await Promise.all(promises);
 
             setDashboardData({
                 userAttendance: userAttendanceRes.data,
-                summary: summaryRes.data, // This will be null for non-admins, as expected
+                summary: summaryRes.data,
             });
             
         } catch (err) {
@@ -46,19 +43,17 @@ function HomePage() {
         } finally {
             setLoading(false);
         }
-    }, [user]); // Re-run fetchData if 'user' changes (e.g., after login/logout)
+    }, [user]);
 
     useEffect(() => {
-        // Fetch data only if a user is logged in
         if (user) {
             fetchData();
         } else {
-            // If no user, set loading to false immediately
             setLoading(false);
         }
-    }, [user, fetchData]); // Dependencies: user and fetchData itself
+    }, [user, fetchData]);
 
-    if (loading) return <div className="text-center mt-5">กำลังโหลด...</div>;
+    if (loading) return <div className="text-center mt-5 text-muted">กำลังโหลด...</div>;
 
     if (error) return <div className="alert alert-danger">{error}</div>;
 
@@ -68,14 +63,14 @@ function HomePage() {
 
     return (
         <div>
-            <h3 className="mb-1 fs-4">ยินดีต้อนรับ, {user?.emp_name}!</h3>
-            <p className="text-muted">{today}</p>
+            {/* Adjusted font size and weight for welcome message */}
+            <h3 className="mb-1 fw-bold text-dark" style={{ fontSize: '1.8rem' }}>ยินดีต้อนรับ, {user?.emp_name}!</h3>
+            {/* Adjusted font size and color for date */}
+            <p className="text-muted" style={{ fontSize: '1.05rem' }}>{today}</p>
             <hr/>
-            <div className="clock-in-out-section">
-                {/* Pass fetchData as onUpdate to re-fetch attendance data after check-in/out */}
+            <div className="clock-in-out-section mt-4"> {/* Added mt-4 for spacing */}
                 <ClockInOut attendanceData={dashboardData.userAttendance} onUpdate={fetchData} />
             </div>
-            {/* Conditionally render DashboardSummary only if user is admin and summary data exists */}
             {user?.jobpos_id <= 3 && dashboardData.summary && (
                 <>
                     <hr className="my-4"/>
