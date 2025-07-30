@@ -1,7 +1,7 @@
 // backend/routes/authRoute.js
 const express = require('express');
 const router = express.Router();
-const db = require('../config/db'); // สำหรับการ query database โดยตรง
+const db = require('../config/db');
 const bcrypt = require('bcryptjs'); // ใช้ bcryptjs
 const util = require('util');
 const jwt = require('jsonwebtoken');
@@ -9,7 +9,7 @@ const jwt = require('jsonwebtoken');
 const { protect } = require('../middleware/authMiddleware'); // Middleware สำหรับ routes ที่ต้อง Protected
 
 // Import Models ที่จำเป็นสำหรับ Public Registration Endpoint
-const CompanyModel = require('../models/companyModel');   // Import CompanyModel
+const CompanyModel = require('../models/companyModel');   // Import CompanyModel
 const EmployeeModel = require('../models/employeeModel'); // Import EmployeeModel
 
 const query = util.promisify(db.query).bind(db); // ทำให้ db.query ใช้งานแบบ async/await ได้
@@ -23,45 +23,62 @@ router.post('/login', async (req, res) => {
         }
 
         // Fetch user AND company status for login check
+        // *** สำคัญ: ใช้ LEFT JOIN เพื่อให้ดึงข้อมูลผู้ใช้ที่ company_id เป็น NULL ได้ (เช่น Super Admin) ***
         const results = await query(`
-            SELECT e.*, c.company_status 
+            SELECT e.emp_id, e.emp_name, e.jobpos_id, e.emp_email, e.company_id, e.emp_password, c.company_status 
             FROM employee e 
-            JOIN companies c ON e.company_id = c.company_id 
+            LEFT JOIN companies c ON e.company_id = c.company_id 
             WHERE e.emp_username = ?`, [emp_username]);
 
         if (results.length === 0) {
+            // ไม่พบผู้ใช้ด้วย username นี้
             return res.status(401).json({ message: 'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง' });
         }
-        const user = results[0];
+        const user = results[0]; // ดึงข้อมูลผู้ใช้คนแรกที่พบ
 
-        // IMPORTANT: Check company_status during login (Approval Flow)
-        if (user.company_status !== 'approved') {
-            return res.status(403).json({ message: 'บริษัทของคุณยังไม่ได้รับการอนุมัติ โปรดติดต่อผู้ดูแลระบบ' });
-        }
-
+        // 1. ตรวจสอบรหัสผ่าน
         const isMatch = await bcrypt.compare(emp_password, user.emp_password);
         if (!isMatch) {
+            // รหัสผ่านไม่ตรงกัน
             return res.status(401).json({ message: 'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง' });
         }
 
-        // สร้าง JWT Token
-        // เพิ่ม company_id และ jobpos_id ใน payload เพื่อให้ frontend AuthContext ใช้งานได้
-        const payload = { id: user.emp_id, company_id: user.company_id, jobpos_id: user.jobpos_id };
+        // 2. ตรวจสอบสถานะบริษัท (เฉพาะผู้ใช้ที่เป็นของบริษัท ไม่ใช่ Super Admin)
+        // *** สำคัญ: ข้ามการตรวจสอบ company_status หากเป็น Super Admin (jobpos_id = 0 และ company_id = NULL) ***
+        if (user.jobpos_id === 0 && user.company_id === null) {
+            // นี่คือ Super Admin, Login ได้ทันที ไม่ต้องตรวจสอบสถานะบริษัท
+            // console.log('Super Admin logged in successfully.'); // สำหรับ debug
+        }
+        // ลบการ return 403 ออก เพื่อให้ login ได้แม้บริษัทยังไม่ได้รับการอนุมัติ
+        // แต่ยังคงส่ง company_status กลับไปให้ frontend จัดการแจ้งเตือนใน dashboard
+
+        // 3. สร้าง JWT Token และส่งข้อมูลผู้ใช้กลับไป
+        const payload = { 
+            id: user.emp_id, 
+            company_id: user.company_id, // จะเป็น NULL สำหรับ Super Admin
+            jobpos_id: user.jobpos_id    // จะเป็น 0 สำหรับ Super Admin
+        };
         const token = jwt.sign(payload, process.env.JWT_SECRET, {
             expiresIn: process.env.JWT_EXPIRES_IN
         });
 
-        // ไม่ส่ง password และ company_status กลับไปเพื่อความปลอดภัย
-        const { emp_password: _, company_status: __, ...safeUser } = user;
+        // ลบข้อมูลที่ไม่จำเป็นต้องส่งกลับไป Frontend เพื่อความปลอดภัย (เช่น password hash)
+        const { emp_password: _, ...safeUser } = user;
+        
+        // *** เพิ่ม isSuperAdmin ให้กับ user object เพื่อให้ Frontend ใช้งานได้ทันที ***
+        safeUser.isSuperAdmin = (user.jobpos_id === 0 && user.company_id === null);
+        // เพิ่ม company_status กลับไปให้ frontend จัดการแจ้งเตือน
+        safeUser.company_status = user.company_status;
 
         res.status(200).json({
             message: 'เข้าสู่ระบบสำเร็จ',
             token: token,
-            user: safeUser
+            user: safeUser // จะมี company_id เป็น NULL และ isSuperAdmin เป็น true สำหรับ Super Admin
         });
 
     } catch (err) {
-        console.error('Login error:', err);
+        console.error('Login error (catch block):', err); // Log error ที่เกิดขึ้นจริง
+        // อาจจะเป็น network error, DB error, หรืออื่นๆ
         res.status(500).json({ message: 'เกิดข้อผิดพลาดในระบบ' });
     }
 });

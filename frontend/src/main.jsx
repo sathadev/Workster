@@ -11,7 +11,7 @@ import './index.css';
 // Import Context Provider
 import { AuthProvider } from './context/AuthContext';
 
-// Import Layout และ Pages ทั้งหมดที่จำเป็น
+// Import Layout และ Pagesทั้งหมดที่จำเป็น
 import MainLayout from './layouts/MainLayout.jsx';
 import ProtectedRoute from './components/ProtectedRoute.jsx';
 import LoginPage from './pages/LoginPage.jsx';
@@ -35,10 +35,13 @@ import PositionListPage from './pages/Jobpos/PositionListPage.jsx';
 import PositionDetailPage from './pages/Jobpos/PositionDetailPage.jsx';
 import SettingsPage from './pages/SettingsPage.jsx';
 import ProfilePage from './pages/Employees/ProfilePage.jsx';
-// --- เพิ่ม: Import RegisterUserPage จากตำแหน่งใหม่ ---
-import RegisterUserPage from './pages/Auth/RegisterUserPage.jsx'; // ตรวจสอบเส้นทางให้ถูกต้อง
-// ----------------------------------------------------
+import RegisterUserPage from './pages/Auth/RegisterUserPage.jsx';
 
+// *** ตรวจสอบให้แน่ใจว่า import path นี้ถูกต้อง ***
+import CompanyApprovalPage from './pages/Admin/CompanyApprovalPage.jsx'; // <-- ตรวจสอบบรรทัดนี้
+import CompanyDetailPage from './pages/Admin/CompanyDetailPage.jsx';
+import CompanyListPage from './pages/Admin/CompanyListPage.jsx';
+import CompanyRequestPage from './pages/Admin/CompanyRequestPage.jsx';
 
 // สร้าง "แผนที่" ของเว็บไซต์
 const router = createBrowserRouter([
@@ -129,7 +132,23 @@ const router = createBrowserRouter([
             {
                 path: "settings",
                 element: <SettingsPage />
-            }
+            },
+            {
+                path: "admin/companies", // Route ที่ชี้ไปที่ CompanyApprovalPage
+                element: <CompanyApprovalPage />,
+            },
+            {
+                path: "admin/companies/:id",
+                element: <CompanyDetailPage />,
+            },
+            {
+                path: "admin/companies/all",
+                element: <CompanyListPage />,
+            },
+            {
+                path: "admin/companies/requests",
+                element: <CompanyRequestPage />,
+            },
         ],
     },
     {
@@ -137,12 +156,10 @@ const router = createBrowserRouter([
         element: <LoginPage />,
     },
     {
-        // --- เพิ่ม: Route สำหรับหน้าสมัครผู้ใช้ (อยู่นอก ProtectedRoute) ---
-        path: "/register", // หรือชื่อ path ที่คุณต้องการ เช่น /register-company-admin
+        path: "/register",
         element: <RegisterUserPage />,
     },
 ]);
-
 
 // สั่งให้แอปของเราทำงาน
 ReactDOM.createRoot(document.getElementById('root')).render(

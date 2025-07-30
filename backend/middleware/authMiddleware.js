@@ -19,15 +19,29 @@ exports.protect = async (req, res, next) => {
     try {
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-        // ดึงข้อมูลผู้ใช้จาก DB รวมถึง company_id
         const userResults = await query('SELECT emp_id, emp_name, jobpos_id, emp_email, company_id FROM employee WHERE emp_id = ?', [decoded.id]);
 
         if (userResults.length === 0) {
             return res.status(401).json({ message: 'ผู้ใช้งานของ Token นี้ไม่พบในระบบ' });
         }
 
-        req.user = userResults[0]; // แนบข้อมูลผู้ใช้ทั้งหมด รวมถึง company_id
-        req.companyId = req.user.company_id; // <-- สำคัญ: ดึง company_id มาเก็บใน req.companyId ให้เรียกใช้ง่ายๆ
+        req.user = userResults[0];
+
+        // *** Logic Super Admin (jobpos_id = 0, company_id = NULL) ***
+        req.user.isSuperAdmin = (req.user.jobpos_id === 0 && req.user.company_id === null);
+        
+        if (req.user.isSuperAdmin) {
+            req.companyId = null; // Super Admin ไม่มี company_id ที่จะใช้กรองข้อมูล
+        } else {
+            req.companyId = req.user.company_id; // สำหรับผู้ใช้ปกติ/HR/Admin
+        }
+        // ************************************************************
+
+        // ดึง company_status ถ้ามี company_id
+        if (req.user.company_id) {
+            const [company] = await query('SELECT company_status FROM companies WHERE company_id = ?', [req.user.company_id]);
+            req.user.company_status = company ? company.company_status : null;
+        }
 
         next();
     } catch (err) {

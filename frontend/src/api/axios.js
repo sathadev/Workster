@@ -22,9 +22,13 @@ api.interceptors.response.use(
     (response) => response,
     (error) => {
         if (error.response && error.response.status === 401) {
-            alert('Token หมดอายุหรือไม่มีสิทธิ์ โปรดเข้าสู่ระบบใหม่');
-            localStorage.removeItem('token');
-            window.location.href = '/login';
+            // เฉพาะกรณีที่มี token อยู่ใน localStorage เท่านั้น
+            const token = localStorage.getItem('token');
+            if (token) {
+                alert('Token หมดอายุหรือไม่มีสิทธิ์ โปรดเข้าสู่ระบบใหม่');
+                localStorage.removeItem('token');
+                window.location.href = '/login';
+            }
         }
         return Promise.reject(error);
     }

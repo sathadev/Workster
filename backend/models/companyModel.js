@@ -6,11 +6,36 @@ const query = util.promisify(db.query).bind(db);
 
 const CompanyModel = {
     /**
-     * @desc ดึงข้อมูลบริษัททั้งหมดจากฐานข้อมูล
-     * @returns {Promise<Array>} อาร์เรย์ของอ็อบเจกต์บริษัท
+     * @desc ดึงข้อมูลบริษัททั้งหมดจากฐานข้อมูล พร้อมรองรับการกรองและแบ่งหน้า
+     * @param {object} options - อ็อพชันสำหรับ search, status, page, limit
+     * @returns {Promise<{data: Array, meta: object}>} - ข้อมูลบริษัทพร้อมข้อมูล meta สำหรับการแบ่งหน้า
      */
-    getAllCompanies: async () => {
-        const sql = `
+    getAllCompanies: async (options = {}) => { // รับ options parameter
+        const { search = '', status = '', page = 1, limit = 10 } = options;
+
+        let params = [];
+        let whereClauses = [];
+
+        if (search) {
+            whereClauses.push(`company_name LIKE ?`);
+            params.push(`%${search}%`);
+        }
+        if (status) {
+            whereClauses.push(`company_status = ?`); // แก้ไขชื่อตัวแปรสะกดผิด `whereClaases` -> `whereClauses`
+            params.push(status);
+        }
+
+        const whereSql = whereClauses.length > 0 ? `WHERE ${whereClauses.join(' AND ')}` : '';
+
+        // 1. นับจำนวนทั้งหมด
+        const countSql = `SELECT COUNT(company_id) as total FROM companies ${whereSql}`;
+        const [totalResult] = await query(countSql, params);
+        const totalItems = totalResult.total;
+        const totalPages = Math.ceil(totalItems / limit) || 1;
+
+        // 2. ดึงข้อมูลจริงพร้อม pagination
+        const offset = (page - 1) * limit;
+        const dataSql = `
             SELECT 
                 company_id, 
                 company_name, 
@@ -26,13 +51,21 @@ const CompanyModel = {
                 company_phone, 
                 company_email, 
                 company_description,
-                company_status, /* <--- เพิ่มตรงนี้ */
+                company_status, 
                 created_at,
                 updated_at
             FROM companies
-            ORDER BY company_name ASC
+            ${whereSql}
+            ORDER BY created_at DESC, company_name ASC
+            LIMIT ? OFFSET ?
         `;
-        return await query(sql);
+        const finalParams = [...params, parseInt(limit), parseInt(offset)];
+        const companies = await query(dataSql, finalParams);
+
+        return {
+            data: companies,
+            meta: { totalItems, totalPages, currentPage: parseInt(page), itemsPerPage: parseInt(limit) },
+        };
     },
 
     /**
@@ -57,7 +90,7 @@ const CompanyModel = {
                 company_phone, 
                 company_email, 
                 company_description,
-                company_status, /* <--- เพิ่มตรงนี้ */
+                company_status, 
                 created_at,
                 updated_at
             FROM companies
@@ -104,8 +137,8 @@ const CompanyModel = {
                 company_phone, 
                 company_email, 
                 company_description,
-                company_status      /* <--- เพิ่มตรงนี้ */
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) /* <--- เพิ่ม ? */
+                company_status
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         `;
         const values = [
             company_name,
@@ -121,10 +154,9 @@ const CompanyModel = {
             company_phone,
             company_email,
             company_description,
-            'pending'   /* <--- กำหนดค่าเริ่มต้นเป็น 'pending' */
+            'pending'
         ];
         const result = await query(sql, values);
-        // ดึงข้อมูลบริษัทที่เพิ่งสร้างขึ้นมาเพื่อคืนค่ากลับไป
         return await CompanyModel.getCompanyById(result.insertId);
     },
 
@@ -185,7 +217,6 @@ const CompanyModel = {
             id
         ];
         await query(sql, values);
-        // ดึงข้อมูลบริษัทที่อัปเดตแล้วเพื่อคืนค่ากลับไป
         return await CompanyModel.getCompanyById(id);
     },
 
@@ -196,9 +227,18 @@ const CompanyModel = {
      * @returns {Promise<Object|null>} อ็อบเจกต์บริษัทที่อัปเดตแล้ว หรือ null ถ้าไม่พบ
      */
     updateCompanyStatus: async (companyId, status) => {
+        // ตรวจสอบสถานะที่เข้ามาต้องเป็น 'approved' หรือ 'rejected' เท่านั้น
+        if (!['approved', 'rejected'].includes(status)) {
+            throw new Error('สถานะไม่ถูกต้อง: ต้องเป็น "approved" หรือ "rejected" เท่านั้น');
+        }
+
         const sql = `UPDATE companies SET company_status = ? WHERE company_id = ?`;
-        await query(sql, [status, companyId]);
-        return await CompanyModel.getCompanyById(companyId);
+        const result = await query(sql, [status, companyId]);
+
+        if (result.affectedRows === 0) {
+            return null; // ไม่พบบริษัทหรือสถานะเดิมอยู่แล้ว
+        }
+        return await CompanyModel.getCompanyById(companyId); // ดึงข้อมูลบริษัทที่อัปเดตแล้วกลับไป
     },
 
     /**

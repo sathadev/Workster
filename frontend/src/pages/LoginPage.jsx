@@ -41,7 +41,13 @@ const handleSubmit = async (e) => {
         } catch (err) {
             // *** จุดสำคัญ ***
             // ถ้า login() ใน Context โยน Error ออกมา มันจะถูกจับได้ที่นี่
+            // แต่ไม่แสดง error "บริษัทของคุณยังไม่ได้รับการอนุมัติ" เพราะจะไปแสดงใน dashboard แทน
             const errorMessage = err.response?.data?.message || 'เกิดข้อผิดพลาดในการเข้าสู่ระบบ';
+            // ถ้าเป็น error เกี่ยวกับบริษัทยังไม่ได้รับการอนุมัติ ให้ login ผ่านไปเลย
+            if (errorMessage.includes('ยังไม่ได้รับการอนุมัติ')) {
+                // ไม่ต้องแสดง error ให้ login ผ่านไป
+                return;
+            }
             setError(errorMessage);
         }
     };

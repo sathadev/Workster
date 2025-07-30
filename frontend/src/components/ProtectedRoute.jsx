@@ -14,7 +14,6 @@ function ProtectedRoute({ children }) {
     // 2. ถ้าตรวจสอบเสร็จแล้ว และไม่พบข้อมูล user (ยังไม่ได้ล็อกอิน)
     if (!user) {
         // ให้เด้งไปหน้า /login และจำหน้าปัจจุบันไว้ใน state
-        // เพื่อที่หลังจากล็อกอินสำเร็จ จะได้เด้งกลับมาหน้านี้ได้ (เป็นฟีเจอร์เสริม)
         return <Navigate to="/login" state={{ from: location }} replace />;
     }
 

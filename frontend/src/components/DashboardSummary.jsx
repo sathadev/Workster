@@ -13,6 +13,24 @@ const StatCard = ({ className, title, value, unit = 'คน' }) => (
 
 function DashboardSummary({ summaryData }) {
     if (!summaryData) return null;
+    // ถ้ามี totalCompanies กับ totalUsers ให้แสดงเฉพาะสองอันนี้ (สำหรับ Super Admin)
+    if (
+        summaryData.totalCompanies !== undefined &&
+        summaryData.totalUsers !== undefined
+    ) {
+        return (
+            <div className="dashboard-summary">
+                <div className="row mb-4">
+                    <div className="col-md-6 mb-3">
+                        <StatCard title="จำนวนบริษัททั้งหมด" value={summaryData.totalCompanies} unit="บริษัท" />
+                    </div>
+                    <div className="col-md-6 mb-3">
+                        <StatCard title="จำนวนผู้ใช้ทั้งหมด" value={summaryData.totalUsers} unit="คน" />
+                    </div>
+                </div>
+            </div>
+        );
+    }
     const { checkinCount, ontimeCount, lateCount, absentCount } = summaryData;
 
     return (
