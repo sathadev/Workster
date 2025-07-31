@@ -47,6 +47,7 @@ import JobPostingListPage from './pages/JobPostings/JobPostingListPage.jsx';
 import JobPostingFormPage from './pages/JobPostings/JobPostingFormPage.jsx';
 import JobPostingDetailPage from './pages/JobPostings/JobPostingDetailPage.jsx';
 import PublicJobPostingListPage from './pages/JobPostings/PublicJobPostingListPage.jsx'; // <-- เพิ่ม
+import PublicJobPostingDetailPage from './pages/JobPostings/PublicJobPostingDetailPage.jsx'; // <-- เพิ่ม
 
 // สร้าง "แผนที่" ของเว็บไซต์
 const router = createBrowserRouter([
@@ -168,8 +169,8 @@ const router = createBrowserRouter([
                 element: <JobPostingFormPage />, // แก้ไขประกาศ
             },
             {
-                path: "job-postings/view/:id", // <-- เพิ่มเส้นทางสำหรับดูรายละเอียดประกาศ (HR/Admin)
-                element: <JobPostingDetailPage />, // ใช้ Component เดียวกับ Public View
+                path: "job-postings/view/:id",
+                element: <JobPostingDetailPage />, // ดูรายละเอียดประกาศสำหรับ HR/Admin
             },
         ],
     },
@@ -188,7 +189,7 @@ const router = createBrowserRouter([
     },
     {
         path: "/public/job-postings/:id",
-        element: <JobPostingDetailPage />, // รายละเอียดประกาศสำหรับ Public
+        element: <PublicJobPostingDetailPage />, // รายละเอียดประกาศสำหรับ Public
     },
 ]);
 

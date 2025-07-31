@@ -14,6 +14,7 @@ function JobPostingFormPage() {
     const [formData, setFormData] = useState({
         job_title: '',
         job_description: '',
+        qualifications_text: '',
         salary_min: '',
         salary_max: '',
         job_status: 'draft',
@@ -27,6 +28,7 @@ function JobPostingFormPage() {
         contact_email: '',
         contact_address_text: '',
         application_deadline: '', // วันที่
+        benefits_text: '', // สวัสดิการ
     });
     const [loading, setLoading] = useState(true);
     const [submitting, setSubmitting] = useState(false);
@@ -67,6 +69,7 @@ function JobPostingFormPage() {
                     setFormData({
                         job_title: data.job_title || '',
                         job_description: data.job_description || '',
+                        qualifications_text: data.qualifications_text || '',
                         salary_min: data.salary_min !== null ? String(data.salary_min) : '',
                         salary_max: data.salary_max !== null ? String(data.salary_max) : '',
                         job_status: data.job_status || 'draft',
@@ -79,6 +82,7 @@ function JobPostingFormPage() {
                         contact_email: data.contact_email || '',
                         contact_address_text: data.contact_address_text || '',
                         application_deadline: applicationDeadline,
+                        benefits_text: data.benefits_text || '', // ดึงข้อมูลสวัสดิการ
                     });
                 } catch (err) {
                     console.error("Error fetching job posting for edit:", err.response?.data || err.message);
@@ -93,6 +97,7 @@ function JobPostingFormPage() {
             setFormData({
                 job_title: '',
                 job_description: '',
+                qualifications_text: '',
                 salary_min: '',
                 salary_max: '',
                 job_status: 'draft',
@@ -105,6 +110,7 @@ function JobPostingFormPage() {
                 contact_email: '',
                 contact_address_text: '',
                 application_deadline: '',
+                benefits_text: '', // ตั้งค่าเริ่มต้นสำหรับฟิลด์ใหม่ในโหมดเพิ่ม
             });
             setLoading(false);
         }
@@ -199,6 +205,31 @@ function JobPostingFormPage() {
                         value={formData.job_description}
                         onChange={handleChange}
                         required
+                        placeholder="อธิบายรายละเอียดงาน หน้าที่ความรับผิดชอบ"
+                    />
+                </Form.Group>
+
+                <Form.Group className="mb-3">
+                    <Form.Label>คุณสมบัติผู้สมัคร</Form.Label>
+                    <Form.Control
+                        as="textarea"
+                        rows={4}
+                        name="qualifications_text"
+                        value={formData.qualifications_text}
+                        onChange={handleChange}
+                        placeholder="ระบุคุณสมบัติที่ต้องการ เช่น การศึกษา ประสบการณ์ ทักษะที่จำเป็น"
+                    />
+                </Form.Group>
+
+                <Form.Group className="mb-3">
+                    <Form.Label>สวัสดิการ</Form.Label>
+                    <Form.Control
+                        as="textarea"
+                        rows={3}
+                        name="benefits_text"
+                        value={formData.benefits_text}
+                        onChange={handleChange}
+                        placeholder="ระบุสวัสดิการ (เช่น โบนัส, ประกันสังคม, ... )"
                     />
                 </Form.Group>
 

@@ -1,29 +1,54 @@
-    /* frontend/src/pages/JobPostings/PublicJobPostingListPage.css */
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@100..900&display=swap');
 
-    /* Custom Styles for Job Page */
-    .job-card {
-        border-radius: 1rem;
-        margin-bottom: 1.5rem; /* ใช้ margin-bottom แทน g-4 ใน Row */
-        padding: 1rem;
-        background-color: #fff;
-        border: 1px solid #e0e0e0;
-        transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
-    }
+html, body {
+    font-family: "Noto Sans Thai", sans-serif;
+    background-color: #f8f9fa;
+}
 
-    .job-card:hover {
-        border-color: #8ab4f8; /* เส้นขอบสีฟ้า */
-        box-shadow: 0 4px 12px rgba(138, 180, 248, 0.25);
-        cursor: pointer;
-    }
+.sidebar {
+    background-color: #f8f9fa;
+    min-height: 100vh;
+    padding-top: 20px;
+}
 
-    .search-input .form-control {
-        border-top-right-radius: 0;
-        border-bottom-right-radius: 0;
-    }
+.sidebar a {
+    display: block;
+    padding: 10px 20px;
+    color: #000;
+    text-decoration: none;
+}
 
-    .search-input .input-group-text {
-        border-top-left-radius: 0;
-        border-bottom-left-radius: 0;
-        background-color: #fff;
-    }
+.sidebar a:hover {
+    background-color: #e2e6ea;
+    border-radius: 5px;
+}
+
+/* Custom Styles for Job Page */
+.job-card {
+    border-radius: 1rem;
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    background-color: #fff;
+    border: 1px solid #e0e0e0;
+    /* ✨ เพิ่ม transition เพื่อให้สมูท */
+    transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+/* ✨ เพิ่ม :hover เพื่อให้เปลี่ยนสไตล์เมื่อเมาส์ชี้ */
+.job-card:hover {
+    border-color: #8ab4f8; /* เส้นขอบสีฟ้า */
+    box-shadow: 0 4px 12px rgba(138, 180, 248, 0.25);
+    cursor: pointer;
+}
+
+.search-input .form-control {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+.search-input .input-group-text {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+    background-color: #fff;
+}
     

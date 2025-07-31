@@ -1,0 +1,46 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@100..900&display=swap');
+
+html, body {
+  font-family: "Noto Sans Thai", sans-serif;
+  background-color: #f8f9fa;
+}
+
+.sidebar {
+  background-color: #f8f9fa;
+  min-height: 100vh;
+  padding-top: 20px;
+}
+
+.sidebar a {
+  display: block;
+  padding: 10px 20px;
+  color: #000;
+  text-decoration: none;
+}
+
+.sidebar a:hover {
+  background-color: #e2e6ea;
+  border-radius: 5px;
+}
+
+/* Custom styles for detail page sections */
+.job-detail-section h5 {
+  font-weight: bold;
+  margin-bottom: 1rem;
+}
+.job-detail-section p, .job-detail-section li {
+  color: #555;
+}
+
+.job-detail-card {
+  border-radius: 1rem;
+  margin-bottom: 1.5rem;
+  background-color: #fff;
+  border: 1px solid #e0e0e0;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.job-detail-card:hover {
+  border-color: #8ab4f8;
+  box-shadow: 0 4px 12px rgba(138, 180, 248, 0.25);
+  cursor: pointer;
+} 

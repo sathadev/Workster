@@ -19,6 +19,8 @@ const JOB_POSTING_QUERY_FIELDS_COMPREHENSIVE = `
         jp.salary_min,
         jp.salary_max,
         jp.job_description,
+        jp.qualifications_text,
+        jp.benefits_text,
         jp.contact_person_name,
         jp.contact_phone,
         jp.contact_email,
@@ -147,23 +149,23 @@ const JobPostingModel = {
     createJobPosting: async (data, companyId) => {
         const {
             job_title, jobpos_id, job_location_text,
-            salary_min, salary_max, job_description,
-            contact_person_name, contact_phone, contact_email,
+            salary_min, salary_max, job_description, qualifications_text,
+            benefits_text, contact_person_name, contact_phone, contact_email,
             contact_address_text, job_status, application_deadline
         } = data;
 
         const sql = `
             INSERT INTO job_postings (
                 company_id, job_title, jobpos_id, job_location_text,
-                salary_min, salary_max, job_description,
-                contact_person_name, contact_phone, contact_email,
+                salary_min, salary_max, job_description, qualifications_text,
+                benefits_text, contact_person_name, contact_phone, contact_email,
                 contact_address_text, job_status, application_deadline
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         `;
         const values = [
             companyId, job_title, jobpos_id || null, job_location_text,
-            salary_min || null, salary_max || null, job_description,
-            contact_person_name, contact_phone, contact_email,
+            salary_min || null, salary_max || null, job_description, qualifications_text,
+            benefits_text, contact_person_name, contact_phone, contact_email,
             contact_address_text, job_status || 'active', application_deadline || null
         ];
         const result = await query(sql, values);
@@ -181,8 +183,8 @@ const JobPostingModel = {
     updateJobPosting: async (id, data, companyId) => {
         const {
             job_title, jobpos_id, job_location_text,
-            salary_min, salary_max, job_description,
-            contact_person_name, contact_phone, contact_email,
+            salary_min, salary_max, job_description, qualifications_text,
+            benefits_text, contact_person_name, contact_phone, contact_email,
             contact_address_text, job_status, application_deadline
         } = data;
 
@@ -195,16 +197,16 @@ const JobPostingModel = {
         const sql = `
             UPDATE job_postings SET
                 job_title = ?, jobpos_id = ?, job_location_text = ?,
-                salary_min = ?, salary_max = ?, job_description = ?,
-                contact_person_name = ?, contact_phone = ?, contact_email = ?,
+                salary_min = ?, salary_max = ?, job_description = ?, qualifications_text = ?,
+                benefits_text = ?, contact_person_name = ?, contact_phone = ?, contact_email = ?,
                 contact_address_text = ?, job_status = ?, application_deadline = ?,
                 updated_at = CURRENT_TIMESTAMP
             WHERE job_posting_id = ? AND company_id = ?
         `;
         const values = [
             job_title, jobpos_id || null, job_location_text,
-            salary_min || null, salary_max || null, job_description,
-            contact_person_name, contact_phone, contact_email,
+            salary_min || null, salary_max || null, job_description, qualifications_text,
+            benefits_text, contact_person_name, contact_phone, contact_email,
             contact_address_text, job_status || 'active', application_deadline || null,
             id, companyId
         ];
