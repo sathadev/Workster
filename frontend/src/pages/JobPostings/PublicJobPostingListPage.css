@@ -1,0 +1,29 @@
+    /* frontend/src/pages/JobPostings/PublicJobPostingListPage.css */
+
+    /* Custom Styles for Job Page */
+    .job-card {
+        border-radius: 1rem;
+        margin-bottom: 1.5rem; /* ใช้ margin-bottom แทน g-4 ใน Row */
+        padding: 1rem;
+        background-color: #fff;
+        border: 1px solid #e0e0e0;
+        transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+    }
+
+    .job-card:hover {
+        border-color: #8ab4f8; /* เส้นขอบสีฟ้า */
+        box-shadow: 0 4px 12px rgba(138, 180, 248, 0.25);
+        cursor: pointer;
+    }
+
+    .search-input .form-control {
+        border-top-right-radius: 0;
+        border-bottom-right-radius: 0;
+    }
+
+    .search-input .input-group-text {
+        border-top-left-radius: 0;
+        border-bottom-left-radius: 0;
+        background-color: #fff;
+    }
+    

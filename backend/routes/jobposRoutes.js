@@ -4,6 +4,11 @@
     const jobposController = require('../controllers/jobposController');
     const { protect } = require('../middleware/authMiddleware');
 
+    // --- Public Route (ไม่ต้อง protect) ---
+    // GET /api/v1/positions/public
+    router.get('/public', jobposController.getPublicPositions);
+
+    // --- Protected Routes (ต้อง protect) ---
     // ทุก Route ควรถูกป้องกัน เพราะเป็นการจัดการข้อมูลหลักของบริษัท
 
     // GET /api/v1/positions
@@ -20,10 +25,6 @@
 
     // DELETE /api/v1/positions/:id
     router.delete('/:id', protect, jobposController.deletePosition);
-
-    // --- NEW: Public Route สำหรับ Job Positions ---
-    // GET /api/v1/public/positions
-    router.get('/public', jobposController.getPublicPositions);
 
     module.exports = router;
     

@@ -47,15 +47,15 @@ const API_PREFIX = '/api/v1';
 // ต้องวางไว้ก่อน app.use(protect, ...)
 app.use(`${API_PREFIX}/auth`, authRoute); // authRoute มี public register
 app.use(`${API_PREFIX}/job-postings`, jobPostingRoutes); // jobPostingRoutes มี public endpoints
+app.use(`${API_PREFIX}/positions`, jobposRoutes); // positions มี public endpoints
 
 // --- Protected Routes (ต้อง protect) ---
 // เส้นทางเหล่านี้จะถูก protect โดย protect middleware
 // คุณสามารถเพิ่ม protect middleware แยกในแต่ละ route file ได้
-// หรือจะใช้ app.use(protect) ตรงนี้เพื่อ protect ทุก routes ที่อยู่ข้างล่าง
+// หรือจะใช้ app.use(protect) ตรงนี้เพื่อ protect routes ที่อยู่ข้างล่าง
 app.use(protect); // <-- ใช้ protect middleware ที่นี่ เพื่อ protect routes ที่อยู่ข้างล่างทั้งหมด
 
 app.use(`${API_PREFIX}/employees`, EmpRoute); 
-app.use(`${API_PREFIX}/positions`, jobposRoutes);
 app.use(`${API_PREFIX}/salaries`, salaryRoutes);
 app.use(`${API_PREFIX}/evaluations`, evaluationRoutes);
 app.use(`${API_PREFIX}/settings`, aboutRoutes);
