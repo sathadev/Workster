@@ -10,8 +10,8 @@
 /* --- ส่วนของ Navbar (ถ้ามี Navbar แยกใน MainLayout) --- */
 .app-navbar {
     flex-shrink: 0; /* ไม่ให้ Navbar หดตัว */
-    /* ถ้า Navbar ใน MainLayout มีสไตล์ของตัวเอง ควรจะกำหนดที่นี่ */
-    /* หรือใช้ Bootstrap classes โดยตรงใน Navbar Component */
+    background-color: #212529; /* ใช้สีนี้สำหรับ Navbar background */
+    padding: 10px; /* <<<<< ย้าย padding จาก JSX มาที่นี่ >>>>> */
 }
 
 /* --- ส่วนของเนื้อหาหลัก (ที่ครอบ Sidebar และ Content) --- */
@@ -22,7 +22,7 @@
 
 .sidebar {
     flex: 0 0 250px; /* ความกว้างคงที่ 250px */
-    background-color: #1E56A0; /* <<<<< ปรับสีพื้นหลัง Sidebar เป็นสีน้ำเงินที่สว่างขึ้น */
+    background-color: #2A6CA6; /* ปรับสีพื้นหลัง Sidebar เป็นสีน้ำเงินที่สว่างขึ้น */
     padding: 1.5rem 1rem; /* คง padding เดิม */
     border-right: none; /* ลบเส้นขอบด้านขวา เพื่อให้ดูเป็นชิ้นเดียวกัน */
     box-shadow: 2px 0 5px rgba(0,0,0,0.1); /* เพิ่มเงาเล็กน้อย */
@@ -70,7 +70,7 @@
 }
 
 .sidebar-link.active {
-    background-color: #ffffff; /* สีฟ้าอ่อนที่สอดคล้องกับ gradient ใน Landing Page */
+    background-color: #5BA4E5; /* สีฟ้าอ่อนที่สอดคล้องกับ gradient ใน Landing Page */
     color: #1E56A0; /* สีข้อความจะเป็นน้ำเงินเข้ม (เพื่อให้ตัดกัน) */
     font-weight: 600; /* น้ำหนักฟอนต์มากขึ้นเมื่อ active */
     box-shadow: 0 2px 5px rgba(0,0,0,0.1); /* เพิ่มเงาเล็กน้อยเมื่อ active */
@@ -80,7 +80,7 @@
 .sidebar-header {
     font-family: "Noto Sans Thai", sans-serif; /* ใช้ Noto Sans Thai */
     font-size: 0.95rem; /* ขนาดฟอนต์เล็กกว่าลิงก์ปกติ */
-    color: #5BA4E5; /* สีเทาอ่อนที่สว่างขึ้น */
+    color: #E0E0E0; /* สีเทาอ่อนที่สว่างขึ้น */
     text-transform: uppercase; /* ตัวพิมพ์ใหญ่ */
     font-weight: 600; /* ปรับน้ำหนักฟอนต์ */
     margin-top: 1.5rem;

@@ -338,7 +338,7 @@ function RegisterUserPage() {
     return (
         <>
             {/* Navbar ที่คุณต้องการนำมาใส่ */}
-            <nav className="navbar navbar-dark app-navbar" style={{ backgroundColor: '#1E56A0', padding: '10px' }}>
+            <nav className="navbar navbar-dark app-navbar" style={{ backgroundColor: '#212529', padding: '10px' }}>
                 <div className="container-fluid">
                     <NavLink className="navbar-brand mb-0 h1 fs-4 text-white text-decoration-none" to="/">WorkSter</NavLink>
                     <NavLink to="/login" className="btn btn-outline-light">เข้าสู่ระบบ</NavLink>
