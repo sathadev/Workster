@@ -1,9 +1,6 @@
 // backend/middleware/authMiddleware.js
 const jwt = require('jsonwebtoken');
-const util = require('util');
-const db = require('../config/db');
-
-const query = util.promisify(db.query).bind(db);
+const query = require('../utils/db');
 
 exports.protect = async (req, res, next) => {
     let token;

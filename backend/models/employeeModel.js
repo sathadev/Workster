@@ -1,9 +1,4 @@
-const util = require('util');
-const db = require('../config/db');
-
-// ทำให้ db.query ใช้กับ async/await ได้
-const query = util.promisify(db.query).bind(db);
-
+const query = require('../utils/db');
 // REFACTORED: กำหนดฟิลด์ที่ปลอดภัยสำหรับดึงข้อมูล เพื่อหลีกเลี่ยงการส่งข้อมูลรหัสผ่าน
 const SAFE_EMPLOYEE_FIELDS = `
     e.emp_id, e.emp_name, e.jobpos_id, e.emp_email, e.emp_tel,

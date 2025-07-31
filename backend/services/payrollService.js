@@ -1,8 +1,5 @@
 // backend/services/payrollService.js
-const util = require('util');
-const db = require('../config/db'); // ตรวจสอบว่า path ไปยังไฟล์ db config ถูกต้อง
-
-const query = util.promisify(db.query).bind(db);
+const query = require('../utils/db');
 
 const PayrollService = {
 

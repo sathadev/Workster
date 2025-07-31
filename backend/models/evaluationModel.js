@@ -1,9 +1,4 @@
-// backend/models/evaluationModel.js
-const util = require('util');
-const db = require('../config/db'); // <--- ตรวจสอบว่า Path ถูกต้อง
-
-// ทำให้ db.query ใช้กับ async/await ได้
-const query = util.promisify(db.query).bind(db); // <--- บรรทัดนี้ต้องอยู่ใน Model
+const query = require('../utils/db'); 
 
 // --- ฟังก์ชัน helper ที่แยกออกมา ---
 const getById = async (id, companyId) => {

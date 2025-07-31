@@ -1,7 +1,4 @@
-const util = require('util');
-const db = require('../config/db');
-
-const query = util.promisify(db.query).bind(db);
+const query = require('../utils/db');
 
 // --- Helper function for work time config (อัปเดตให้ดึงค่าที่จำเป็นทั้งหมด) ---
 const getCompanySettings = async (companyId) => {

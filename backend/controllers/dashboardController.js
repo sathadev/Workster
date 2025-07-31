@@ -1,7 +1,5 @@
 // backend/controllers/dashboardController.js
-const db = require('../config/db');
-const util = require('util');
-const query = util.promisify(db.query).bind(db);
+const query = require('../utils/db');
 
 /**
  * [GET] /api/v1/dashboard/summary

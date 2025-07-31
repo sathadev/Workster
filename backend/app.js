@@ -17,12 +17,12 @@ app.use(express.json());
 app.use('/uploads', express.static(path.join(__dirname, 'public', 'uploads')));
 
 // app.use((req, res, next) => {
-//     console.log('--- Detective Middleware ---');
-//     console.log('Request Path:', req.path);
-//     console.log('Request Headers:', req.headers);
-//     console.log('Request Body (after parsing):', req.body);
-//     console.log('--------------------------');
-//     next(); // ส่งต่อไปยัง Middleware หรือ Route ตัวถัดไป
+//    console.log('--- Detective Middleware ---');
+//    console.log('Request Path:', req.path);
+//    console.log('Request Headers:', req.headers);
+//    console.log('Request Body (after parsing):', req.body);
+//    console.log('--------------------------');
+//    next(); // ส่งต่อไปยัง Middleware หรือ Route ตัวถัดไป
 // });
 
 const authRoute = require('./routes/authRoute');
@@ -37,10 +37,24 @@ const dashboardRoutes = require('./routes/dashboardRoutes');
 const attendanceRoutes = require('./routes/attendanceRoutes');
 const companyRoutes = require('./routes/companyRoutes'); 
 const adminCompanyRoutes = require('./routes/adminCompanyRoutes');
+const jobPostingRoutes = require('./routes/jobPostingRoutes'); 
+
+const { protect } = require('./middleware/authMiddleware'); // <-- Import protect middleware ที่นี่
 
 const API_PREFIX = '/api/v1';
-app.use(`${API_PREFIX}/auth`, authRoute);
-app.use(`${API_PREFIX}/employees`, EmpRoute); // อาจจะเปลี่ยน path ให้สื่อความหมายมากขึ้น
+
+// --- Public Routes (ไม่ต้อง protect) ---
+// ต้องวางไว้ก่อน app.use(protect, ...)
+app.use(`${API_PREFIX}/auth`, authRoute); // authRoute มี public register
+app.use(`${API_PREFIX}/job-postings`, jobPostingRoutes); // jobPostingRoutes มี public endpoints
+
+// --- Protected Routes (ต้อง protect) ---
+// เส้นทางเหล่านี้จะถูก protect โดย protect middleware
+// คุณสามารถเพิ่ม protect middleware แยกในแต่ละ route file ได้
+// หรือจะใช้ app.use(protect) ตรงนี้เพื่อ protect ทุก routes ที่อยู่ข้างล่าง
+app.use(protect); // <-- ใช้ protect middleware ที่นี่ เพื่อ protect routes ที่อยู่ข้างล่างทั้งหมด
+
+app.use(`${API_PREFIX}/employees`, EmpRoute); 
 app.use(`${API_PREFIX}/positions`, jobposRoutes);
 app.use(`${API_PREFIX}/salaries`, salaryRoutes);
 app.use(`${API_PREFIX}/evaluations`, evaluationRoutes);
@@ -51,6 +65,7 @@ app.use(`${API_PREFIX}/leave-types`, leaveTypesRoutes);
 app.use(`${API_PREFIX}/leave-requests`, leaveworkRoutes);
 app.use(`${API_PREFIX}/companies`, companyRoutes);
 app.use(`${API_PREFIX}/admin/companies`, adminCompanyRoutes);
+
 
 // -------------------------------------------------------------
 

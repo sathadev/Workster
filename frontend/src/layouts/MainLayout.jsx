@@ -2,7 +2,8 @@
 import { Outlet, NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCircleUser, faSignOutAlt, faUser, faBuilding, faTachometerAlt } from '@fortawesome/free-solid-svg-icons'; 
+import { faCircleUser, faSignOutAlt, faUser, faBuilding,
+faTachometerAlt, faBullhorn } from '@fortawesome/free-solid-svg-icons'; // เพิ่ม faBullhorn
 import './MainLayout.css';
 import { useEffect } from 'react';
 
@@ -20,7 +21,7 @@ function MainLayout() {
 
     useEffect(() => {
         // ลบ import { io } from "socket.io-client";
-        // ลบ useEffect ที่เชื่อมต่อ socket.io
+        // ลบ useEffect ที่เชื่อมต่อsocket.io
     }, []);
 
     return (
@@ -30,11 +31,12 @@ function MainLayout() {
                     <NavLink className="navbar-brand mb-0 h1 fs-4 text-white text-decoration-none" to="/">WorkSter</NavLink>
                     {user && (
                         <div className="dropdown">
-                            <a className="text-white dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" style={{ textDecoration: 'none' }}>
+                            <a className="text-white dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
+                                style={{ textDecoration: 'none' }}>
                                 <FontAwesomeIcon icon={faCircleUser} className="fs-3" />
                             </a>
                             <ul className="dropdown-menu dropdown-menu-end">
-                                {/* แสดง Profile เฉพาะผู้ใช้ที่ไม่ใช่ Super Admin */}
+                                {/* แสดง Profile เฉพาะผู้ใช้ที่ไม่ใช่Super Admin */}
                                 {!user.isSuperAdmin && (
                                     <li><a className="dropdown-item" href="#" onClick={handleProfile}>
                                         <FontAwesomeIcon icon={faUser} className="me-2"/> Profile
@@ -53,8 +55,8 @@ function MainLayout() {
                 <nav className="sidebar">
                     {user ? (
                         <>
-                            {/* เมนูสำหรับ Super Admin (jobpos_id = 0 และ company_id = NULL) */}
-                            {/* เงื่อนไขถูกปรับให้กระชับขึ้น เนื่องจาก user.isSuperAdmin ถูกกำหนดไว้แล้วใน authMiddleware */}
+                            {/* เมนูสำหรับSuper Admin (jobpos_id = 0 และ company_id = NULL) */}
+                            {/* เงื่อนไขถูกปรับให้กระชับขึ้น เนื่องจาก user.isSuperAdmin ถูกกำหนดไว้แล้วในauthMiddleware */}
                             {user.isSuperAdmin && (
                                 <>
                                     <div className="sidebar-header">เมนู Super Admin</div>
@@ -73,7 +75,7 @@ function MainLayout() {
                                 </>
                             )}
 
-                            {/* เมนูสำหรับ HR/Admin (jobpos_id 1, 2, 3) และต้องไม่ใช่ Super Admin และบริษัทได้รับการอนุมัติแล้ว */}
+                            {/* เมนูสำหรับHR/Admin (jobpos_id 1, 2, 3) และต้องไม่ใช่Super Admin และบริษัทได้รับการอนุมัติแล้ว */}
                             {(!user.isSuperAdmin && (user.jobpos_id === 1 || user.jobpos_id === 2 || user.jobpos_id === 3) && user.company_status === 'approved') && (
                                 <>
                                     <div className="sidebar-header">รายการ HR</div>
@@ -81,8 +83,11 @@ function MainLayout() {
                                     <NavLink to="/leave-requests" className="sidebar-link">รายการทำงานลา</NavLink>
                                     <NavLink to="/salaries" className="sidebar-link">จัดการเงินเดือน</NavLink>
                                     <NavLink to="/evaluations" className="sidebar-link">การประเมินผล</NavLink>
-                                    <NavLink to="/positions" className="sidebar-link">ตำแหน่งงาน</NavLink> {/* <-- Jobpos ยังอยู่ที่นี่สำหรับ HR/Admin */}
+                                    <NavLink to="/positions" className="sidebar-link">ตำแหน่งงาน</NavLink>
                                     <NavLink to="/settings" className="sidebar-link">ตั้งค่าบริษัท</NavLink>
+                                    <NavLink to="/job-postings" className="sidebar-link"> {/* <-- เพิ่มเมนูประกาศรับสมัครงาน */}
+                                        <FontAwesomeIcon icon={faBullhorn} className="me-2"/> ประกาศรับสมัครงาน
+                                    </NavLink>
                                 </>
                             )}
 

@@ -1,6 +1,4 @@
-const util = require('util');
-const db = require('../config/db');
-const query = util.promisify(db.query).bind(db);
+const query = require('../utils/db');
 
 const About = {
     // ดึงข้อมูลการตั้งค่าสำหรับบริษัทที่ระบุ

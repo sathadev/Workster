@@ -1,9 +1,8 @@
 // backend/routes/authRoute.js
 const express = require('express');
+const query = require('../utils/db');
 const router = express.Router();
-const db = require('../config/db');
 const bcrypt = require('bcryptjs'); // ใช้ bcryptjs
-const util = require('util');
 const jwt = require('jsonwebtoken');
 
 const { protect } = require('../middleware/authMiddleware'); // Middleware สำหรับ routes ที่ต้อง Protected
@@ -12,7 +11,7 @@ const { protect } = require('../middleware/authMiddleware'); // Middleware ส�
 const CompanyModel = require('../models/companyModel');   // Import CompanyModel
 const EmployeeModel = require('../models/employeeModel'); // Import EmployeeModel
 
-const query = util.promisify(db.query).bind(db); // ทำให้ db.query ใช้งานแบบ async/await ได้
+
 
 // [POST] /api/v1/auth/login
 router.post('/login', async (req, res) => {

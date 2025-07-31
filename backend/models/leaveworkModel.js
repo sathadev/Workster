@@ -1,9 +1,5 @@
 // backend/models/leaveworkModel.js
-const util = require('util');
-const db = require('../config/db');
-
-const query = util.promisify(db.query).bind(db);
-
+const query = require('../utils/db');
 const LeaveworkModel = {
     // ดึงคำขอลาทั้งหมดสำหรับ Admin/HR (พร้อม Search, Sort, Filter, Pagination)
   getAllLeaveRequests: async (options = {}, companyId) => {

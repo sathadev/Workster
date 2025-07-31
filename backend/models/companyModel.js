@@ -1,9 +1,5 @@
 // backend/models/companyModel.js
-const util = require('util');
-const db = require('../config/db'); // ตรวจสอบให้แน่ใจว่าเส้นทางนี้ถูกต้องสำหรับไฟล์ db connection ของคุณ
-
-const query = util.promisify(db.query).bind(db);
-
+const query = require('../utils/db');
 const CompanyModel = {
     /**
      * @desc ดึงข้อมูลบริษัททั้งหมดจากฐานข้อมูล พร้อมรองรับการกรองและแบ่งหน้า

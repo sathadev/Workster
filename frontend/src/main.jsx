@@ -11,7 +11,7 @@ import './index.css';
 // Import Context Provider
 import { AuthProvider } from './context/AuthContext';
 
-// Import Layout และ Pagesทั้งหมดที่จำเป็น
+// Import Layout และ Pages ทั้งหมดที่จำเป็น
 import MainLayout from './layouts/MainLayout.jsx';
 import ProtectedRoute from './components/ProtectedRoute.jsx';
 import LoginPage from './pages/LoginPage.jsx';
@@ -37,11 +37,16 @@ import SettingsPage from './pages/SettingsPage.jsx';
 import ProfilePage from './pages/Employees/ProfilePage.jsx';
 import RegisterUserPage from './pages/Auth/RegisterUserPage.jsx';
 
-// *** ตรวจสอบให้แน่ใจว่า import path นี้ถูกต้อง ***
-import CompanyApprovalPage from './pages/Admin/CompanyApprovalPage.jsx'; // <-- ตรวจสอบบรรทัดนี้
+import CompanyApprovalPage from './pages/Admin/CompanyApprovalPage.jsx';
 import CompanyDetailPage from './pages/Admin/CompanyDetailPage.jsx';
 import CompanyListPage from './pages/Admin/CompanyListPage.jsx';
 import CompanyRequestPage from './pages/Admin/CompanyRequestPage.jsx';
+
+// Import Job Posting Pages
+import JobPostingListPage from './pages/JobPostings/JobPostingListPage.jsx';
+import JobPostingFormPage from './pages/JobPostings/JobPostingFormPage.jsx';
+import JobPostingDetailPage from './pages/JobPostings/JobPostingDetailPage.jsx';
+import PublicJobPostingListPage from './pages/JobPostings/PublicJobPostingListPage.jsx'; // <-- เพิ่ม
 
 // สร้าง "แผนที่" ของเว็บไซต์
 const router = createBrowserRouter([
@@ -134,7 +139,7 @@ const router = createBrowserRouter([
                 element: <SettingsPage />
             },
             {
-                path: "admin/companies", // Route ที่ชี้ไปที่ CompanyApprovalPage
+                path: "admin/companies",
                 element: <CompanyApprovalPage />,
             },
             {
@@ -149,6 +154,23 @@ const router = createBrowserRouter([
                 path: "admin/companies/requests",
                 element: <CompanyRequestPage />,
             },
+            // --- Job Posting Routes (Protected for HR/Admin) ---
+            {
+                path: "job-postings",
+                element: <JobPostingListPage />, // รายการประกาศสำหรับ HR/Admin
+            },
+            {
+                path: "job-postings/add",
+                element: <JobPostingFormPage />, // เพิ่มประกาศ
+            },
+            {
+                path: "job-postings/edit/:id",
+                element: <JobPostingFormPage />, // แก้ไขประกาศ
+            },
+            {
+                path: "job-postings/view/:id", // <-- เพิ่มเส้นทางสำหรับดูรายละเอียดประกาศ (HR/Admin)
+                element: <JobPostingDetailPage />, // ใช้ Component เดียวกับ Public View
+            },
         ],
     },
     {
@@ -158,6 +180,15 @@ const router = createBrowserRouter([
     {
         path: "/register",
         element: <RegisterUserPage />,
+    },
+    // --- Public Job Posting Routes (Unprotected) ---
+    {
+        path: "/public/job-postings",
+        element: <PublicJobPostingListPage />, // รายการประกาศสำหรับ Public
+    },
+    {
+        path: "/public/job-postings/:id",
+        element: <JobPostingDetailPage />, // รายละเอียดประกาศสำหรับ Public
     },
 ]);
 
