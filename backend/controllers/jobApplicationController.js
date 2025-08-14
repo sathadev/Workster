@@ -1,34 +1,85 @@
-// controllers/jobApplicationController.js
-const db = require('../models'); // <<< This path should be correct if 'models' is a direct sibling to 'controllers'
-const JobApplication = db.JobApplication; 
-const path = require('path'); // Add path module for filename operations
+// backend/controllers/jobApplicationController.js
+const fs = require('fs').promises;
+const path = require('path');
+const Joi = require('joi');
 
+const JobPostingModel = require('../models/jobPostingModel');
+const JobApplicationModel = require('../models/jobApplicationModel');
+
+// validate แบบยืดหยุ่นกับ multipart/form-data
+const applicationSchema = Joi.object({
+  applicant_name: Joi.string().required(),
+  applicant_email: Joi.string().email().required(),
+  applicant_phone: Joi.string().allow('', null),
+  other_links_text: Joi.string().allow('', null),
+  cover_letter_text: Joi.string().allow('', null),
+  expected_salary: Joi.number().allow(null),
+  available_start_date: Joi.string().allow('', null),
+  // ยอมรับค่าพวก 'true','1','on'
+  consent_privacy: Joi.any().custom((v, h) => {
+    const truthy = ['true', '1', 'on', 1, true, 'yes'];
+    if (!truthy.includes(v)) return h.error('any.invalid');
+    return v;
+  }).messages({ 'any.invalid': 'กรุณายอมรับนโยบายความเป็นส่วนตัว' })
+});
 
 exports.createJobApplication = async (req, res) => {
-    try {
-        const { jobPostingId } = req.params;
-        const { applicant_name, applicant_email, applicant_phone, other_links_text } = req.body;
-        
-        let resume_filepath = null;
-        if (req.file) {
-            // req.file.filename contains the name assigned by multer storage
-            resume_filepath = req.file.filename; 
-        }
+  try {
+    const { jobPostingId } = req.params;
 
-        const newApplication = await JobApplication.create({
-            job_posting_id: jobPostingId,
-            applicant_name,
-            applicant_email,
-            applicant_phone,
-            resume_filepath,
-            other_links_text,
-            // application_status will be 'pending' by default
-        });
-
-        res.status(201).json({ message: 'Job application submitted successfully!', application: newApplication });
-
-    } catch (error) {
-        console.error('Error submitting job application:', error);
-        res.status(500).json({ message: 'Internal server error during job application submission.' });
+    // 1) validate
+    const { error } = applicationSchema.validate(req.body);
+    if (error) {
+      if (req.file) await fs.unlink(req.file.path).catch(() => {});
+      return res.status(400).json({ message: error.details?.[0]?.message || 'ข้อมูลไม่ถูกต้อง' });
     }
+
+    // 2) ต้องมีไฟล์
+    if (!req.file) {
+      return res.status(400).json({ message: 'กรุณาแนบไฟล์ Resume/CV' });
+    }
+
+    // 3) เช็กประกาศงาน
+    const jobPosting = await JobPostingModel.getJobPostingById(jobPostingId, null);
+    if (!jobPosting || jobPosting.job_status !== 'active' || jobPosting.company_status !== 'approved') {
+      await fs.unlink(req.file.path).catch(() => {});
+      return res.status(404).json({ message: 'ไม่พบประกาศรับสมัครงานนี้ หรือประกาศไม่พร้อมใช้งาน' });
+    }
+
+    // 4) path สำหรับฝั่ง client (แก้ให้สะกด "uploads" ถูกต้อง)
+    const resumeRelativePath = `/uploads/resumes/${req.file.filename}`;
+
+    const consent =
+      req.body.consent_privacy === true ||
+      req.body.consent_privacy === 'true' ||
+      req.body.consent_privacy === '1' ||
+      req.body.consent_privacy === 1 ||
+      req.body.consent_privacy === 'on' ||
+      req.body.consent_privacy === 'yes';
+
+    const applicationData = {
+      job_posting_id: Number(jobPostingId),
+      applicant_name: String(req.body.applicant_name || '').trim(),
+      applicant_email: String(req.body.applicant_email || '').trim(),
+      applicant_phone: req.body.applicant_phone || null,
+      resume_filepath: resumeRelativePath,
+      other_links_text: req.body.other_links_text || null,
+      cover_letter_text: req.body.cover_letter_text || null,
+      expected_salary: req.body.expected_salary ? Number(req.body.expected_salary) : null,
+      available_start_date: req.body.available_start_date || null,
+      consent_privacy: !!consent,
+      application_status: 'pending'
+    };
+
+    const newApplication = await JobApplicationModel.create(applicationData);
+
+    return res.status(201).json({
+      message: 'ส่งใบสมัครสำเร็จแล้ว',
+      application: newApplication,
+    });
+  } catch (err) {
+    console.error('Error submitting job application:', err);
+    if (req.file) await fs.unlink(req.file.path).catch(() => {});
+    return res.status(500).json({ message: 'เกิดข้อผิดพลาดภายในเซิร์ฟเวอร์' });
+  }
 };

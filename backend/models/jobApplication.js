@@ -1,4 +1,4 @@
-// models/jobApplication.js (ไฟล์ใหม่)
+// D:\Project\workster\backend\models\jobApplication.js (แก้ไข)
 module.exports = (sequelize, DataTypes) => {
   const JobApplication = sequelize.define('JobApplication', {
     application_id: {
@@ -22,11 +22,11 @@ module.exports = (sequelize, DataTypes) => {
       }
     },
     applicant_phone: {
-      type: DataTypes.STRING(50), // กำหนดความยาวที่เหมาะสม
+      type: DataTypes.STRING(50), 
       allowNull: false
     },
     resume_filepath: {
-      type: DataTypes.STRING, // เก็บ path ไฟล์
+      type: DataTypes.STRING, 
       allowNull: true
     },
     other_links_text: {
@@ -43,17 +43,17 @@ module.exports = (sequelize, DataTypes) => {
       defaultValue: DataTypes.NOW
     }
   }, {
-    tableName: 'job_applications', // ชื่อตารางใน DB
-    timestamps: false // ถ้าไม่ต้องการ createdAt/updatedAt fields อัตโนมัติ
+    tableName: 'job_applications',
+    timestamps: false
   });
 
-  // กำหนด Association (ความสัมพันธ์)
-  JobApplication.associate = (models) => {
-    JobApplication.belongsTo(models.JobPosting, {
-      foreignKey: 'job_posting_id',
-      onDelete: 'CASCADE'
-    });
-  };
+  // ลบโค้ดส่วนนี้ออก
+  // JobApplication.associate = (models) => {
+  //   JobApplication.belongsTo(models.JobPosting, {
+  //     foreignKey: 'job_posting_id',
+  //     onDelete: 'CASCADE'
+  //   });
+  // };
 
   return JobApplication;
 };

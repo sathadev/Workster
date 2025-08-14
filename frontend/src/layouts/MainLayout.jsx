@@ -85,9 +85,8 @@ function MainLayout() {
                                     <NavLink to="/evaluations" className="sidebar-link">การประเมินผล</NavLink>
                                     <NavLink to="/positions" className="sidebar-link">ตำแหน่งงาน</NavLink>
                                     <NavLink to="/settings" className="sidebar-link">ตั้งค่าบริษัท</NavLink>
-                                    <NavLink to="/job-postings" className="sidebar-link"> {/* <-- เพิ่มเมนูประกาศรับสมัครงาน */}
-                                        <FontAwesomeIcon icon={faBullhorn} className="me-2"/> ประกาศรับสมัครงาน
-                                    </NavLink>
+                                    <NavLink to="/job-postings" className="sidebar-link">ประกาศรับสมัครงาน</NavLink>
+                                    <NavLink to="/hr/applicants" className="sidebar-link">ผู้มาสมัครงาน</NavLink>
                                 </>
                             )}
 
