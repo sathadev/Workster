@@ -1,8 +1,18 @@
 // frontend/src/pages/hr/HrApplicantsPage.jsx
-import { useEffect, useState, useCallback } from 'react';
-import { Link } from 'react-router-dom';
-import { Container, Card, Row, Col, Form, Button, Table, Alert, Spinner } from 'react-bootstrap';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { useEffect, useState, useCallback } from "react";
+import { Link } from "react-router-dom";
+import {
+  Container,
+  Card,
+  Row,
+  Col,
+  Form,
+  Button,
+  Table,
+  Alert,
+  Spinner,
+} from "react-bootstrap";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faSearch,
   faTimes,
@@ -12,26 +22,38 @@ import {
   faSortUp,
   faSortDown,
   faInbox,
-} from '@fortawesome/free-solid-svg-icons';
-import api from '../../api/axios';
+} from "@fortawesome/free-solid-svg-icons";
+import api from "../../api/axios";
 
 function HrApplicantsPage() {
   // --- State Management ---
   const [items, setItems] = useState([]);
-  const [meta, setMeta] = useState({ totalItems: 0, totalPages: 1, currentPage: 1, itemsPerPage: 10 });
+  const [meta, setMeta] = useState({
+    totalItems: 0,
+    totalPages: 1,
+    currentPage: 1,
+    itemsPerPage: 10,
+  });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
   // Filter states
-  const [filters, setFilters] = useState({ q: '', status: '', jobPostingId: '' });
-  const [searchQuery, setSearchQuery] = useState('');
+  const [filters, setFilters] = useState({
+    q: "",
+    status: "",
+    jobPostingId: "",
+  });
+  const [searchQuery, setSearchQuery] = useState("");
 
   // Pagination states
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
 
   // Sort states (backendของเรายังไม่ได้รองรับ sort อย่างเป็นทางการ แต่มาเผื่อไว้)
-  const [sortConfig, setSortConfig] = useState({ key: 'applied_at', direction: 'desc' });
+  const [sortConfig, setSortConfig] = useState({
+    key: "applied_at",
+    direction: "desc",
+  });
 
   // Fetch data from API  ✅ เปลี่ยน path เป็น /hr/applicants
   const fetchData = useCallback(async () => {
@@ -46,7 +68,7 @@ function HrApplicantsPage() {
         order: sortConfig.direction,
       };
 
-      const res = await api.get('/hr/applicants', { params });
+      const res = await api.get("/hr/applicants", { params });
       setItems(res.data.items || []);
       const total = res.data.total || 0;
       setMeta({
@@ -56,8 +78,8 @@ function HrApplicantsPage() {
         itemsPerPage: pageSize,
       });
     } catch (err) {
-      console.error('Error fetching applicants:', err);
-      setError(err?.response?.data?.message || 'โหลดข้อมูลผู้สมัครไม่สำเร็จ');
+      console.error("Error fetching applicants:", err);
+      setError(err?.response?.data?.message || "โหลดข้อมูลผู้สมัครไม่สำเร็จ");
     } finally {
       setLoading(false);
     }
@@ -81,14 +103,15 @@ function HrApplicantsPage() {
   };
 
   const handleClearSearch = () => {
-    setSearchQuery('');
-    setFilters((prev) => ({ ...prev, q: '' }));
+    setSearchQuery("");
+    setFilters((prev) => ({ ...prev, q: "" }));
     setPage(1);
   };
 
   const handleSort = (key) => {
-    let direction = 'asc';
-    if (sortConfig.key === key && sortConfig.direction === 'asc') direction = 'desc';
+    let direction = "asc";
+    if (sortConfig.key === key && sortConfig.direction === "asc")
+      direction = "desc";
     setSortConfig({ key, direction });
     setPage(1);
   };
@@ -101,11 +124,13 @@ function HrApplicantsPage() {
   const changeStatus = async (applicationId, newStatus) => {
     if (!window.confirm(`ยืนยันเปลี่ยนสถานะเป็น "${newStatus}" ?`)) return;
     try {
-      await api.patch(`/hr/applicants/${applicationId}/status`, { status: newStatus });
+      await api.patch(`/hr/applicants/${applicationId}/status`, {
+        status: newStatus,
+      });
       fetchData();
     } catch (err) {
-      console.error('Error updating status:', err);
-      alert(err?.response?.data?.message || 'อัปเดตสถานะไม่สำเร็จ');
+      console.error("Error updating status:", err);
+      alert(err?.response?.data?.message || "อัปเดตสถานะไม่สำเร็จ");
     }
   };
 
@@ -139,7 +164,10 @@ function HrApplicantsPage() {
                     <FontAwesomeIcon icon={faSearch} />
                   </Button>
                   {filters.q && (
-                    <Button variant="outline-danger" onClick={handleClearSearch}>
+                    <Button
+                      variant="outline-danger"
+                      onClick={handleClearSearch}
+                    >
                       <FontAwesomeIcon icon={faTimes} />
                     </Button>
                   )}
@@ -148,7 +176,11 @@ function HrApplicantsPage() {
             </Form>
           </Col>
           <Col md={3}>
-            <Form.Select name="status" value={filters.status} onChange={handleFilterChange}>
+            <Form.Select
+              name="status"
+              value={filters.status}
+              onChange={handleFilterChange}
+            >
               <option value="">ทุกสถานะ</option>
               <option value="pending">รอดำเนินการ</option>
               <option value="reviewed">พิจารณาแล้ว</option>
@@ -173,7 +205,8 @@ function HrApplicantsPage() {
         {filters.q && !loading && (
           <Alert variant="info" className="py-2">
             <FontAwesomeIcon icon={faInfoCircle} className="me-2" />
-            ผลการค้นหา "<strong>{filters.q}</strong>" พบ {meta.totalItems || 0} รายการ
+            ผลการค้นหา "<strong>{filters.q}</strong>" พบ {meta.totalItems || 0}{" "}
+            รายการ
           </Alert>
         )}
 
@@ -182,16 +215,30 @@ function HrApplicantsPage() {
           <Table hover bordered className="text-center align-middle">
             <thead className="table-light">
               <tr>
-                <th onClick={() => handleSort('applicant_name')} style={{ cursor: 'pointer' }}>
-                  ชื่อผู้สมัคร{' '}
-                  {sortConfig.key === 'applicant_name' ? (
-                    <FontAwesomeIcon icon={sortConfig.direction === 'asc' ? faSortUp : faSortDown} />
+                <th
+                  onClick={() => handleSort("applicant_name")}
+                  style={{ cursor: "pointer" }}
+                >
+                  ชื่อผู้สมัคร{" "}
+                  {sortConfig.key === "applicant_name" ? (
+                    <FontAwesomeIcon
+                      icon={
+                        sortConfig.direction === "asc" ? faSortUp : faSortDown
+                      }
+                    />
                   ) : null}
                 </th>
-                <th onClick={() => handleSort('job_title')} style={{ cursor: 'pointer' }}>
-                  ประกาศงาน{' '}
-                  {sortConfig.key === 'job_title' ? (
-                    <FontAwesomeIcon icon={sortConfig.direction === 'asc' ? faSortUp : faSortDown} />
+                <th
+                  onClick={() => handleSort("job_title")}
+                  style={{ cursor: "pointer" }}
+                >
+                  ประกาศงาน{" "}
+                  {sortConfig.key === "job_title" ? (
+                    <FontAwesomeIcon
+                      icon={
+                        sortConfig.direction === "asc" ? faSortUp : faSortDown
+                      }
+                    />
                   ) : null}
                 </th>
                 <th>สถานะ</th>
@@ -209,23 +256,45 @@ function HrApplicantsPage() {
                 items.map((item) => (
                   <tr key={item.application_id}>
                     <td className="text-start">{item.applicant_name}</td>
-                    <td className="text-start">{item.job_title || `รหัส: ${item.job_posting_id}`}</td>
+                    <td className="text-start">
+                      {item.job_title || `รหัส: ${item.job_posting_id}`}
+                    </td>
                     <td>
                       <Form.Select
-                        value={item.application_status ?? 'pending'}
-                        onChange={(e) => changeStatus(item.application_id, e.target.value)}
+                        value={item.application_status ?? "pending"}
+                        onChange={(e) =>
+                          changeStatus(item.application_id, e.target.value)
+                        }
                         className="w-auto mx-auto"
-                        disabled={typeof item.application_status === 'undefined'}
-                        title={typeof item.application_status === 'undefined' ? 'ตารางไม่มีคอลัมน์ application_status' : undefined}
+                        disabled={
+                          typeof item.application_status === "undefined" ||
+                          item.is_finalized === 1
+                        } // ⛔ ปิดเมื่อ finalized
+                        title={
+                          typeof item.application_status === "undefined"
+                            ? "ตารางไม่มีคอลัมน์ application_status"
+                            : item.is_finalized === 1
+                            ? "ใบสมัครถูกปิดการดำเนินการแล้ว"
+                            : undefined
+                        }
                       >
                         <option value="pending">รอดำเนินการ</option>
                         <option value="reviewed">พิจารณาแล้ว</option>
                         <option value="rejected">ปฏิเสธ</option>
                         <option value="hired">จ้างงานแล้ว</option>
                       </Form.Select>
+                      {/* แสดง badge เพิ่ม */}
+                      {item.is_finalized === 1 && (
+                        <div className="small text-muted mt-1">
+                          ปิดการดำเนินการแล้ว
+                        </div>
+                      )}
                     </td>
                     <td>
-                      <Link to={`/hr/applicants/${item.application_id}`} className="btn btn-info btn-sm text-white">
+                      <Link
+                        to={`/hr/applicants/${item.application_id}`}
+                        className="btn btn-info btn-sm text-white"
+                      >
                         <FontAwesomeIcon icon={faEye} /> ดูรายละเอียด
                       </Link>
                     </td>
@@ -239,8 +308,8 @@ function HrApplicantsPage() {
                       <h4>ไม่พบข้อมูลผู้สมัคร</h4>
                       <p>
                         {filters.q || filters.status || filters.jobPostingId
-                          ? 'ไม่พบข้อมูลตามเงื่อนไขที่เลือก'
-                          : 'ยังไม่มีผู้สมัครงานสำหรับบริษัทของคุณ'}
+                          ? "ไม่พบข้อมูลตามเงื่อนไขที่เลือก"
+                          : "ยังไม่มีผู้สมัครงานสำหรับบริษัทของคุณ"}
                       </p>
                     </div>
                   </td>
@@ -254,10 +323,15 @@ function HrApplicantsPage() {
         {(meta.totalPages || 0) > 1 && (
           <div className="d-flex justify-content-between align-items-center mt-3">
             <span className="text-muted">
-              หน้า {meta.currentPage} / {meta.totalPages} (ทั้งหมด {meta.totalItems} รายการ)
+              หน้า {meta.currentPage} / {meta.totalPages} (ทั้งหมด{" "}
+              {meta.totalItems} รายการ)
             </span>
             <div className="btn-group">
-              <Button variant="outline-secondary" onClick={() => handlePageChange(page - 1)} disabled={page <= 1}>
+              <Button
+                variant="outline-secondary"
+                onClick={() => handlePageChange(page - 1)}
+                disabled={page <= 1}
+              >
                 ก่อนหน้า
               </Button>
               <Button

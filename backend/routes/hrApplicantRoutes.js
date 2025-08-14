@@ -2,6 +2,8 @@
 const express = require('express');
 const router = express.Router();
 const hrApplicantController = require('../controllers/hrApplicantController');
+const hrInterviewController = require('../controllers/hrInterviewController');
+const hrDecisionController = require('../controllers/hrDecisionController');
 
 // Inline middleware: require company
 const requireCompanyAuth = (req, res, next) => {
@@ -20,13 +22,16 @@ const requireCompanyAuth = (req, res, next) => {
 
 router.use(requireCompanyAuth);
 
-// List
+// List + Detail + Update status (เดิม)
 router.get('/', hrApplicantController.listMyApplicants);
-
-// Detail
 router.get('/:applicationId', hrApplicantController.getMyApplicantDetail);
-
-// Update status
 router.patch('/:applicationId/status', hrApplicantController.updateMyApplicantStatus);
+
+// Interviews
+router.get('/:applicationId/interviews', hrInterviewController.listInterviews);
+router.post('/:applicationId/interviews', hrInterviewController.scheduleInterview);
+
+// Decision (result email)
+router.patch('/:applicationId/decision', hrDecisionController.sendDecision);
 
 module.exports = router;

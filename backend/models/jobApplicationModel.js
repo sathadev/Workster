@@ -28,15 +28,21 @@ function buildPositionExpr(postColsSet, alias = 'position_name') {
 }
 
 function buildJobTitleExpr(postColsSet) {
-  // พยายามเลือกคอลัมน์ชื่อประกาศ
   const candidates = ['job_title', 'title', 'position_title'];
   const existing = candidates.filter(c => postColsSet.has(c));
   if (existing.length === 0) return 'jp.job_posting_id AS job_title';
   return `jp.${existing[0]} AS job_title`;
 }
 
+// ✅ ตัวช่วยสร้าง expression สำหรับสถานะ finalized
+function buildFinalizedExpr(appColsSet) {
+  if (appColsSet.has('application_status')) {
+    return `CASE WHEN ja.application_status IN ('hired','rejected') THEN 1 ELSE 0 END AS is_finalized`;
+  }
+  return `COALESCE((SELECT f.is_finalized FROM job_application_flags f WHERE f.application_id = ja.application_id LIMIT 1), 0) AS is_finalized`;
+}
+
 const JobApplicationModel = {
-  // ===== Create =====
   create: async (data) => {
     const appCols = await getTableColumns(APP_TABLE);
 
@@ -73,12 +79,29 @@ const JobApplicationModel = {
     return rows[0] || null;
   },
 
+  // ✅ ใช้เช็คว่าถูก finalize แล้วหรือยัง
+  isFinalized: async ({ applicationId, companyId }) => {
+    const appCols = await getTableColumns(APP_TABLE);
+    const finalizedExpr = buildFinalizedExpr(appCols);
+    const rows = await query(
+      `
+      SELECT ${finalizedExpr}
+      FROM ${APP_TABLE} ja
+      INNER JOIN ${POST_TABLE} jp ON jp.job_posting_id = ja.job_posting_id
+      WHERE ja.application_id = ? AND jp.company_id = ?
+      LIMIT 1
+    `,
+      [Number(applicationId), Number(companyId)]
+    );
+    if (rows.length === 0) return null; // ไม่ใช่ของบริษัทนี้/ไม่มีข้อมูล
+    return rows[0].is_finalized === 1;
+  },
+
   // ===== List by Company =====
   listByCompany: async ({ companyId, page = 1, pageSize = 10, q, status, jobPostingId }) => {
     const appCols = await getTableColumns(APP_TABLE);
     const postCols = await getTableColumns(POST_TABLE);
 
-    // select columns
     const selectAppCols = [
       'ja.application_id',
       'ja.job_posting_id',
@@ -86,14 +109,15 @@ const JobApplicationModel = {
     ];
     if (appCols.has('application_status')) selectAppCols.push('ja.application_status');
 
-    // job title + position
-    const jobTitleExpr = buildJobTitleExpr(postCols);          // AS job_title
-    const positionExpr = buildPositionExpr(postCols, 'position_name'); // AS position_name
+    const jobTitleExpr = buildJobTitleExpr(postCols);
+    const positionExpr = buildPositionExpr(postCols, 'position_name');
+    const finalizedExpr = buildFinalizedExpr(appCols);
 
     const baseSelect = `
       SELECT ${selectAppCols.join(', ')},
              ${jobTitleExpr},
-             ${positionExpr}
+             ${positionExpr},
+             ${finalizedExpr}
       FROM ${APP_TABLE} ja
       INNER JOIN ${POST_TABLE} jp ON jp.job_posting_id = ja.job_posting_id
     `;
@@ -103,15 +127,11 @@ const JobApplicationModel = {
 
     if (q) {
       const like = `LIKE CONCAT('%', ?, '%')`;
-      const conds = [
-        `ja.applicant_name ${like}`,
-      ];
-      // เผื่อ title มีอยู่จริง
+      const conds = [`ja.applicant_name ${like}`];
       if (postCols.has('job_title')) conds.push(`jp.job_title ${like}`);
       if (postCols.has('title')) conds.push(`jp.title ${like}`);
       if (postCols.has('position_title')) conds.push(`jp.position_title ${like}`);
       where.push(`(${conds.join(' OR ')})`);
-      // พุชค่า q ตามจำนวน conds
       for (let i = 0; i < conds.length; i++) params.push(q);
     }
 
@@ -145,7 +165,7 @@ const JobApplicationModel = {
     return { items: rows, page: Number(page), pageSize: limit, total: Number(total), totalPages: Math.ceil(total / limit) };
   },
 
-  // ===== Detail by Company (check ownership) =====
+  // ===== Detail by Company =====
   getDetailByCompany: async ({ applicationId, companyId }) => {
     const appCols = await getTableColumns(APP_TABLE);
     const postCols = await getTableColumns(POST_TABLE);
@@ -165,13 +185,15 @@ const JobApplicationModel = {
     if (appCols.has('application_status')) selectApp.push('ja.application_status');
     if (appCols.has('created_at')) selectApp.push('ja.created_at');
 
-    const jobTitleExpr = buildJobTitleExpr(postCols); // AS job_title
+    const jobTitleExpr = buildJobTitleExpr(postCols);
     const positionExpr = buildPositionExpr(postCols, 'position_name');
+    const finalizedExpr = buildFinalizedExpr(appCols);
 
     const sql = `
       SELECT ${selectApp.join(', ')},
              ${jobTitleExpr},
-             ${positionExpr}
+             ${positionExpr},
+             ${finalizedExpr}
       FROM ${APP_TABLE} ja
       INNER JOIN ${POST_TABLE} jp ON jp.job_posting_id = ja.job_posting_id
       WHERE ja.application_id = ? AND jp.company_id = ?
@@ -189,6 +211,15 @@ const JobApplicationModel = {
       err.code = 'NO_STATUS_COLUMN';
       throw err;
     }
+
+    // ❗ ถ้า finalized แล้ว ไม่ให้แก้
+    const finalized = await JobApplicationModel.isFinalized({ applicationId, companyId });
+    if (finalized) {
+      const e = new Error('Application already finalized.');
+      e.code = 'ALREADY_FINALIZED';
+      throw e;
+    }
+
     const allow = new Set(['pending', 'reviewed', 'rejected', 'hired']);
     if (!allow.has(String(status))) {
       const err = new Error('Invalid application status.');
