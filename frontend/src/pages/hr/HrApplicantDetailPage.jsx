@@ -1,3 +1,4 @@
+// frontend/src/pages/hr/HrApplicantDetailPage.jsx
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
 import { Container, Card, Row, Col, Button, Spinner, Alert, Form, Table } from 'react-bootstrap';
@@ -74,6 +75,7 @@ function HrApplicantDetailPage() {
   }, [applicationId]);
 
   const isFinalized = data?.is_finalized === 1 || data?.is_finalized === true;
+  const isHired = (data?.application_status === 'hired') || (isFinalized && data?.application_status === 'hired');
 
   const changeStatus = async (newStatus) => {
     if (isFinalized) {
@@ -136,7 +138,48 @@ function HrApplicantDetailPage() {
     }
   };
 
-  const formatDate = (dateString) => {
+  // === NEW: ส่งต่อไปหน้าเพิ่มพนักงาน พร้อม prefill ===
+  const toDateInput = (v) => {
+    if (!v) return '';
+    const d = new Date(v);
+    return Number.isNaN(d.getTime()) ? '' : d.toISOString().slice(0, 10);
+  };
+
+  const buildEmployeePrefill = () => {
+    const name = (data?.applicant_name || '').trim();
+    const parts = name.split(/\s+/);
+    const first_name = parts[0] || '';
+    const last_name = parts.slice(1).join(' ') || '';
+
+    const resumeHref =
+      data?.resume_filepath
+        ? (data.resume_filepath.startsWith('/uploads')
+            ? `${API_BASE}${data.resume_filepath}`
+            : `${API_BASE}/uploads/resumes/${data.resume_filepath}`)
+        : '';
+
+    return {
+      first_name,
+      last_name,
+      full_name: name,
+      email: data?.applicant_email || '',
+      phone: data?.applicant_phone || '',
+      position_name: data?.job_title || '',
+      start_date: toDateInput(data?.available_start_date),
+      base_salary: typeof data?.expected_salary === 'number' ? data.expected_salary : '',
+      source_application_id: data?.application_id,
+      resume_url: resumeHref,
+    };
+  };
+
+  const goAddEmployee = () => {
+    const prefill = buildEmployeePrefill();
+    // เผื่อหน้า Add ไม่ได้รองรับ navigate state ให้เก็บลง localStorage ด้วย
+    try { localStorage.setItem('employee_prefill', JSON.stringify(prefill)); } catch {}
+    navigate('/employees/add', { state: { prefill } });
+  };
+
+  const formatDateTime = (dateString) => {
     if (!dateString) return '-';
     return new Date(dateString).toLocaleString('th-TH', {
       timeZone: 'Asia/Bangkok',
@@ -162,9 +205,20 @@ function HrApplicantDetailPage() {
     <Container fluid className="p-4">
       <div className="d-flex justify-content-between align-items-center mb-3">
         <h4 className="fw-bold mb-0">รายละเอียดผู้สมัคร</h4>
-        <Button variant="secondary" onClick={() => navigate(-1)}>
-          <FontAwesomeIcon icon={faArrowLeft} className="me-2" /> กลับ
-        </Button>
+        <div className="d-flex gap-2">
+          {/* ปุ่มเพิ่มเป็นพนักงาน — ใช้ได้เมื่อผ่าน (hired) */}
+          <Button
+            variant="success"
+            onClick={goAddEmployee}
+            disabled={!isHired}
+            title={isHired ? '' : 'ปุ่มนี้จะกดได้เมื่อผลเป็น “ผ่าน (hired)”'}
+          >
+            เพิ่มเป็นพนักงาน
+          </Button>
+          <Button variant="secondary" onClick={() => navigate(-1)}>
+            <FontAwesomeIcon icon={faArrowLeft} className="me-2" /> กลับ
+          </Button>
+        </div>
       </div>
 
       <p className="text-muted mb-3">
@@ -188,7 +242,7 @@ function HrApplicantDetailPage() {
             <p><strong><FontAwesomeIcon icon={faEnvelope} className="me-2" />อีเมล:</strong> {data.applicant_email}</p>
             <p><strong><FontAwesomeIcon icon={faPhone} className="me-2" />โทรศัพท์:</strong> {data.applicant_phone || '-'}</p>
             <p><strong><FontAwesomeIcon icon={faMoneyBillWave} className="me-2" />เงินเดือนที่คาดหวัง:</strong> {typeof data.expected_salary === 'number' ? `${data.expected_salary.toLocaleString()} บาท` : '-'}</p>
-            <p><strong><FontAwesomeIcon icon={faCalendarAlt} className="me-2" />วันที่พร้อมเริ่มงาน:</strong> {formatDate(data.available_start_date)}</p>
+            <p><strong><FontAwesomeIcon icon={faCalendarAlt} className="me-2" />วันที่พร้อมเริ่มงาน:</strong> {formatDateTime(data.available_start_date)}</p>
             <p><strong><FontAwesomeIcon icon={faLink} className="me-2" />ลิงก์อื่นๆ:</strong> {data.other_links_text || '-'}</p>
             <p>
               <strong><FontAwesomeIcon icon={faFileAlt} className="me-2" />เรซูเม่:</strong>
@@ -307,7 +361,7 @@ function HrApplicantDetailPage() {
               ) : (
                 interviews.map((iv) => (
                   <tr key={iv.interview_id}>
-                    <td>{formatDate(iv.scheduled_at)}</td>
+                    <td>{formatDateTime(iv.scheduled_at)}</td>
                     <td>{iv.method}</td>
                     <td>{iv.location_or_link || '-'}</td>
                     <td>{iv.notes || '-'}</td>
@@ -346,11 +400,21 @@ function HrApplicantDetailPage() {
             />
           </Col>
         </Row>
-        <div className="mt-3">
+        <div className="mt-3 d-flex gap-2">
           <Button onClick={sendDecision} disabled={isFinalized || sendingDecision}>
             <FontAwesomeIcon icon={faPaperPlane} className="me-2" />
             ส่งอีเมลผลการพิจารณา
             {sendingDecision && <Spinner animation="border" size="sm" className="ms-2" />}
+          </Button>
+
+          {/* ปุ่มเพิ่มเป็นพนักงาน (สำรองอีกจุดหนึ่ง) */}
+          <Button
+            variant="success"
+            onClick={goAddEmployee}
+            disabled={!isHired}
+            title={isHired ? '' : 'ปุ่มนี้จะกดได้เมื่อผลเป็น “ผ่าน (hired)”'}
+          >
+            เพิ่มเป็นพนักงาน
           </Button>
         </div>
       </Card>
