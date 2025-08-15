@@ -1,136 +1,53 @@
-body,
-#root {
-  margin: 0;
-  padding: 0;
-  height: 100%;
-  /* ทำให้ #root และ body สูงเต็มหน้าจอ */
-  width: 100%;
-}
+/* frontend/src/pages/EmployeeListPage.css */
 
-body {
-  font-family: "Noto Sans Thai", sans-serif;
-  background-color: #ffffff;
-  /* ตั้งสีพื้นหลังเผื่อไว้ */
-}
-
-
-.sidebar {
-  background-color: #f8f9fa;
-  min-height: 100vh;
-  padding-top: 20px;
-}
-
-.sidebar a {
-  display: block;
-  padding: 10px 20px;
-  color: #000;
-  text-decoration: none;
-}
-
-.sidebar a:hover {
-  background-color: #e2e6ea;
-  border-radius: 5px;
-}
-
-.card-green {
-  background-color: #28a745;
-}
-
-.card-yellow {
-  background-color: #ffc107;
-}
-
-.card-red {
-  background-color: #dc3545;
-}
-
-/* เส้นขอบรอบนอกของตาราง */
-.table {
-  border: 2px solid #dee2e6;
-  /* เส้นขอบรอบตาราง */
-}
-
-/* เส้นขอบใต้หัวข้อ */
-.table .profile {
-  border-bottom: 2px solid #dee2e6;
-  /* เส้นขอบใต้หัวข้อ */
-  text-align: center;
-  /* จัดกลางหัวข้อ */
-}
-
-/* ลบเส้นขอบในเซลล์ */
-.table td,
-.table th {
-  border: none;
-  /* ไม่มีเส้นขอบในเซลล์ */
-}
-
-/* จัดรูปภาพให้เป็นวงกลม และให้ครอบคลุมพื้นที่ */
-.profile-image {
-  width: 40px;
-  height: 40px;
-  object-fit: cover;
-  /* ให้รูปภาพครอบคลุมพื้นที่โดยไม่เพี้ยน */
-  border-radius: 50%;
-}
-
-/* จัดให้อยู่ตรงกลาง */
-.profile-cell {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.navbar-brand a {
-  text-decoration: none;
-  color: inherit;
-}
-
-.dropdown-toggle::after {
-  display: none;
-}
-/* frontend/src/pages/EmployeeListPage.css 
-
-/* --- สไตล์สำหรับช่องค้นหาแบบใหม่ --- */
+/* --- สไตล์สำหรับช่องค้นหาแบบใหม่ (ปรับตามธีม WorkSter) --- */
 .search-form-custom {
     display: flex;
     align-items: center;
-    border: 1px solid #ced4da; /* สีขอบเทาอ่อน */
+    border: 1px solid #dee2e6; /* ใช้สีขอบที่เข้ากับธีมหลัก */
     border-radius: 0.5rem; /* ทำให้ขอบมน */
     overflow: hidden; /* ซ่อนส่วนเกินของ border */
     max-width: 450px; /* กำหนดความกว้างสูงสุด */
     margin-bottom: 1.5rem;
+    font-family: "Noto Sans Thai", sans-serif; /* ยืนยัน font-family */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05); /* เพิ่มเงาเล็กน้อย */
 }
 
 .search-input {
     border: none;
     flex-grow: 1; /* ให้ช่อง input ขยายเต็มพื้นที่ */
     padding: 0.5rem 1rem;
+    font-size: 1rem; /* ขนาดฟอนต์ */
+    color: #333; /* สีข้อความใน input */
 }
 .search-input:focus {
     outline: none; /* เอาเส้นขอบสีฟ้าตอน focus ออก */
     box-shadow: none;
+    /* สามารถเพิ่ม border-color หรือ box-shadow ที่สอดคล้องกับธีมได้ หากต้องการ visual feedback */
+    /* border-color: #80bdff; */
+    /* box-shadow: 0 0 0 0.25rem rgba(0, 123, 255, 0.25); */
 }
 
 .search-button {
     border: none;
-    background-color: #ffffff;
+    background-color: #f0f2f5; /* สีพื้นหลังปุ่มค้นหาให้สว่างขึ้นเล็กน้อย คล้าย card-header bg-light */
     padding: 0.5rem 1rem;
-    border-left: 1px solid #ced4da; /* เพิ่มเส้นคั่นทางซ้าย */
-    color: #6c757d;
+    border-left: 1px solid #dee2e6; /* สีเส้นคั่น */
+    color: #6c757d; /* สีไอคอน/ข้อความปุ่ม */
+    font-size: 1rem; /* ขนาดฟอนต์ */
+    transition: background-color 0.2s ease, color 0.2s ease;
 }
 .search-button:hover {
-    background-color: #f8f9fa;
+    background-color: #e9ecef; /* สีพื้นหลังเมื่อ hover */
+    color: #333; /* สีไอคอน/ข้อความเมื่อ hover */
 }
 
-/* frontend/src/pages/EmployeeListPage.css */
-
-/* ...สไตล์อื่นๆ ของคุณ... */
-
-/* --- FIX: สำหรับจัดแนว Input Group --- */
+/* --- FIX: สำหรับจัดแนว Input Group (ให้มั่นใจว่าใช้กับ .search-form ถ้ามี) --- */
+/* ถ้า EmployeeListPage.jsx ใช้ form-control และ btn ทั่วไปของ Bootstrap 
+   ใน input group ที่ไม่ใช่ search-form-custom
+   โค้ดนี้จะช่วยให้จัดแนวได้ดีขึ้น */
 .search-form .input-group {
     /* ทำให้ flex container จัด item ให้อยู่ตรงกลางในแนวตั้ง */
-    /* วิธีนี้มักจะแก้ปัญหาความสูงต่างกันเล็กน้อยได้ */
     align-items: stretch; 
 }
 
@@ -138,7 +55,21 @@ body {
 .search-form .form-control,
 .search-form .btn {
     height: 38px; /* ความสูงมาตรฐานของ Bootstrap form-control */
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
+    display: inline-flex; /* ใช้ inline-flex เพื่อการจัดวางที่ดีขึ้น */
+    align-items: center; /* จัดกลางไอคอน/ข้อความในปุ่ม */
+    justify-content: center; /* จัดกลางไอคอน/ข้อความในปุ่ม */
+    font-family: "Noto Sans Thai", sans-serif; /* ให้แน่ใจว่าใช้ฟอนต์ไทย */
+    font-size: 1rem; /* ขนาดฟอนต์สำหรับ input/ปุ่มทั่วไป */
+}
+
+/* Responsive adjustments for search bar */
+@media (max-width: 768px) {
+    .search-form-custom {
+        max-width: 100%; /* เต็มความกว้างบนมือถือ */
+    }
+    .search-input, .search-button, .search-form .form-control, .search-form .btn {
+        font-size: 0.95rem; /* ลดขนาดฟอนต์บนมือถือเล็กน้อย */
+        padding: 0.4rem 0.8rem; /* ลด padding */
+        height: 36px; /* ปรับความสูง */
+    }
 }

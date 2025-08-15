@@ -21,9 +21,19 @@
             color: #333;
         }
 
+        /* Explicitly apply font-family to common elements and Bootstrap components */
+        h1, h2, h3, h4, h5, h6,
+        p, a, span, div,
+        button, input, select, textarea,
+        .navbar-brand, .nav-link, .btn, .form-control, .feature-title, .feature-card p,
+        .hero-title, .hero-subtitle, .footer, .footer a {
+            font-family: 'Noto Sans Thai', sans-serif;
+        }
+
+
         .navbar-brand {
             font-weight: 700;
-            font-size: 1.8rem;
+            font-size: 1.5rem;
         }
 
         .hero-section {
@@ -54,14 +64,14 @@
         }
 
         .hero-title {
-            font-size: 3.5rem;
+            font-size: 3rem;
             font-weight: 700;
             margin-bottom: 1.5rem;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
         }
 
         .hero-subtitle {
-            font-size: 1.5rem;
+            font-size: 1.2rem;
             margin-bottom: 3rem;
             max-width: 800px;
             margin-left: auto;
@@ -134,6 +144,12 @@
         .about-section {
             padding: 5rem 0;
             background-color: #e9ecef;
+        }
+
+        /* Style for the logo in the about section */
+        .about-section .col-md-6.text-center img {
+            max-width: 80%; /* Adjusted max-width */
+            height: auto; /* Maintain aspect ratio */
         }
 
         .call-to-action-section {
@@ -219,7 +235,7 @@
         <div class="container hero-content">
             <h1 class="hero-title">บริหารงานบุคคลยุคใหม่ <br>ครบ จบ ในที่เดียว</h1>
             <p class="hero-subtitle">
-                WorkSter คือระบบ HRM (Human Resource Management) ที่ออกแบบมาเพื่อธุรกิจของคุณ
+                WorkSter คือระบบ HR Management System ที่ออกแบบมาเพื่อธุรกิจของคุณ
                 ช่วยจัดการพนักงาน เงินเดือน การลา ประเมินผล และการรับสมัครงานได้อย่างมีประสิทธิภาพ
             </p>
             <div class="hero-buttons">
@@ -243,42 +259,42 @@
                 <div class="col-md-4">
                     <div class="feature-card">
                         <i class="fas fa-users feature-icon"></i>
-                        <h3 class="feature-title">จัดการข้อมูลพนักงาน</h3>
+                        <h3>จัดการข้อมูลพนักงาน</h3>
                         <p>จัดเก็บและเรียกดูข้อมูลพนักงานได้อย่างเป็นระบบ พร้อมประวัติการทำงาน</p>
                     </div>
                 </div>
                 <div class="col-md-4">
                     <div class="feature-card">
                         <i class="fas fa-dollar-sign feature-icon"></i>
-                        <h3 class="feature-title">ระบบเงินเดือนและค่าตอบแทน</h3>
+                        <h3>ระบบเงินเดือนและค่าตอบแทน</h3>
                         <p>คำนวณเงินเดือน หักภาษี ประกันสังคม ได้อย่างถูกต้องและรวดเร็ว</p>
                     </div>
                 </div>
                 <div class="col-md-4">
                     <div class="feature-card">
                         <i class="fas fa-calendar-alt feature-icon"></i>
-                        <h3 class="feature-title">การจัดการการลา</h3>
+                        <h3>การจัดการการลา</h3>
                         <p>ยื่นคำขอลา อนุมัติ ติดตามสถานะการลาได้ทุกที่ทุกเวลา</p>
                     </div>
                 </div>
                 <div class="col-md-4">
                     <div class="feature-card">
                         <i class="fas fa-chart-line feature-icon"></i>
-                        <h3 class="feature-title">ประเมินผลการปฏิบัติงาน</h3>
+                        <h3>ประเมินผลการปฏิบัติงาน</h3>
                         <p>กำหนดเกณฑ์การประเมิน ติดตามเป้าหมาย และให้ Feedback พนักงาน</p>
                     </div>
                 </div>
                 <div class="col-md-4">
                     <div class="feature-card">
                         <i class="fas fa-bullhorn feature-icon"></i>
-                        <h3 class="feature-title">ประกาศรับสมัครงาน</h3>
+                        <h3>ประกาศรับสมัครงาน</h3>
                         <p>สร้างประกาศงาน จัดการผู้สมัคร และนัดสัมภาษณ์ได้อย่างง่ายดาย</p>
                     </div>
                 </div>
                 <div class="col-md-4">
                     <div class="feature-card">
                         <i class="fas fa-cogs feature-icon"></i>
-                        <h3 class="feature-title">ตั้งค่าและปรับแต่ง</h3>
+                        <h3>ตั้งค่าและปรับแต่ง</h3>
                         <p>ระบบยืดหยุ่น ปรับแต่งให้เข้ากับโครงสร้างและนโยบายบริษัทของคุณ</p>
                     </div>
                 </div>
@@ -291,16 +307,18 @@
             <h2 class="text-center mb-5 feature-title">เกี่ยวกับ WorkSter</h2>
             <div class="row align-items-center">
                 <div class="col-md-6 text-center mb-4 mb-md-0">
-                    <img src="https://via.placeholder.com/400x300?text=About+Us" class="img-fluid rounded shadow-sm" alt="เกี่ยวกับ WorkSter">
+
+                    <img src="../../images/logo.png" alt="โลโก้" class="img-fluid" style="max-width: 60%;">
+
                 </div>
                 <div class="col-md-6">
                     <p class="lead">
-                        WorkSter มุ่งมั่นที่จะเป็นผู้นำด้านระบบบริหารทรัพยากรบุคคล ที่ช่วยให้ธุรกิจทุกขนาดสามารถ
+                        WorkSter มุ่งมั่นที่จะเป็นผู้นำด้านระบบบริหารทรัพยากรบุคคล ที่ช่วยให้ธุรกิจทุก ขนาดสามารถ
                         จัดการบุคลากรได้อย่างมีประสิทธิภาพสูงสุด เราเชื่อว่าการบริหารจัดการ HR ที่ดี
                         คือรากฐานสำคัญของการเติบโตขององค์กร
                     </p>
                     <p>
-                        ทีมงานของเราประกอบด้วยผู้เชี่ยวชาญด้าน HR และเทคโนโลยี ที่พร้อมพัฒนาและปรับปรุงระบบ
+                        ทีมงานของเราประกอบด้วยผู้เชี่ยวด้าน HR และเทคโนโลยี ที่พร้อมพัฒนาและปรับปรุงระบบ
                         ให้ตอบโจทย์ความต้องการที่หลากหลายของธุรกิจในยุคดิจิทัล
                     </p>
                 </div>
@@ -340,16 +358,19 @@
     <script>
         // Optional: Add any custom JavaScript here if needed for interactive elements
         // For example, smooth scrolling for internal links (if not using react-router-dom)
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        document.querySelectorAll('a.nav-link').forEach(anchor => {
             anchor.addEventListener('click', function (e) {
                 e.preventDefault();
-                document.querySelector(this.getAttribute('href')).scrollIntoView({
-                    behavior: 'smooth'
-                });
+
+                const targetId = this.getAttribute('href').substring(1);
+                const targetElement = document.getElementById(targetId);
+
+                if (targetElement) {
+                    targetElement.scrollIntoView({ behavior: 'smooth' });
+                }
             });
         });
 
-        // Placeholder for future dynamic content or analytics if needed
         console.log("WorkSter Landing Page Loaded!");
     </script>
 </body>

@@ -1,14 +1,36 @@
 // frontend/src/pages/JobPostings/PublicJobPostingListPage.jsx
 import { useState, useEffect, useCallback } from 'react';
-import { Link } from 'react-router-dom';
+import { NavLink, Link } from 'react-router-dom';
 import { publicApi } from '../../api/axios';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
-    faSearch, faTimes, faInbox, faInfoCircle,
-    faSortUp, faSortDown, faBuilding, faExclamationTriangle
+    faSearch, faTimes, faInbox, faInfoCircle, faSortUp, faSortDown, faBuilding, faExclamationTriangle,
+    faMapMarkerAlt, faMoneyBillWave, faFilter
 } from '@fortawesome/free-solid-svg-icons';
-import { Form, Button, Alert, Card, Row, Col, Spinner } from 'react-bootstrap';
+import { Form, Button, Alert, Card, Row, Col, Spinner, Container, Navbar } from 'react-bootstrap';
 import './PublicJobPostingListPage.css';
+
+const PublicNavbar = () => {
+    return (
+        <Navbar expand="lg" variant="dark" className="ws-navbar sticky-top" style={{ backgroundColor: 'rgb(33, 37, 41)' }}>
+            <Container>
+                <NavLink className="navbar-brand" to="/" aria-label="WorkSter Home">
+                    WorkSter
+                </NavLink>
+                <Navbar.Toggle aria-controls="regNav" />
+                <Navbar.Collapse id="regNav">
+                    <ul className="navbar-nav ms-auto align-items-lg-center">
+                        <li className="nav-item me-lg-2">
+                            <NavLink to="/login" className="btn btn-outline-light ws-btn">
+                                เข้าสู่ระบบ
+                            </NavLink>
+                        </li>
+                    </ul>
+                </Navbar.Collapse>
+            </Container>
+        </Navbar>
+    );
+};
 
 function PublicJobPostingListPage() {
     const [jobPostings, setJobPostings] = useState([]);
@@ -19,19 +41,17 @@ function PublicJobPostingListPage() {
     const [searchInput, setSearchInput] = useState('');
     const [filters, setFilters] = useState({
         search: '',
-        jobpos_id: '' // กรองตามตำแหน่งที่ประกาศ
+        jobpos_id: ''
     });
     const [sortConfig, setSortConfig] = useState({ key: 'posted_at', direction: 'desc' });
     const [currentPage, setCurrentPage] = useState(1);
-    const [positions, setPositions] = useState([]); // สำหรับ dropdown ตำแหน่งงาน
+    const [positions, setPositions] = useState([]);
 
-    // Fetch Job Positions for filter dropdown (ใช้ publicApi)
     useEffect(() => {
         const fetchPositions = async () => {
             try {
-                // เรียก Public API Endpoint สำหรับ Job Positions
-                const response = await publicApi.get('/positions/public'); // <-- แก้ไขตรงนี้: ใช้ publicApi และเรียก /positions/public
-                setPositions(response.data); // Backend จะกรองเฉพาะ Global positions มาให้แล้ว
+                const response = await publicApi.get('/positions/public');
+                setPositions(response.data);
             } catch (err) {
                 console.error("Failed to fetch positions for public job postings:", err);
             }
@@ -39,7 +59,6 @@ function PublicJobPostingListPage() {
         fetchPositions();
     }, []);
 
-    // Fetch Public Job Postings (ใช้ publicApi)
     const fetchJobPostings = useCallback(async () => {
         setLoading(true);
         setError(null);
@@ -51,8 +70,7 @@ function PublicJobPostingListPage() {
                 page: currentPage,
                 limit: 10,
             };
-            // เรียก Public API Endpoint
-            const response = await publicApi.get('/job-postings/public', { params }); // <-- แก้ไขตรงนี้: ใช้ publicApi
+            const response = await publicApi.get('/job-postings/public', { params });
             setJobPostings(response.data.data || []);
             setMeta(response.data.meta || {});
         } catch (err) {
@@ -108,104 +126,126 @@ function PublicJobPostingListPage() {
         return date.toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric' });
     };
 
-    if (loading) return <div className="text-center mt-5"><Spinner animation="border" /> กำลังโหลด...</div>;
-    if (error) return <Alert variant="danger" className="mt-5 text-center"><FontAwesomeIcon icon={faExclamationTriangle} className="me-2" />{error}</Alert>;
-
     return (
-        <div style={{ fontFamily: '"Noto Sans Thai", sans-serif', background: '#f8f9fa', minHeight: '100vh' }}>
-            {/* Navbar */}
-            <nav className="navbar navbar-dark" style={{ backgroundColor: '#1E56A0', padding: 10 }}>
-                <div className="container-fluid">
-                    <span className="navbar-brand mb-0 h1 fs-4">WorkSter</span>
-                    <span className="text-white fs-3">
-                        <i className="fa-solid fa-circle-user" style={{ color: '#fff' }}></i>
-                    </span>
-                </div>
-            </nav>
-
-            <div className="container-fluid">
-                <div className="row">
-                    {/* Sidebar */}
-                    <div className="col-md-2 sidebar"></div>
-
-                    {/* Main Content */}
-                    <div className="col-md-10 p-4" style={{ backgroundColor: '#fff' }}>
-                        <h4 className="mb-4">ประกาศรับสมัครงาน</h4>
-                        <div className="d-flex align-items-center mb-4">
-                            <span className="me-3 fs-5">ตำแหน่งงานทั้งหมด</span>
-                            <div className="input-group search-input" style={{ maxWidth: 350 }}>
-                                <input
-                                    type="text"
-                                    className="form-control"
-                                    placeholder="ค้นหาตำแหน่งงาน"
-                                    value={searchInput}
-                                    onChange={handleSearchInputChange}
-                                />
-                                <span className="input-group-text">
-                                    <i className="fa-solid fa-magnifying-glass"></i>
-                                </span>
-                            </div>
-                        </div>
-
-                        <div className="job-listings">
-                            {jobPostings.length > 0 ? jobPostings.map(post => (
-                                <Link
-                                    to={`/public/job-postings/${post.job_posting_id}`}
-                                    key={post.job_posting_id}
-                                    style={{ textDecoration: 'none', color: 'inherit' }}
-                                >
-                                    <div className="card job-card">
-                                        <div className="card-body">
-                                            <div className="d-flex justify-content-between">
-                                                <div>
-                                                    <h5 className="card-title fw-bold">{post.job_title}</h5>
-                                                    <p className="card-text text-muted mb-1">{post.company_name}</p>
-                                                    <p className="card-text text-muted mb-2">{post.job_location_text || '-'}</p>
-                                                    <p className="card-text">
-                                                        {post.salary_min?.toLocaleString()} - {post.salary_max?.toLocaleString()} บาท
-                                                    </p>
-                                                </div>
-                                                <div className="text-muted">
-                                                    <small>
-                                                        {post.posted_at
-                                                            ? new Date(post.posted_at).toLocaleDateString('th-TH', {
-                                                                year: '2-digit',
-                                                                month: 'short',
-                                                                day: '2-digit',
-                                                            })
-                                                            : '-'}
-                                                    </small>
-                                                </div>
-                                            </div>
-                                        </div>
+        <div style={{ fontFamily: '"Noto Sans Thai", sans-serif', background: '#f0f2f5', minHeight: '100vh' }}>
+            <PublicNavbar />
+            <Container className="py-5">
+                <h2 className="fw-bold mb-4 text-center text-dark">ประกาศรับสมัครงานทั้งหมด</h2>
+                <Card className="p-4 mb-4 shadow-sm border-0">
+                    <Form onSubmit={handleSearchSubmit}>
+                        <Row className="align-items-center g-3">
+                            <Col md={6}>
+                                <Form.Group>
+                                    <Form.Label className="fw-bold">ค้นหางาน</Form.Label>
+                                    <div className="input-group">
+                                        <input
+                                            type="text"
+                                            className="form-control"
+                                            placeholder="ค้นหาชื่อตำแหน่ง, บริษัท หรือสถานที่"
+                                            value={searchInput}
+                                            onChange={handleSearchInputChange}
+                                        />
+                                        <Button variant="primary" type="submit">
+                                            <FontAwesomeIcon icon={faSearch} />
+                                        </Button>
+                                        {searchInput && (
+                                            <Button variant="outline-secondary" onClick={clearSearch}>
+                                                <FontAwesomeIcon icon={faTimes} />
+                                            </Button>
+                                        )}
                                     </div>
-                                </Link>
-                            )) : (
-                                <div className="text-center text-muted p-4">
-                                    <FontAwesomeIcon icon={faInbox} className="fa-3x mb-3" />
-                                    <h4>ไม่พบประกาศรับสมัครงาน</h4>
-                                    <p>{filters.search || filters.jobpos_id ? 'ไม่พบประกาศตามเงื่อนไขที่เลือก' : 'ยังไม่มีประกาศรับสมัครงานที่เปิดรับ'}</p>
-                                </div>
-                            )}
-                        </div>
+                                </Form.Group>
+                            </Col>
+                            <Col md={4}>
+                                <Form.Group>
+                                    <Form.Label className="fw-bold">กรองตามตำแหน่ง</Form.Label>
+                                    <Form.Select name="jobpos_id" onChange={handleFilterChange} value={filters.jobpos_id}>
+                                        <option value="">-- ทุกตำแหน่ง --</option>
+                                        {positions.map(pos => (
+                                            <option key={pos.job_position_id} value={pos.job_position_id}>
+                                                {pos.job_position_name}
+                                            </option>
+                                        ))}
+                                    </Form.Select>
+                                </Form.Group>
+                            </Col>
+                            <Col md={2}>
+                                <Form.Group>
+                                    <Form.Label className="fw-bold">เรียงลำดับ</Form.Label>
+                                    <Button
+                                        variant="outline-secondary"
+                                        onClick={() => handleSort('posted_at')}
+                                        className="w-100"
+                                    >
+                                        วันที่ประกาศ
+                                        <FontAwesomeIcon
+                                            icon={sortConfig.direction === 'desc' ? faSortDown : faSortUp}
+                                            className="ms-2"
+                                        />
+                                    </Button>
+                                </Form.Group>
+                            </Col>
+                        </Row>
+                    </Form>
+                </Card>
 
-                        {/* Pagination */}
-                        {meta.totalPages > 1 && (
-                            <div className="d-flex justify-content-between align-items-center mt-3">
-                                <span className="text-muted">หน้า {meta.currentPage || 1} / {meta.totalPages || 1} (ทั้งหมด {meta.totalItems || 0} รายการ)</span>
-                                <div className="btn-group">
-                                    <Button variant="outline-secondary" onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1}>
-                                        ก่อนหน้า
-                                    </Button>
-                                    <Button variant="outline-secondary" onClick={() => handlePageChange(currentPage + 1)} disabled={!meta.totalPages || currentPage >= meta.totalPages}>
-                                        ถัดไป
-                                    </Button>
-                                </div>
-                            </div>
-                        )}
+                {loading ? (
+                    <div className="text-center my-5">
+                        <Spinner animation="border" /> กำลังโหลด...
                     </div>
-                </div>
-            </div>
+                ) : error ? (
+                    <Alert variant="danger" className="text-center my-5">
+                        <FontAwesomeIcon icon={faExclamationTriangle} className="me-2" />{error}
+                    </Alert>
+                ) : jobPostings.length > 0 ? (
+                    <div className="job-listings">
+                        <Row xs={1} md={2} className="g-4">
+                            {jobPostings.map(post => (
+                                <Col key={post.job_posting_id}>
+                                    <Link to={`/public/job-postings/${post.job_posting_id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+                                        <Card className="job-card shadow-sm border-0 h-100">
+                                            <Card.Body>
+                                                <div className="d-flex justify-content-between align-items-center mb-2">
+                                                    <h5 className="card-title fw-bold text-primary mb-0">{post.job_title}</h5>
+                                                    <small className="text-muted">{formatDate(post.posted_at)}</small>
+                                                </div>
+                                                <p className="card-text text-muted mb-1"><FontAwesomeIcon icon={faBuilding} className="me-2" /> {post.company_name}</p>
+                                                <p className="card-text text-muted mb-2"><FontAwesomeIcon icon={faMapMarkerAlt} className="me-2" /> {post.job_location_text || '-'}</p>
+                                                <h6 className="card-text text-success fw-bold">
+                                                    <FontAwesomeIcon icon={faMoneyBillWave} className="me-2" /> {post.salary_min?.toLocaleString()} - {post.salary_max?.toLocaleString()} บาท
+                                                </h6>
+                                            </Card.Body>
+                                        </Card>
+                                    </Link>
+                                </Col>
+                            ))}
+                        </Row>
+                    </div>
+                ) : (
+                    <div className="text-center text-muted p-5">
+                        <FontAwesomeIcon icon={faInbox} className="fa-4x mb-3" />
+                        <h4>ไม่พบประกาศรับสมัครงาน</h4>
+                        <p className="mb-0">{filters.search || filters.jobpos_id ? 'ไม่พบประกาศตามเงื่อนไขที่เลือก' : 'ยังไม่มีประกาศรับสมัครงานที่เปิดรับ'}</p>
+                    </div>
+                )}
+                
+                {meta.totalPages > 1 && (
+                    <div className="d-flex justify-content-center align-items-center mt-4">
+                        <div className="btn-group">
+                            <Button variant="outline-primary" onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1}>
+                                ก่อนหน้า
+                            </Button>
+                            <span className="btn btn-light text-muted">หน้า {meta.currentPage || 1} / {meta.totalPages || 1}</span>
+                            <Button variant="outline-primary" onClick={() => handlePageChange(currentPage + 1)} disabled={!meta.totalPages || currentPage >= meta.totalPages}>
+                                ถัดไป
+                            </Button>
+                        </div>
+                    </div>
+                )}
+            </Container>
+            <footer className="bg-dark text-white text-center py-3 mt-5">
+                <p className="mb-0">&copy; 2025 WorkSter. All rights reserved.</p>
+            </footer>
         </div>
     );
 }

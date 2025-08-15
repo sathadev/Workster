@@ -2,45 +2,83 @@
 
 /* สไตล์สำหรับการ์ดสรุปผล */
 .dashboard-summary .card {
-    color: rgb(0, 0, 0);
-    border-radius: 0.5rem;
+    color: #333; /* Default text color, will be overridden by gradient cards */
+    border-radius: 0.75rem; /* เพิ่มความโค้งมน */
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08); /* ปรับเงาให้ดูสวยขึ้น */
     transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
 }
 
 .dashboard-summary .card:hover {
     transform: translateY(-5px);
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
 }
 
 .dashboard-summary .bg-ontime {
-    background: linear-gradient(135deg, #28a745, #218838);
+    background: linear-gradient(135deg, #28a745, #218838); /* เขียว */
     color: #ffffff !important;
     border: none;
 }
 
 .dashboard-summary .bg-late {
-    background: linear-gradient(135deg, #ffc107, #e0a800);
-    color: #212529 !important; /* ทำให้ตัวหนังสือสีเข้ม อ่านง่ายบนพื้นสีเหลือง */
+    background: linear-gradient(135deg, #ffc107, #e0a800); /* เหลือง */
+    color: #333 !important; /* ทำให้ตัวหนังสือสีเข้ม อ่านง่ายบนพื้นสีเหลือง */
     border: none;
 }
 
 .dashboard-summary .bg-absent {
-    background: linear-gradient(135deg, #dc3545, #c82333);
+    background: linear-gradient(135deg, #dc3545, #c82333); /* แดง */
     color: #ffffff !important;
     border: none;
 }
 
 .dashboard-summary .card-title {
-    font-weight: 300;
-    font-size: 1.1rem;
+    font-weight: 500; /* ปรับน้ำหนักฟอนต์ */
+    font-size: 1.05rem; /* ปรับขนาดฟอนต์เล็กน้อย */
+    color: rgba(255, 255, 255, 0.85); /* สีข้อความ title ในการ์ด gradient */
 }
 
 .dashboard-summary .card-value {
-    font-size: 2.75rem;
+    font-size: 3rem; /* เพิ่มขนาดฟอนต์ตัวเลข */
     font-weight: 700;
+    color: #ffffff; /* สีตัวเลขในการ์ด gradient */
 }
 
 /* สไตล์สำหรับส่วนลงเวลา */
 .clock-in-out-section .card {
+    border-radius: 0.75rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+}
+
+.clock-in-out-section .card-header {
+    background-color: #f0f2f5; /* สีพื้นหลัง header อ่อนๆ */
+    font-weight: 600;
+    font-size: 1.1rem;
+    color: #333;
+}
+
+.clock-in-out-section .btn-time-action {
+    background-color: #1E56A0; /* สีเดียวกับ Navbar Brand / Hero Gradient */
+    color: #fff;
     border-radius: 0.5rem;
+    font-weight: 600;
+    padding: 0.75rem 1.5rem;
+    transition: background-color 0.3s ease;
+    font-size: 1.1rem; /* Adjust font size for action button */
+}
+
+.clock-in-out-section .btn-time-action:hover {
+    background-color: #3E8DCF;
+}
+
+.clock-in-out-section .time-display {
+    font-size: 2.5rem; /* ขนาดใหญ่สำหรับเวลา */
+    font-weight: 700;
+    color: #1E56A0; /* สีน้ำเงินเข้ม */
+    margin-bottom: 0.5rem;
+}
+
+.clock-in-out-section .status-text {
+    font-size: 1.1rem;
+    font-weight: 500;
+    color: #555;
 }

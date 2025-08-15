@@ -1,7 +1,34 @@
+/* frontend/src/pages/PositionListPage.css */
 
 .custom-modal .modal-content {
-  max-width: 500px;
-  margin: auto; /* จัดกลางแนวนอน */
-  border-radius: 25px;
-  border: none;
+    max-width: 500px;
+    margin: auto; /* จัดกลางแนวนอน */
+    border-radius: 25px; /* คงความโค้งมน 25px ตามที่ระบุ */
+    border: none;
+    background-color: #ffffff; /* กำหนดพื้นหลังสีขาวชัดเจน */
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15); /* เพิ่มเงาให้ดูมีมิติมากขึ้น */
+    font-family: "Noto Sans Thai", sans-serif; /* ให้แน่ใจว่าใช้ฟอนต์ไทย */
+    color: #333; /* สีข้อความหลักภายใน Modal Content */
+    /* อาจจะเพิ่ม padding โดยรวมของการ์ด ถ้ายังไม่มี padding ภายใน Modal.Body/Header/Footer */
+    /* padding: 1.5rem; */ 
+}
+
+/* * หมายเหตุ: ส่วน Modal.Header, Modal.Body, Modal.Footer
+* จะถูกจัดการสไตล์โดย Bootstrap และ global CSS ใน index.css ที่เราได้แก้ไขไปแล้ว
+* เช่น:
+* .modal-header { font-family: "Noto Sans Thai", sans-serif; font-weight: 600; font-size: 1.2rem; }
+* .modal-body { font-family: "Noto Sans Thai", sans-serif; font-size: 1rem; }
+* .modal-footer .btn { font-family: "Noto Sans Thai", sans-serif; }
+* * ถ้าคุณต้องการปรับสีของ header/footer ใน Modal นี้เป็นพิเศษ
+* อาจจะต้องเพิ่ม class เฉพาะให้กับ Modal.Header ใน JSX ของ PositionListPage 
+* เช่น <Modal.Header className="bg-gradient-primary-custom text-white">
+*/
+
+/* Responsive adjustments for modal */
+@media (max-width: 768px) {
+    .custom-modal .modal-content {
+        width: 95%; /* ขยายความกว้างบนมือถือ */
+        margin: 20px auto; /* ปรับ margin บนมือถือ */
+        border-radius: 15px; /* ลดความโค้งมนบนมือถือเล็กน้อยเพื่อให้เหมาะสม */
+    }
 }

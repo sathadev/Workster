@@ -1,14 +1,38 @@
-import React, { useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { publicApi } from '../../api/axios'; // ใช้ publicApi
-import { Form, Button, Alert, Card, Spinner, Row, Col } from 'react-bootstrap'; 
+// frontend/src/pages/Public/PublicJobApplicationPage.jsx
+import { useState, useEffect } from 'react';
+import { useParams, useNavigate, NavLink, Link } from 'react-router-dom';
+import { publicApi } from '../../api/axios';
+import { Form, Button, Alert, Card, Spinner, Row, Col, Container, Navbar } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPaperPlane, faExclamationTriangle, faCheckCircle } from '@fortawesome/free-solid-svg-icons';
 import './PublicJobApplicationPage.css';
 
+const PublicNavbar = () => {
+    return (
+        <Navbar expand="lg" variant="dark" className="ws-navbar sticky-top" style={{ backgroundColor: 'rgb(33, 37, 41)' }}>
+            <Container>
+                <NavLink className="navbar-brand" to="/" aria-label="WorkSter Home">
+                    WorkSter
+                </NavLink>
+                <Navbar.Toggle aria-controls="regNav" />
+                <Navbar.Collapse id="regNav">
+                    <ul className="navbar-nav ms-auto align-items-lg-center">
+                        <li className="nav-item me-lg-2">
+                            <NavLink to="/login" className="btn btn-outline-light ws-btn">
+                                เข้าสู่ระบบ
+                            </NavLink>
+                        </li>
+                    </ul>
+                </Navbar.Collapse>
+            </Container>
+        </Navbar>
+    );
+};
+
 function PublicJobApplicationPage() {
-    const { id } = useParams(); // id ของ Job Posting
+    const { id } = useParams();
     const navigate = useNavigate();
+    const [jobTitle, setJobTitle] = useState('');
 
     const [formData, setFormData] = useState({
         applicant_name: '',
@@ -25,6 +49,19 @@ function PublicJobApplicationPage() {
     const [submitting, setSubmitting] = useState(false);
     const [error, setError] = useState(null);
     const [success, setSuccess] = useState(null);
+
+    // Fetch job title to display on the form
+    useEffect(() => {
+        const fetchJobTitle = async () => {
+            try {
+                const res = await publicApi.get(`/job-postings/public/${id}`);
+                setJobTitle(res.data.job_title);
+            } catch (err) {
+                console.error("Failed to fetch job title:", err);
+            }
+        };
+        fetchJobTitle();
+    }, [id]);
 
     const handleChange = (e) => {
         const { name, value, type, checked, files } = e.target;
@@ -60,7 +97,8 @@ function PublicJobApplicationPage() {
                 dataToSubmit.append(key, formData[key]);
             }
         });
-
+        
+        // Use the correct endpoint based on the ID
         try {
             const response = await publicApi.post(`/job-applications/${id}`, dataToSubmit, {
                 headers: { 'Content-Type': 'multipart/form-data' }
@@ -78,61 +116,74 @@ function PublicJobApplicationPage() {
     };
 
     return (
-        <div className="job-application-container">
-            <Card className="shadow-sm p-4">
-                <h4 className="fw-bold mb-3">แบบฟอร์มสมัครงาน</h4>
-                {error && <Alert variant="danger"><FontAwesomeIcon icon={faExclamationTriangle} className="me-2" />{error}</Alert>}
-                {success && <Alert variant="success"><FontAwesomeIcon icon={faCheckCircle} className="me-2" />{success}</Alert>}
-                
-                <Form onSubmit={handleSubmit}>
-                    <Form.Group className="mb-3">
-                        <Form.Label>ชื่อ-นามสกุล <span className="text-danger">*</span></Form.Label>
-                        <Form.Control type="text" name="applicant_name" value={formData.applicant_name} onChange={handleChange} required />
-                    </Form.Group>
-                    <Row className="mb-3">
-                        <Form.Group as={Col} controlId="formEmail">
-                            <Form.Label>อีเมล <span className="text-danger">*</span></Form.Label>
-                            <Form.Control type="email" name="applicant_email" value={formData.applicant_email} onChange={handleChange} required />
-                        </Form.Group>
-                        <Form.Group as={Col} controlId="formPhone">
-                            <Form.Label>เบอร์โทรศัพท์ <span className="text-danger">*</span></Form.Label>
-                            <Form.Control type="tel" name="applicant_phone" value={formData.applicant_phone} onChange={handleChange} required />
-                        </Form.Group>
-                    </Row>
-                    <Form.Group controlId="formFile" className="mb-3">
-                        <Form.Label>อัปโหลด Resume/CV (PDF, DOC, DOCX) <span className="text-danger">*</span></Form.Label>
-                        <Form.Control type="file" name="resume_file" onChange={handleChange} accept=".pdf,.doc,.docx" required />
-                    </Form.Group>
-                    <Form.Group className="mb-3">
-                        <Form.Label>เงินเดือนที่คาดหวัง (บาท)</Form.Label>
-                        <Form.Control type="number" name="expected_salary" value={formData.expected_salary} onChange={handleChange} />
-                    </Form.Group>
-                    <Form.Group className="mb-3">
-                        <Form.Label>วันที่เริ่มงานที่พร้อม</Form.Label>
-                        <Form.Control type="date" name="available_start_date" value={formData.available_start_date} onChange={handleChange} />
-                    </Form.Group>
-                    <Form.Group className="mb-3">
-                        <Form.Label>ลิงก์อื่นๆ (เช่น Portfolio, LinkedIn)</Form.Label>
-                        <Form.Control as="textarea" rows={3} name="other_links_text" value={formData.other_links_text} onChange={handleChange} />
-                    </Form.Group>
-
-                    <Form.Group className="mb-3" controlId="formBasicCheckbox">
-                        <Form.Check 
-                            type="checkbox" 
-                            label="ฉันยอมรับนโยบายความเป็นส่วนตัว" 
-                            name="consent_privacy"
-                            checked={formData.consent_privacy}
-                            onChange={handleChange}
-                            required
-                        />
-                    </Form.Group>
-                    
-                    <Button variant="success" type="submit" disabled={submitting} className="w-100 mt-3">
-                        {submitting ? <Spinner animation="border" size="sm" className="me-2" /> : ''}
-                        ส่งใบสมัคร
-                    </Button>
-                </Form>
-            </Card>
+        <div style={{ fontFamily: '"Noto Sans Thai", sans-serif', background: '#f0f2f5', minHeight: '100vh' }}>
+            <PublicNavbar />
+            <Container className="py-5">
+                <Card className="shadow-lg p-4">
+                    <Card.Body>
+                        <h2 className="fw-bold mb-1 text-primary">สมัครงาน</h2>
+                        <h4 className="fw-bold mb-4 text-secondary">{jobTitle}</h4>
+                        <hr className="mb-4" />
+                        {error && <Alert variant="danger"><FontAwesomeIcon icon={faExclamationTriangle} className="me-2" />{error}</Alert>}
+                        {success && <Alert variant="success"><FontAwesomeIcon icon={faCheckCircle} className="me-2" />{success}</Alert>}
+                        
+                        <Form onSubmit={handleSubmit}>
+                            <Row className="mb-3">
+                                <Form.Group as={Col} md={6}>
+                                    <Form.Label className="fw-bold">ชื่อ-นามสกุล <span className="text-danger">*</span></Form.Label>
+                                    <Form.Control type="text" name="applicant_name" value={formData.applicant_name} onChange={handleChange} required />
+                                </Form.Group>
+                                <Form.Group as={Col} md={6}>
+                                    <Form.Label className="fw-bold">อีเมล <span className="text-danger">*</span></Form.Label>
+                                    <Form.Control type="email" name="applicant_email" value={formData.applicant_email} onChange={handleChange} required />
+                                </Form.Group>
+                            </Row>
+                            <Row className="mb-3">
+                                <Form.Group as={Col} md={6}>
+                                    <Form.Label className="fw-bold">เบอร์โทรศัพท์ <span className="text-danger">*</span></Form.Label>
+                                    <Form.Control type="tel" name="applicant_phone" value={formData.applicant_phone} onChange={handleChange} required />
+                                </Form.Group>
+                                <Form.Group as={Col} md={6}>
+                                    <Form.Label className="fw-bold">อัปโหลด Resume/CV <span className="text-danger">*</span></Form.Label>
+                                    <Form.Control type="file" name="resume_file" onChange={handleChange} accept=".pdf,.doc,.docx" required />
+                                </Form.Group>
+                            </Row>
+                            <Row className="mb-3">
+                                <Form.Group as={Col} md={6}>
+                                    <Form.Label className="fw-bold">เงินเดือนที่คาดหวัง (บาท)</Form.Label>
+                                    <Form.Control type="number" name="expected_salary" value={formData.expected_salary} onChange={handleChange} />
+                                </Form.Group>
+                                <Form.Group as={Col} md={6}>
+                                    <Form.Label className="fw-bold">วันที่เริ่มงานที่พร้อม</Form.Label>
+                                    <Form.Control type="date" name="available_start_date" value={formData.available_start_date} onChange={handleChange} />
+                                </Form.Group>
+                            </Row>
+                            <Form.Group className="mb-3">
+                                <Form.Label className="fw-bold">ลิงก์อื่นๆ (เช่น Portfolio, LinkedIn)</Form.Label>
+                                <Form.Control as="textarea" rows={3} name="other_links_text" value={formData.other_links_text} onChange={handleChange} />
+                            </Form.Group>
+                            <Form.Group className="mb-4" controlId="formBasicCheckbox">
+                                <Form.Check 
+                                    type="checkbox" 
+                                    label="ฉันยอมรับนโยบายความเป็นส่วนตัว" 
+                                    name="consent_privacy"
+                                    checked={formData.consent_privacy}
+                                    onChange={handleChange}
+                                    required
+                                />
+                            </Form.Group>
+                            
+                            <Button variant="primary" type="submit" disabled={submitting} className="w-100 py-2 fw-bold">
+                                {submitting ? <Spinner animation="border" size="sm" className="me-2" /> : <FontAwesomeIcon icon={faPaperPlane} className="me-2" />}
+                                ส่งใบสมัคร
+                            </Button>
+                        </Form>
+                    </Card.Body>
+                </Card>
+            </Container>
+            <footer className="bg-dark text-white text-center py-3 mt-5">
+                <p className="mb-0">&copy; 2025 WorkSter. All rights reserved.</p>
+            </footer>
         </div>
     );
 }

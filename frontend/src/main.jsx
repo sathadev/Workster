@@ -1,17 +1,20 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
-// Import CSS หลักและ Bootstrap
+
+// CSS & Bootstrap
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
 import "./index.css";
 
-// Import Context Provider
+// Context
 import { AuthProvider } from "./context/AuthContext";
 
-// Import Layout และ Pages ทั้งหมดที่จำเป็น
+// Layout & Components
 import MainLayout from "./layouts/MainLayout.jsx";
 import ProtectedRoute from "./components/ProtectedRoute.jsx";
+
+// Pages (ระบบ HR)
 import LoginPage from "./pages/LoginPage.jsx";
 import HomePage from "./pages/HomePage.jsx";
 import EmployeeListPage from "./pages/Employees/EmployeeListPage.jsx";
@@ -35,12 +38,13 @@ import SettingsPage from "./pages/SettingsPage.jsx";
 import ProfilePage from "./pages/Employees/ProfilePage.jsx";
 import RegisterUserPage from "./pages/Auth/RegisterUserPage.jsx";
 
+// Admin
 import CompanyApprovalPage from "./pages/Admin/CompanyApprovalPage.jsx";
 import CompanyDetailPage from "./pages/Admin/CompanyDetailPage.jsx";
 import CompanyListPage from "./pages/Admin/CompanyListPage.jsx";
 import CompanyRequestPage from "./pages/Admin/CompanyRequestPage.jsx";
 
-// Import Job Posting Pages
+// Jobs (Public/HR)
 import JobPostingListPage from "./pages/JobPostings/JobPostingListPage.jsx";
 import JobPostingFormPage from "./pages/JobPostings/JobPostingFormPage.jsx";
 import JobPostingDetailPage from "./pages/JobPostings/JobPostingDetailPage.jsx";
@@ -50,7 +54,10 @@ import PublicJobApplicationPage from "./pages/Public/PublicJobApplicationPage.js
 import HrApplicantsPage from "./pages/hr/HrApplicantsPage.jsx";
 import HrApplicantDetailPage from "./pages/hr/HrApplicantDetailPage.jsx";
 
-// Error element แบบง่าย (กันเด้ง Unexpected Application Error)
+// 🔹 Landing Page (ใหม่ - public)
+import LandingPage from "./pages/LandingPage.jsx";
+
+// Error element
 function RouteError() {
   return (
     <div className="container py-5">
@@ -63,8 +70,12 @@ function RouteError() {
   );
 }
 
-// สร้าง "แผนที่" ของเว็บไซต์
+// Router
 const router = createBrowserRouter([
+  // 🔹 หน้า Landing (public) ที่ "/"
+  { path: "/", element: <LandingPage /> },
+
+  // 🔒 โซนระบบ HR (ต้องล็อกอิน) ที่ยังคง path เดิมทั้งหมด
   {
     path: "/",
     element: (
@@ -74,7 +85,8 @@ const router = createBrowserRouter([
     ),
     errorElement: <RouteError />,
     children: [
-      { index: true, element: <HomePage /> },
+      // เดิม index เป็น HomePage → เปลี่ยนไปใช้ /home แทน
+      { path: "home", element: <HomePage /> },
 
       { path: "employees", element: <EmployeeListPage /> },
       { path: "employees/view/:id", element: <EmployeeDetailPage /> },
@@ -101,42 +113,34 @@ const router = createBrowserRouter([
 
       { path: "settings", element: <SettingsPage /> },
 
-      { path: "admin/companies", element: <CompanyApprovalPage /> },
-      { path: "admin/companies/:id", element: <CompanyDetailPage /> },
-      { path: "admin/companies/all", element: <CompanyListPage /> },
-      { path: "admin/companies/requests", element: <CompanyRequestPage /> },
-
-      // --- Job Posting Routes (Protected for HR/Admin) ---
       { path: "job-postings", element: <JobPostingListPage /> },
       { path: "job-postings/add", element: <JobPostingFormPage /> },
       { path: "job-postings/edit/:id", element: <JobPostingFormPage /> },
       { path: "job-postings/view/:id", element: <JobPostingDetailPage /> },
 
-      // --- HR: ผู้มาสมัคร (เฉพาะบริษัทตัวเอง) ---
       { path: "hr/applicants", element: <HrApplicantsPage /> },
-      {
-        path: "hr/applicants/:applicationId",
-        element: <HrApplicantDetailPage />,
-      },
+      { path: "hr/applicants/:applicationId", element: <HrApplicantDetailPage /> },
+
+      // Admin
+      { path: "admin/companies", element: <CompanyApprovalPage /> },
+      { path: "admin/companies/:id", element: <CompanyDetailPage /> },
+      { path: "admin/companies/all", element: <CompanyListPage /> },
+      { path: "admin/companies/requests", element: <CompanyRequestPage /> },
     ],
   },
 
+  // Public auth & public jobs
   { path: "/login", element: <LoginPage /> },
   { path: "/register", element: <RegisterUserPage /> },
 
-  // --- Public Job Posting Routes (Unprotected) ---
   { path: "/public/job-postings", element: <PublicJobPostingListPage /> },
   { path: "/public/job-postings/:id", element: <PublicJobPostingDetailPage /> },
-  {
-    path: "/public/job-applications/:id",
-    element: <PublicJobApplicationPage />,
-  },
+  { path: "/public/job-applications/:id", element: <PublicJobApplicationPage /> },
 
-  // Catch-all
+  // 404
   { path: "*", element: <RouteError /> },
 ]);
 
-// สั่งให้แอปของเราทำงาน
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
     <AuthProvider>

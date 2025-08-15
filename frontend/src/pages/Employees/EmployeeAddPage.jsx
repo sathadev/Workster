@@ -80,7 +80,6 @@ function EmployeeAddPage() {
     if (!posName || !Array.isArray(positions)) return '';
     const t = String(posName).trim().toLowerCase();
 
-    // พยายามแมตช์กับหลาย ๆ ฟิลด์ที่อาจจะมีในรายการตำแหน่ง
     const found = positions.find((p) => {
       const cands = [
         p.jobpos_name,
@@ -193,13 +192,13 @@ function EmployeeAddPage() {
   return (
     <div>
       <div className="d-flex justify-content-between align-items-center mb-3">
-        <h4 className="fw-bold">เพิ่มข้อมูลพนักงาน</h4>
+        <h4 className="fw-bold text-dark" style={{ fontSize: '2rem' }}>เพิ่มข้อมูลพนักงาน</h4>
       </div>
-      <p>
-        <Link to="/employees">พนักงาน</Link> / เพิ่มข้อมูลพนักงาน
+      <p className="text-muted" style={{ fontSize: '0.95rem' }}>
+        <Link to="/employees" className="text-secondary text-decoration-none link-primary-hover">พนักงาน</Link> / <span className="text-dark">เพิ่มข้อมูลพนักงาน</span>
       </p>
 
-      <div className="card p-4">
+      <div className="card p-4 shadow-sm mt-4">
         <form onSubmit={handleSubmit} onReset={handleReset}>
           <div className="row">
             {/* ส่วนรูปโปรไฟล์ */}
@@ -208,13 +207,13 @@ function EmployeeAddPage() {
                 <img
                   src={imagePreview}
                   alt="Profile Preview"
-                  className="rounded-circle border"
+                  className="rounded-circle border border-primary"
                   style={{ width: '150px', height: '150px', objectFit: 'cover' }}
                 />
                 <label
                   htmlFor="fileInput"
                   className="btn btn-primary btn-sm rounded-circle d-flex align-items-center justify-content-center"
-                  style={{ position: 'absolute', bottom: 5, right: 5, cursor: 'pointer', width: '30px', height: '30px' }}
+                  style={{ position: 'absolute', bottom: 5, right: 5, cursor: 'pointer', width: '30px', height: '30px', fontSize: '0.8rem' }}
                 >
                   <FontAwesomeIcon icon={faPlus} />
                 </label>
@@ -231,10 +230,10 @@ function EmployeeAddPage() {
 
             {/* ส่วนฟอร์มข้อมูล */}
             <div className="col-md-8">
-              {error && <div className="alert alert-danger">{error}</div>}
+              {error && <div className="alert alert-danger" style={{ fontSize: '0.95rem' }}>{error}</div>}
 
               <div className="row mb-3">
-                <label className="col-sm-3 col-form-label">ชื่อ - สกุล :</label>
+                <label className="col-sm-3 col-form-label text-md-end text-dark" style={{ fontSize: '1rem' }}>ชื่อ - สกุล :</label>
                 <div className="col-sm-9">
                   <input
                     type="text"
@@ -243,12 +242,13 @@ function EmployeeAddPage() {
                     onChange={handleChange}
                     className="form-control"
                     required
+                    style={{ fontSize: '1rem' }}
                   />
                 </div>
               </div>
 
               <div className="row mb-3">
-                <label className="col-sm-3 col-form-label">ตำแหน่ง :</label>
+                <label className="col-sm-3 col-form-label text-md-end text-dark" style={{ fontSize: '1rem' }}>ตำแหน่ง :</label>
                 <div className="col-sm-9">
                   <select
                     name="jobpos_id"
@@ -256,6 +256,7 @@ function EmployeeAddPage() {
                     onChange={handleChange}
                     className="form-select"
                     required
+                    style={{ fontSize: '1rem' }}
                   >
                     <option value="">-- กรุณาเลือกตำแหน่ง --</option>
                     {positions.map((pos) => (
@@ -268,7 +269,7 @@ function EmployeeAddPage() {
               </div>
 
               <div className="row mb-3">
-                <label className="col-sm-3 col-form-label">Email :</label>
+                <label className="col-sm-3 col-form-label text-md-end text-dark" style={{ fontSize: '1rem' }}>Email :</label>
                 <div className="col-sm-9">
                   <input
                     type="email"
@@ -277,12 +278,13 @@ function EmployeeAddPage() {
                     onChange={handleChange}
                     className="form-control"
                     required
+                    style={{ fontSize: '1rem' }}
                   />
                 </div>
               </div>
 
               <div className="row mb-3">
-                <label className="col-sm-3 col-form-label">เบอร์โทร :</label>
+                <label className="col-sm-3 col-form-label text-md-end text-dark" style={{ fontSize: '1rem' }}>เบอร์โทร :</label>
                 <div className="col-sm-9">
                   <input
                     type="tel"
@@ -291,12 +293,13 @@ function EmployeeAddPage() {
                     onChange={handleChange}
                     className="form-control"
                     required
+                    style={{ fontSize: '1rem' }}
                   />
                 </div>
               </div>
 
               <div className="row mb-3">
-                <label className="col-sm-3 col-form-label">ที่อยู่ :</label>
+                <label className="col-sm-3 col-form-label text-md-end text-dark" style={{ fontSize: '1rem' }}>ที่อยู่ :</label>
                 <div className="col-sm-9">
                   <textarea
                     name="emp_address"
@@ -305,12 +308,13 @@ function EmployeeAddPage() {
                     className="form-control"
                     rows="3"
                     required
-                  />
+                    style={{ fontSize: '1rem' }}
+                  ></textarea>
                 </div>
               </div>
 
               <div className="row mb-3">
-                <label className="col-sm-3 col-form-label">วันเกิด :</label>
+                <label className="col-sm-3 col-form-label text-md-end text-dark" style={{ fontSize: '1rem' }}>วันเกิด :</label>
                 <div className="col-sm-9">
                   <input
                     type="date"
@@ -319,12 +323,13 @@ function EmployeeAddPage() {
                     onChange={handleChange}
                     className="form-control"
                     required
+                    style={{ fontSize: '1rem' }}
                   />
                 </div>
               </div>
 
               <div className="row mb-3">
-                <label className="col-sm-3 col-form-label">Username :</label>
+                <label className="col-sm-3 col-form-label text-md-end text-dark" style={{ fontSize: '1rem' }}>Username :</label>
                 <div className="col-sm-9">
                   <input
                     type="text"
@@ -333,12 +338,13 @@ function EmployeeAddPage() {
                     onChange={handleChange}
                     className="form-control"
                     required
+                    style={{ fontSize: '1rem' }}
                   />
                 </div>
               </div>
 
               <div className="row mb-3">
-                <label className="col-sm-3 col-form-label">Password :</label>
+                <label className="col-sm-3 col-form-label text-md-end text-dark" style={{ fontSize: '1rem' }}>Password :</label>
                 <div className="col-sm-9">
                   <input
                     type="password"
@@ -347,6 +353,7 @@ function EmployeeAddPage() {
                     onChange={handleChange}
                     className="form-control"
                     required
+                    style={{ fontSize: '1rem' }}
                   />
                 </div>
               </div>
@@ -354,8 +361,8 @@ function EmployeeAddPage() {
           </div>
 
           <div className="d-flex justify-content-end mt-4">
-            <button type="reset" className="btn btn-secondary me-2">ล้างข้อมูล</button>
-            <button type="submit" className="btn btn-success">ยืนยันการบันทึก</button>
+            <button type="reset" className="btn btn-secondary me-2" style={{ fontSize: '1rem' }}>ล้างข้อมูล</button>
+            <button type="submit" className="btn btn-success" style={{ fontSize: '1rem' }}>ยืนยันการบันทึก</button>
           </div>
         </form>
       </div>
