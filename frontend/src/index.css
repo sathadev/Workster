@@ -37,12 +37,12 @@ h4 {
 /* กำหนดสีและขนาดฟอนต์สำหรับข้อความทั่วไปและข้อความรอง */
 p {
     font-size: 1rem;
-    color: #333;
+
 }
 
 .text-muted, .text-secondary {
     font-size: 0.95rem;
-    color: #6c757d !important; /* ให้เป็นสีเทาเข้มขึ้นเล็กน้อย */
+   
 }
 
 /* Custom classes เพื่อให้ใช้ใน React ได้ */
@@ -359,7 +359,7 @@ p {
     height: 38px; /* ความสูงมาตรฐานของ Bootstrap form-control */
     font-family: "Noto Sans Thai", sans-serif; /* ให้แน่ใจว่าใช้ฟอนต์ไทย */
     font-size: 1rem; /* ขนาดฟอนต์มาตรฐาน */
-    padding: .375rem .75rem; /* ปรับ padding ให้สอดคล้องกับความสูง */
+    
 }
 
 /* หากปุ่มใน input-group มีความสูงต่างกัน สามารถกำหนดเฉพาะที่นี่ได้ */
