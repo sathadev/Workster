@@ -1,4 +1,3 @@
-// frontend/src/pages/Evaluations/EvaluationHistoryPage.jsx
 import { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../../api/axios';
@@ -110,121 +109,126 @@ function EvaluationHistoryPage() {
                 <Link to="/evaluations" className="text-secondary text-decoration-none link-primary-hover">การประเมินผล</Link> / <span className="text-dark">ประวัติการประเมิน</span>
             </p>
             
-            <div className="row g-2 mb-3 mt-4"> {/* เพิ่ม mt-4 */}
-                <div className="col-md-5">
-                    <form onSubmit={handleSearchSubmit} className="search-form">
-                        <div className="input-group w-100">
-                            <input 
-                                type="text" 
-                                className="form-control" 
-                                placeholder="ค้นหาตามชื่อพนักงาน..."
-                                value={searchInput} 
-                                onChange={handleSearchInputChange} 
-                                style={{ fontSize: '1rem' }} /* ปรับขนาดฟอนต์ใน input */
-                            />
-                            <button className="btn btn-outline-secondary" type="submit" style={{ fontSize: '1rem' }}>
-                                <FontAwesomeIcon icon={faSearch} />
-                            </button>
-                            {filters.search && (
-                                <button onClick={clearSearch} className="btn btn-outline-danger" type="button" title="ล้างการค้นหา" style={{ fontSize: '1rem' }}>
-                                    <FontAwesomeIcon icon={faTimes} className="me-1" />
-                                </button>
-                            )}
+            {/* เพิ่มส่วนนี้เพื่อสร้างกรอบครอบทั้งหมด */}
+            <div className="card shadow-sm mt-4">
+                <div className="card-body p-4">
+                    <div className="row g-2 mb-3"> 
+                        <div className="col-md-5">
+                            <form onSubmit={handleSearchSubmit} className="search-form">
+                                <div className="input-group w-100">
+                                    <input 
+                                        type="text" 
+                                        className="form-control" 
+                                        placeholder="ค้นหาตามชื่อพนักงาน..."
+                                        value={searchInput} 
+                                        onChange={handleSearchInputChange} 
+                                        style={{ fontSize: '1rem' }}
+                                    />
+                                    <button className="btn btn-outline-secondary" type="submit" style={{ fontSize: '1rem' }}>
+                                        <FontAwesomeIcon icon={faSearch} />
+                                    </button>
+                                    {filters.search && (
+                                        <button onClick={clearSearch} className="btn btn-outline-danger" type="button" title="ล้างการค้นหา" style={{ fontSize: '1rem' }}>
+                                            <FontAwesomeIcon icon={faTimes} className="me-1" />
+                                        </button>
+                                    )}
+                                </div>
+                            </form>
                         </div>
-                    </form>
-                </div>
-                <div className="col-md-3 offset-md-4">
-                    <div className="input-group">
-                        <label className="input-group-text bg-light text-dark" style={{ fontSize: '1rem' }}>ปีที่ประเมิน</label> {/* ปรับสีพื้นหลังและฟอนต์ */}
-                        <select
-                            className="form-select"
-                            name="year"
-                            value={filters.year}
-                            onChange={handleYearChange}
-                            style={{ fontSize: '1rem' }} /* ปรับขนาดฟอนต์ใน select */
-                        >
-                            {actualAvailableYears.map(year => (
-                                <option key={year} value={year}>
-                                    {year === '' ? 'ทั้งหมด' : year}
-                                </option>
-                            ))}
-                        </select>
+                        <div className="col-md-3 offset-md-4">
+                            <div className="input-group">
+                                <label className="input-group-text bg-light text-dark" style={{ fontSize: '1rem' }}>ปีที่ประเมิน</label> 
+                                <select
+                                    className="form-select"
+                                    name="year"
+                                    value={filters.year}
+                                    onChange={handleYearChange}
+                                    style={{ fontSize: '1rem' }}
+                                >
+                                    {actualAvailableYears.map(year => (
+                                        <option key={year} value={year}>
+                                            {year === '' ? 'ทั้งหมด' : year}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+                        </div>
                     </div>
+
+                    {filters.search && !error && (
+                        <div className="alert alert-info py-2" style={{ fontSize: '1rem' }}>
+                            <FontAwesomeIcon icon={faInfoCircle} className="me-2" />
+                            ผลการค้นหา "<strong>{filters.search}</strong>" พบ {meta.totalItems || 0} รายการ
+                        </div>
+                    )}
+
+                    <div className="table-responsive">
+                        <table className="table table-hover table-bordered text-center align-middle">
+                            <thead className="table-light">
+                                <tr>
+                                    <th onClick={() => handleSort('create_at')} style={{ cursor: 'pointer', fontSize: '1.05rem', color: '#333' }}>
+                                        วันที่ประเมิน {sortConfig.key === 'create_at' && <FontAwesomeIcon icon={sortConfig.direction === 'asc' ? faSortUp : faSortDown} />}
+                                    </th>
+                                    <th onClick={() => handleSort('emp_name')} style={{ cursor: 'pointer', fontSize: '1.05rem', color: '#333' }}>
+                                        ชื่อ - สกุล {sortConfig.key === 'emp_name' && <FontAwesomeIcon icon={sortConfig.direction === 'asc' ? faSortUp : faSortDown} />}
+                                    </th>
+                                    <th onClick={() => handleSort('evaluatework_totalscore')} style={{ cursor: 'pointer', fontSize: '1.05rem', color: '#333' }}>
+                                        คะแนนรวม {sortConfig.key === 'evaluatework_totalscore' && <FontAwesomeIcon icon={sortConfig.direction === 'asc' ? faSortUp : faSortDown} />}
+                                    </th>
+                                    <th style={{ fontSize: '1.05rem', color: '#333' }}>การประเมินผล</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {evaluations.length > 0 ? evaluations.map(evaluation => (
+                                    <tr key={evaluation.evaluatework_id}>
+                                        <td style={{ fontSize: '0.98rem' }}>{formatDate(evaluation.create_at)}</td>
+                                        <td style={{ fontSize: '0.98rem' }}>{evaluation.emp_name}</td>
+                                        <td style={{ fontSize: '0.98rem' }}>{evaluation.evaluatework_totalscore}</td>
+                                        <td>
+                                            <Link to={`/evaluations/result/${evaluation.evaluatework_id}`} className="btn btn-primary rounded-pill px-3" style={{ fontSize: '0.95rem' }}>
+                                                ผลการประเมิน
+                                            </Link>
+                                        </td>
+                                    </tr>
+                                )) : (
+                                    <tr>
+                                        <td colSpan="4" className="text-center text-muted p-4">
+                                            <FontAwesomeIcon icon={faInbox} className="fa-2x mb-2 d-block"/>
+                                            <span style={{ fontSize: '1rem' }}>{filters.search || filters.year ? `ไม่พบข้อมูลตามเงื่อนไข` : 'ไม่พบข้อมูล'}</span>
+                                        </td>
+                                    </tr>
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    {meta && meta.totalPages > 1 && (
+                        <div className="d-flex justify-content-between align-items-center mt-3">
+                            <span className="text-muted" style={{ fontSize: '0.9rem' }}>
+                                หน้า {meta.currentPage || 1} / {meta.totalPages || 1} (ทั้งหมด {meta.totalItems || 0} รายการ)
+                            </span>
+                            <div className="btn-group">
+                                <button
+                                    className="btn btn-outline-secondary"
+                                    onClick={() => handlePageChange(currentPage - 1)}
+                                    disabled={currentPage === 1}
+                                    style={{ fontSize: '0.95rem' }}
+                                >
+                                    ก่อนหน้า
+                                </button>
+                                <button
+                                    className="btn btn-outline-secondary"
+                                    onClick={() => handlePageChange(currentPage + 1)}
+                                    disabled={!meta.totalPages || currentPage >= meta.totalPages}
+                                    style={{ fontSize: '0.95rem' }}
+                                >
+                                    ถัดไป
+                                </button>
+                            </div>
+                        </div>
+                    )}
                 </div>
             </div>
-
-            {filters.search && !error && (
-                <div className="alert alert-info py-2" style={{ fontSize: '1rem' }}>
-                    <FontAwesomeIcon icon={faInfoCircle} className="me-2" />
-                    ผลการค้นหา "<strong>{filters.search}</strong>" พบ {meta.totalItems || 0} รายการ
-                </div>
-            )}
-
-            <div className="table-responsive">
-                <table className="table table-hover table-bordered text-center align-middle">
-                    <thead className="table-light">
-                        <tr>
-                            <th onClick={() => handleSort('create_at')} style={{ cursor: 'pointer', fontSize: '1.05rem', color: '#333' }}>
-                                วันที่ประเมิน {sortConfig.key === 'create_at' && <FontAwesomeIcon icon={sortConfig.direction === 'asc' ? faSortUp : faSortDown} />}
-                            </th>
-                            <th onClick={() => handleSort('emp_name')} style={{ cursor: 'pointer', fontSize: '1.05rem', color: '#333' }}>
-                                ชื่อ - สกุล {sortConfig.key === 'emp_name' && <FontAwesomeIcon icon={sortConfig.direction === 'asc' ? faSortUp : faSortDown} />}
-                            </th>
-                            <th onClick={() => handleSort('evaluatework_totalscore')} style={{ cursor: 'pointer', fontSize: '1.05rem', color: '#333' }}>
-                                คะแนนรวม {sortConfig.key === 'evaluatework_totalscore' && <FontAwesomeIcon icon={sortConfig.direction === 'asc' ? faSortUp : faSortDown} />}
-                            </th>
-                            <th style={{ fontSize: '1.05rem', color: '#333' }}>การประเมินผล</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {evaluations.length > 0 ? evaluations.map(evaluation => (
-                            <tr key={evaluation.evaluatework_id}>
-                                <td style={{ fontSize: '0.98rem' }}>{formatDate(evaluation.create_at)}</td>
-                                <td style={{ fontSize: '0.98rem' }}>{evaluation.emp_name}</td>
-                                <td style={{ fontSize: '0.98rem' }}>{evaluation.evaluatework_totalscore}</td>
-                                <td>
-                                    <Link to={`/evaluations/result/${evaluation.evaluatework_id}`} className="btn btn-primary rounded-pill px-3" style={{ fontSize: '0.95rem' }}>
-                                        ผลการประเมิน
-                                    </Link>
-                                </td>
-                            </tr>
-                        )) : (
-                            <tr>
-                                <td colSpan="4" className="text-center text-muted p-4">
-                                    <FontAwesomeIcon icon={faInbox} className="fa-2x mb-2 d-block"/>
-                                    <span style={{ fontSize: '1rem' }}>{filters.search || filters.year ? `ไม่พบข้อมูลตามเงื่อนไข` : 'ไม่พบข้อมูล'}</span>
-                                </td>
-                            </tr>
-                        )}
-                    </tbody>
-                </table>
-            </div>
-
-            {meta && meta.totalPages > 1 && (
-                <div className="d-flex justify-content-between align-items-center mt-3">
-                    <span className="text-muted" style={{ fontSize: '0.9rem' }}>
-                        หน้า {meta.currentPage || 1} / {meta.totalPages || 1} (ทั้งหมด {meta.totalItems || 0} รายการ)
-                    </span>
-                    <div className="btn-group">
-                        <button
-                            className="btn btn-outline-secondary"
-                            onClick={() => handlePageChange(currentPage - 1)}
-                            disabled={currentPage === 1}
-                            style={{ fontSize: '0.95rem' }}
-                        >
-                            ก่อนหน้า
-                        </button>
-                        <button
-                            className="btn btn-outline-secondary"
-                            onClick={() => handlePageChange(currentPage + 1)}
-                            disabled={!meta.totalPages || currentPage >= meta.totalPages}
-                            style={{ fontSize: '0.95rem' }}
-                        >
-                            ถัดไป
-                        </button>
-                    </div>
-                </div>
-            )}
         </div>
     );
 }

@@ -27,10 +27,10 @@ function EmployeeEditPage() {
                     api.get(`/employees/${id}`),
                     api.get('/positions')
                 ]);
-                
+
                 setFormData(employeeRes.data.employee);
                 setPositions(positionsRes.data);
-                
+
                 if (employeeRes.data.employee.emp_pic) {
                     setImagePreview(`${BASE_URL_UPLOAD}${employeeRes.data.employee.emp_pic}`);
                     setIsImageRemoved(false);
@@ -71,7 +71,7 @@ function EmployeeEditPage() {
         ['emp_name', 'jobpos_id', 'emp_email', 'emp_tel', 'emp_address', 'emp_status', 'emp_birthday'].forEach(key => { // เพิ่ม emp_birthday
             dataToSubmit.append(key, formData[key]);
         });
-        
+
         if (imageFile) {
             dataToSubmit.append('emp_pic', imageFile);
         } else if (isImageRemoved) {
@@ -99,8 +99,10 @@ function EmployeeEditPage() {
                 <h4 className="fw-bold text-dark" style={{ fontSize: '1.8rem' }}>แก้ไขข้อมูลพนักงาน</h4> {/* ใช้ h4 เป็น 2rem และ text-dark */}
             </div>
             <p className="text-muted" style={{ fontSize: '0.95rem' }}> {/* ปรับขนาดและสี breadcrumb */}
-                <Link to="/employees" className="text-secondary text-decoration-none link-primary-hover">พนักงาน</Link> / 
-                <Link to={`/employees/view/${id}`} className="text-secondary text-decoration-none link-primary-hover">{formData.emp_name || '...'}</Link> / 
+                <Link to="/employees"
+                    className="text-secondary text-decoration-none link-primary-hover">พนักงาน</Link> /
+                <Link to={`/employees/view/${id}`}
+                    className="text-secondary text-decoration-none link-primary-hover">{formData.emp_name || '...'}</Link> /
                 <span className="text-dark">แก้ไขข้อมูล</span>
             </p>
 

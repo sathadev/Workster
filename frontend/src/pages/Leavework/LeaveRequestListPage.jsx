@@ -146,7 +146,7 @@ function LeaveRequestListPage() {
     <div>
       <div className="d-flex justify-content-between align-items-center mb-3">
         <h4 className="fw-bold text-dark" style={{ fontSize: "1.8rem" }}>
-          รายการคำขอลา (รอดำเนินการ)
+          รายการคำขอลา 
         </h4>
         <Link
           to="/leave-requests/history"
@@ -156,9 +156,7 @@ function LeaveRequestListPage() {
           <FontAwesomeIcon icon={faHistory} className="me-2" /> ประวัติการลา
         </Link>
       </div>
-      <p className="text-muted" style={{ fontSize: "0.95rem" }}>
-        หน้าหลัก / <span className="text-dark">รายการคำขอลา</span>
-      </p>
+      
 
       {/* --- Filter Section --- */}
       <div className="card shadow-sm mt-4">

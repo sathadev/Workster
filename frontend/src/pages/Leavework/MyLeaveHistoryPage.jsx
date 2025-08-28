@@ -43,7 +43,7 @@ function MyLeaveHistoryPage() {
     return (
         <div>
             <h4 className="fw-bold text-dark" style={{ fontSize: '1.8rem' }}>ประวัติการแจ้งลาของฉัน</h4> {/* ปรับ h4 */}
-            <p className="text-muted" style={{ fontSize: '0.95rem' }}>หน้าหลัก / <span className="text-dark">ประวัติการแจ้งลา</span></p> {/* ปรับ breadcrumb */}
+          
 
             <div className="table-responsive card p-3 shadow-sm mt-4"> {/* เพิ่ม card, p-3, shadow-sm, mt-4 เพื่อจัดกรอบตารางให้ดูดีขึ้น */}
                 <table className="table table-hover table-bordered mt-3 text-center align-middle"> {/* เพิ่ม table-bordered */}

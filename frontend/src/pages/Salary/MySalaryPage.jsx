@@ -36,7 +36,7 @@ function MySalaryPage() {
             <div className="d-flex justify-content-between align-items-center mb-3">
                 <h4 className="fw-bold">ดูข้อมูลเงินเดือน</h4>
             </div>
-            <p>หน้าหลัก</p>
+           
             <div className="card p-4">
                 <h5 className="text-center mb-4">เงินเดือนของคุณ : {salaryData.emp_name}</h5>
                 

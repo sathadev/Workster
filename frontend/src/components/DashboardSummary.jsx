@@ -18,7 +18,7 @@ const StatCard = ({ className, title, value, unit = "คน" }) => (
       </h3>
       <p
         className="card-text text-end mb-0 text-muted"
-        style={{ fontSize: "0.85rem" }}
+        style={{ fontSize: "0.9rem" }}
       >
         ทั้งหมด/{unit}
       </p>
@@ -38,7 +38,7 @@ function DashboardSummary({ summaryData }) {
         <div className="row mb-4">
           <div className="col-md-6 mb-3">
             <StatCard
-              title="จำนวนบริษัททั้งหมด"
+              title={<span style={{ fontSize: "1.1rem" }}>จำนวนบริษัททั้งหมด</span>}
               value={summaryData.totalCompanies}
               unit="บริษัท"
               className="bg-primary text-white"
@@ -46,7 +46,7 @@ function DashboardSummary({ summaryData }) {
           </div>
           <div className="col-md-6 mb-3">
             <StatCard
-              title="จำนวนผู้ใช้ทั้งหมด"
+              title={<span style={{ fontSize: "1.1rem" }}>จำนวนผู้ใช้ทั้งหมด</span>}
               value={summaryData.totalUsers}
               unit="คน"
               className="bg-info text-white"
@@ -60,13 +60,13 @@ function DashboardSummary({ summaryData }) {
 
   return (
     <div className="dashboard-summary">
-      <h4 className="fw-bold mt-4 mb-3" style={{ fontSize: "1.3rem" }}>
+      <h4 className="fw-bold mt-4 mb-3" style={{ fontSize: "1.8rem" }}>
         สรุปการลงเวลาวันนี้
       </h4>
       <div className="row mb-4">
         <div className="col-md-5 mb-3">
           <StatCard
-            title="พนักงานลงงานวันนี้"
+            title={<span style={{ fontSize: "1.1rem" }}>พนักงานลงงานวันนี้</span>}
             value={checkinCount}
             unit="คน"
             className="bg-white text-dark border"
@@ -77,21 +77,21 @@ function DashboardSummary({ summaryData }) {
         <div className="col-md-4 mb-3">
           <StatCard
             className="bg-success text-white"
-            title="มาตรงเวลา"
+            title={<span style={{ fontSize: "1.1rem" }}>มาตรงเวลา</span>}
             value={ontimeCount}
           />
         </div>
         <div className="col-md-4 mb-3">
           <StatCard
-            className="bg-warning text-dark"
-            title="มาสาย"
+            className="my-custom-warning text-white"
+            title={<span style={{ fontSize: "1.1rem" }}>มาสาย</span>}
             value={lateCount}
           />
         </div>
         <div className="col-md-4 mb-3">
           <StatCard
             className="bg-danger text-white"
-            title="ขาด/ลา"
+            title={<span style={{ fontSize: "1.1rem" }}>ขาด/ลา</span>}
             value={absentCount}
           />
         </div>

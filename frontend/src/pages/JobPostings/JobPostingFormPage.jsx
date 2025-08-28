@@ -165,7 +165,7 @@ function JobPostingFormPage() {
                     <FontAwesomeIcon icon={faArrowLeft} className="me-2" /> กลับไปยังรายการ
                 </Button>
             </div>
-            <p>หน้าหลัก / จัดการประกาศรับสมัครงาน / {isEditMode ? 'แก้ไขประกาศ' : 'สร้างประกาศใหม่'}</p>
+            
 
             {success && <Alert variant="success">{success}</Alert>}
 

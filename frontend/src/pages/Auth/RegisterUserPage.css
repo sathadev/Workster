@@ -1,53 +1,75 @@
-/* frontend/src/pages/Auth/RegisterUserPage.css */
-
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@100..900&display=swap');
 
-html, body {
-  font-family: "Noto Sans Thai", sans-serif;
-}
-
-.sidebar {
-  background-color: #f8f9fa;
+/* แก้ไขใหม่เพื่อให้พื้นหลังครอบคลุมและสมส่วน */
+body, html, #root, .full-screen-bg {
   min-height: 100vh;
-  padding-top: 20px;
+  display: flex;
+  flex-direction: column;
 }
 
-.sidebar a {
-  display: block;
-  padding: 10px 20px;
-  color: #000;
-  text-decoration: none;
+body {
+  font-family: "Noto Sans Thai", sans-serif;
+  background-color: #f8f9fa; /* สีพื้นหลังหลักที่อ่อนกว่า */
 }
 
-.sidebar a:hover {
-  background-color: #e2e6ea;
-  border-radius: 5px;
+.full-screen-bg {
+  background: #f8f9fa;
+  min-height: 100vh;
 }
 
 .registration-card {
   max-width: 100%;
-  width: 60%;
-  margin: 50px 0 50px 20px; /* ชิดซ้าย มี margin-left 20px */
+  width: 100%; /* ทำให้การ์ดเต็มความกว้างของ col ที่ครอบอยู่ */
+  margin: 50px 0; /* ปรับ margin เป็น 50px บน/ล่าง */
   padding: 30px;
   border-radius: 8px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-.form-label-custom {
-  min-width: 120px;
-  text-align: right;
-  padding-right: 15px;
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
+/* ลบโค้ดที่ไม่จำเป็นออก */
+.sidebar, .form-label-custom, .form-control-custom, .row-custom {
+  /* ลบหรือแก้ไขตามที่จำเป็น */
 }
 
-.form-control-custom {
-  flex-grow: 1;
+.ws-stepper {
+  margin-top: -3rem !important; /* ปรับให้ Stepper ลอยขึ้นมาเล็กน้อย */
+  margin-bottom: 2rem !important;
 }
 
-.row-custom {
+.ws-section {
+  flex-grow: 1; /* ทำให้ส่วนนี้ขยายเพื่อดัน Footer ลงไปด้านล่าง */
+  padding-top: 2rem;
+  padding-bottom: 3rem;
+}
+
+.card {
+  box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.15) !important; /* ปรับเงาให้ดูชัดเจนขึ้น */
+  border: none !important;
+}
+
+.d-grid {
+  display: grid;
+  gap: 1rem;
+}
+
+/* สไตล์สำหรับปุ่ม 3 ปุ่มที่เรียงกัน */
+.button-group-full-width {
   display: flex;
-  align-items: center;
-  margin-bottom: 15px;
+  gap: 1rem;
+  justify-content: center;
+  margin-top: 1.5rem;
+}
+.button-group-full-width .btn {
+  flex: 1;
+}
+
+/* ถ้าอยากได้ปุ่ม "ย้อนกลับ" ที่มีขอบ */
+.ws-btn-outline {
+  border: 1px solid var(--ws-muted);
+  color: var(--ws-muted);
+  background: transparent;
+}
+.ws-btn-outline:hover {
+  background: var(--ws-muted);
+  color: #fff;
 }

@@ -1,8 +1,7 @@
-// frontend/src/pages/EvaluationFormPage.jsx
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import api from '../../api/axios';
-import EvaluationQuestion from '../../components/EvaluationQuestion'; // สมมติว่าคอมโพเนนต์นี้จัดการสไตล์ภายในได้ดี
+import EvaluationQuestion from '../../components/EvaluationQuestion';
 
 const initialScores = { q1: '', q2: '', q3: '', q4: '', q5: '' };
 
@@ -101,12 +100,13 @@ function EvaluationFormPage() {
 
     return (
         <div>
-            <h4 className="fw-bold text-dark" style={{ fontSize: '2rem' }}>การประเมินผล</h4> {/* ใช้ text-dark เพื่อสีที่คมชัดขึ้น */}
+            <h4 className="fw-bold text-dark" style={{ fontSize: '2rem' }}>การประเมินผล</h4>
             <p className="text-muted" style={{ fontSize: '0.95rem' }}>
                 <Link to="/evaluations" className="text-secondary text-decoration-none link-primary-hover">หน้าหลัก</Link> / <span className="text-dark">แบบฟอร์มการประเมิน</span>
             </p>
 
-            <div className="card shadow-sm mt-4"> {/* เพิ่ม mt-4 */}
+            {/* เพิ่มส่วนนี้เพื่อครอบองค์ประกอบหลักทั้งหมดในหน้า */}
+            <div className="card shadow-sm mt-4">
                 <div className="card-header text-center bg-gradient-primary-custom text-white py-3">
                     <h5 className="mb-0 fw-bold" style={{ fontSize: '1.5rem' }}>แบบฟอร์มการประเมิน</h5>
                 </div>
@@ -124,7 +124,6 @@ function EvaluationFormPage() {
                                 </tr>
                             </thead>
                             <tbody>
-                                {/* สมมติว่า EvaluationQuestion จัดการเรื่องฟอนต์และสีภายในได้เอง */}
                                 <EvaluationQuestion questionNumber={1} title="ความสามารถในการเรียนรู้งาน" weight={20} selectedValue={scores.q1} onChange={handleScoreChange} />
                                 <EvaluationQuestion questionNumber={2} title="ข้อปฏิบัติและการปฏิบัติตามกฎ/ข้อบังคับ" weight={20} selectedValue={scores.q2} onChange={handleScoreChange} />
                                 <EvaluationQuestion questionNumber={3} title="ความรับผิดชอบต่องานที่ทำ" weight={20} selectedValue={scores.q3} onChange={handleScoreChange} />

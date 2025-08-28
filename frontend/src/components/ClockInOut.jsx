@@ -72,7 +72,7 @@ function ClockInOut({ attendanceData, onUpdate }) {
                 <div className="card-body d-flex justify-content-between align-items-center">
                     <div>
                         <h5 className="fw-bold mb-1">เวลาออกงาน</h5>
-                        <p className="fs-5 mb-0">
+                        <p className="fs-7 mb-0">
                             {checkoutTime || (hasCheckedIn ? 'ยังไม่ได้เช็คเอาท์' : 'รอเช็คอิน')}
                         </p>
                     </div>

@@ -56,8 +56,10 @@ function SalaryEditPage() {
 
     return (
         <div>
-            <h4 className="fw-bold">แก้ไขเงินเดือน</h4>
-            <p><Link to="/salaries">จัดการเงินเดือน</Link> / แก้ไขเงินเดือน</p>
+            <div className="d-flex justify-content-between align-items-center mb-3">
+                <h4 className="fw-bold text-dark" style={{ fontSize: '1.8rem' }}>แก้ไขเงินเดือน</h4> {/* ใช้ h4 เป็น 2rem และ text-dark */}
+            </div>
+           
 
             <div className="card p-4">
                 <h5 className="text-center mb-4">แก้ไขเงินเดือน : {employeeName}</h5>

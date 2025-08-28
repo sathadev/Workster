@@ -133,9 +133,10 @@ function PublicJobPostingListPage() {
                 <h2 className="fw-bold mb-4 text-center text-dark">ประกาศรับสมัครงานทั้งหมด</h2>
                 <Card className="p-4 mb-4 shadow-sm border-0">
                     <Form onSubmit={handleSearchSubmit}>
-                        <Row className="align-items-center g-3">
+                        <Row className="align-items-start g-3">
+                            {/* Search Field */}
                             <Col md={6}>
-                                <Form.Group>
+                                <div className="d-flex flex-column">
                                     <Form.Label className="fw-bold">ค้นหางาน</Form.Label>
                                     <div className="input-group">
                                         <input
@@ -148,16 +149,12 @@ function PublicJobPostingListPage() {
                                         <Button variant="primary" type="submit">
                                             <FontAwesomeIcon icon={faSearch} />
                                         </Button>
-                                        {searchInput && (
-                                            <Button variant="outline-secondary" onClick={clearSearch}>
-                                                <FontAwesomeIcon icon={faTimes} />
-                                            </Button>
-                                        )}
                                     </div>
-                                </Form.Group>
+                                </div>
                             </Col>
-                            <Col md={4}>
-                                <Form.Group>
+                            {/* Filter by Position Dropdown */}
+                            <Col md={3}>
+                                <div className="d-flex flex-column">
                                     <Form.Label className="fw-bold">กรองตามตำแหน่ง</Form.Label>
                                     <Form.Select name="jobpos_id" onChange={handleFilterChange} value={filters.jobpos_id}>
                                         <option value="">-- ทุกตำแหน่ง --</option>
@@ -167,23 +164,26 @@ function PublicJobPostingListPage() {
                                             </option>
                                         ))}
                                     </Form.Select>
-                                </Form.Group>
+                                </div>
                             </Col>
-                            <Col md={2}>
-                                <Form.Group>
+                            {/* Sort Dropdown */}
+                            <Col md={3}>
+                                <div className="d-flex flex-column">
                                     <Form.Label className="fw-bold">เรียงลำดับ</Form.Label>
-                                    <Button
-                                        variant="outline-secondary"
-                                        onClick={() => handleSort('posted_at')}
-                                        className="w-100"
-                                    >
-                                        วันที่ประกาศ
-                                        <FontAwesomeIcon
-                                            icon={sortConfig.direction === 'desc' ? faSortDown : faSortUp}
-                                            className="ms-2"
-                                        />
+                                    <Form.Select onChange={(e) => handleSort(e.target.value)} value={sortConfig.key}>
+                                        <option value="posted_at">วันที่ประกาศ</option>
+                                        <option value="salary">เงินเดือน</option>
+                                    </Form.Select>
+                                </div>
+                            </Col>
+                        </Row>
+                        <Row>
+                            <Col>
+                                {searchInput && (
+                                    <Button variant="link" onClick={clearSearch} className="p-0 mt-2 text-danger">
+                                        <FontAwesomeIcon icon={faTimes} /> ล้างการค้นหา
                                     </Button>
-                                </Form.Group>
+                                )}
                             </Col>
                         </Row>
                     </Form>

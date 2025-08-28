@@ -152,9 +152,7 @@ function SettingsPage() {
                 <h4 className="fw-bold text-dark" style={{ fontSize: '1.8rem' }}>ตั้งค่าข้อมูลบริษัท</h4>
                 {/* ปุ่ม "แก้ไขข้อมูล" จะถูกย้ายไปอยู่ภายในส่วนหัวข้อแต่ละส่วน */}
             </div>
-            <p className="text-muted mb-4" style={{ fontSize: '0.95rem' }}>
-                <a href="/" className="text-secondary text-decoration-none link-primary-hover">หน้าหลัก</a> / <span className="text-dark">ตั้งค่าข้อมูลบริษัท</span>
-            </p>
+            
 
             {/* Main Settings Card */}
             <Card className="p-4 shadow-lg border-0 mt-4"> 

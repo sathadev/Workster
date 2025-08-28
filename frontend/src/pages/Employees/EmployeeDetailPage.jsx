@@ -38,8 +38,12 @@ function EmployeeDetailPage() {
 
     return (
         <div>
+            <div className="d-flex justify-content-between align-items-center mb-3">
+                <h4 className="fw-bold text-dark" style={{ fontSize: '1.8rem' }}>ข้อมูลพนักงาน</h4>
+            </div>
             <p className="text-muted" style={{ fontSize: '0.95rem' }}> {/* ปรับขนาดและสี breadcrumb */}
-                <Link to="/employees" className="text-secondary text-decoration-none link-primary-hover">พนักงาน</Link> / <span className="text-dark">{employee.emp_name}</span>
+                <Link to="/employees"
+                    className="text-secondary text-decoration-none link-primary-hover">พนักงาน</Link> / <span className="text-dark">{employee.emp_name}</span>
             </p>
             <div className="card detail-card p-4 mt-4"> {/* เพิ่ม mt-4 */}
                 <EmployeeInfo employee={employee} />

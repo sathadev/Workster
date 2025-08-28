@@ -37,7 +37,7 @@ function EvaluationResultPage() {
 
     return (
         <div>
-            <h4 className="fw-bold text-dark" style={{ fontSize: '1.8rem' }}>การประเมินผล</h4>
+            <h4 className="fw-bold text-dark" style={{ fontSize: '1.8rem' }}>ผลประเมินผล</h4>
             <p className="text-muted" style={{ fontSize: '0.95rem' }}>
                 <Link to="/evaluations" className="text-secondary text-decoration-none link-primary-hover">หน้าหลัก</Link> / <Link to="/evaluations/history" className="text-secondary text-decoration-none link-primary-hover">ประวัติการประเมิน</Link> / <span className="text-dark">ผลการประเมิน</span>
             </p>

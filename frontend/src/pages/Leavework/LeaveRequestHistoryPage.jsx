@@ -103,7 +103,7 @@ function LeaveRequestHistoryPage() {
         <div>
             <h4 className="fw-bold text-dark" style={{ fontSize: '1.8rem' }}>ประวัติคำขอลา (อนุมัติ/ไม่อนุมัติ)</h4> {/* ปรับ h4 */}
             <p className="text-muted" style={{ fontSize: '0.95rem' }}> {/* ปรับ breadcrumb */}
-                <Link to="/" className="text-secondary text-decoration-none link-primary-hover">หน้าหลัก</Link> / <span className="text-dark">ประวัติคำขอลา</span>
+                <Link to="/leave-requests" className="text-secondary text-decoration-none link-primary-hover">หน้าหลัก</Link> / <span className="text-dark">ประวัติคำขอลา</span>
             </p>
 
             <div className="card shadow-sm mt-4"> {/* เพิ่ม shadow-sm และ mt-4 */}

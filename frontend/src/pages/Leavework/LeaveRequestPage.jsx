@@ -65,7 +65,7 @@ function LeaveRequestPage() {
     return (
         <div>
             <h4 className="fw-bold text-dark" style={{ fontSize: '1.8rem' }}>แจ้งขอลางาน</h4>
-            <p className="text-muted" style={{ fontSize: '0.95rem' }}>หน้าหลัก / <span className="text-dark">แจ้งขอลางาน</span></p>
+            
 
             <div className="card p-4 mb-4 shadow-sm mt-4">
                 <form onSubmit={handleSubmit}>

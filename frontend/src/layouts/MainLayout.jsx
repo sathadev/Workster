@@ -58,8 +58,7 @@ function MainLayout() {
                                     <div className="sidebar-header">รายการ Super Admin</div>
                                     <NavLink to="/admin/companies/all" className="sidebar-link">บริษัทที่มีในระบบ</NavLink>
                                     <NavLink to="/admin/companies/requests" className="sidebar-link">บริษัทที่ยื่นคำขอมา</NavLink>
-                                    <NavLink to="/" className="sidebar-link" end>Dashboard</NavLink>
-                                    <NavLink to="/admin/companies" className="sidebar-link">จัดการบริษัท</NavLink>
+                                    
                                 </>
                             )}
                             {(!user.isSuperAdmin && (user.jobpos_id === 1 || user.jobpos_id === 2 || user.jobpos_id === 3) && user.company_status === 'approved') && (

@@ -162,6 +162,7 @@ function PublicJobApplicationPage() {
                                 <Form.Label className="fw-bold">ลิงก์อื่นๆ (เช่น Portfolio, LinkedIn)</Form.Label>
                                 <Form.Control as="textarea" rows={3} name="other_links_text" value={formData.other_links_text} onChange={handleChange} />
                             </Form.Group>
+                            
                             <Form.Group className="mb-4" controlId="formBasicCheckbox">
                                 <Form.Check 
                                     type="checkbox" 
@@ -173,10 +174,12 @@ function PublicJobApplicationPage() {
                                 />
                             </Form.Group>
                             
-                            <Button variant="primary" type="submit" disabled={submitting} className="w-100 py-2 fw-bold">
-                                {submitting ? <Spinner animation="border" size="sm" className="me-2" /> : <FontAwesomeIcon icon={faPaperPlane} className="me-2" />}
-                                ส่งใบสมัคร
-                            </Button>
+                            <div className="d-flex justify-content-end">
+                                <Button variant="primary" type="submit" disabled={submitting} className="py-2 px-4 fw-bold">
+                                    {submitting ? <Spinner animation="border" size="sm" className="me-2" /> : <FontAwesomeIcon icon={faPaperPlane} className="me-2" />}
+                                    ส่งใบสมัคร
+                                </Button>
+                            </div>
                         </Form>
                     </Card.Body>
                 </Card>

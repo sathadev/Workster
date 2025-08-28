@@ -79,9 +79,9 @@ function HomePage() {
 
     return (
         <div>
-            <h3 className="mb-1 fs-4">ยินดีต้อนรับ, {user?.emp_name}!</h3>
+            <h3 className="mb-1 fs-8">ยินดีต้อนรับ {user?.emp_name}!</h3>
             <p className="text-muted">{today}</p>
-            <hr/>
+            
 
             {/* แจ้งเตือนถ้าบริษัทยังไม่ได้รับการอนุมัติ */}
             {user && !user.isSuperAdmin && user.company_status !== 'approved' && (

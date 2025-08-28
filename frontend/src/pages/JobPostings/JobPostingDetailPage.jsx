@@ -2,13 +2,13 @@
 // หน้าดูรายละเอียดประกาศงานสำหรับ HR/Admin (ดีไซน์ตามคำขอและแก้ไขข้อผิดพลาด)
 
 import { useState, useEffect } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom'; // เพิ่ม Link, useNavigate
-import api from '../../api/axios'; // ใช้ api สำหรับ HR/Admin view
-import { Spinner, Alert, Card, Button } from 'react-bootstrap'; // เพิ่ม Card, Button
+import { useParams, Link, useNavigate } from 'react-router-dom';
+import api from '../../api/axios';
+import { Spinner, Alert, Card, Button } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
-    faBuilding, faDollarSign, faLocationDot, faCalendarDays, faClock, faClipboardList, faEdit, // ไอคอนหลัก
-    faExclamationTriangle, faArrowLeft, faCircleUser // สำหรับ Error, ปุ่มย้อนกลับ, และไอคอนผู้ใช้ใน Navbar
+    faBuilding, faDollarSign, faLocationDot, faCalendarDays, faClock, faClipboardList, faEdit,
+    faExclamationTriangle, faArrowLeft, faCircleUser
 } from '@fortawesome/free-solid-svg-icons';
 
 function JobPostingDetailPage() {
@@ -22,7 +22,7 @@ function JobPostingDetailPage() {
         const fetchJobPosting = async () => {
             setLoading(true);
             try {
-                const res = await api.get(`/job-postings/${id}`); // ใช้ api สำหรับ HR/Admin
+                const res = await api.get(`/job-postings/${id}`);
                 setJobPosting(res.data);
             } catch (err) {
                 setError('ไม่พบประกาศรับสมัครงานนี้ หรือเกิดข้อผิดพลาดในการโหลดข้อมูล');
@@ -51,29 +51,21 @@ function JobPostingDetailPage() {
         : [];
 
     return (
-        // <<<<<<< ส่วนโครงสร้างหลัก: เอา Navbar/Sidebar และ container-fluid ที่ซ้ำซ้อนออก >>>>>>>
-        // เหลือแค่เนื้อหาหลักของเพจ ที่ควรจะ Render ภายใน MainLayout
         <div>
-            {/* Page Header (ตามสไตล์ของหน้า Admin อื่นๆ) */}
             <div className="d-flex justify-content-between align-items-center mb-3">
                 <h4 className="fw-bold text-dark" style={{ fontSize: '1.8rem' }}>รายละเอียดประกาศงาน</h4>
-                {/* <<<<<<< เพิ่มปุ่ม "แก้ไขประกาศ" สำหรับ HR/Admin >>>>>>> */}
                 <Button variant="primary" onClick={() => navigate(`/job-postings/edit/${jobPosting.job_posting_id}`)} style={{ fontSize: '1rem' }}>
                     <FontAwesomeIcon icon={faEdit} className="me-2" /> แก้ไขประกาศ
                 </Button>
             </div>
-            {/* Breadcrumb (ตามสไตล์ของหน้า Admin อื่นๆ) */}
             <p className="text-muted mb-4" style={{ fontSize: '0.95rem' }}>
-                <Link to="/job-postings" className="text-secondary text-decoration-none link-primary-hover">จัดการประกาศรับสมัครงาน</Link> / <span className="text-dark">รายละเอียด</span>
+                <Link to="/job-postings" className="text-secondary text-decoration-none link-primary-hover">ประกาศรับสมัครงาน</Link> / <span className="text-dark">รายละเอียด</span>
             </p>
 
-            {/* Main Content Card (ตาม HTML ที่ให้มา) */}
-            {/* <<<<<<< ปรับ Card เพื่อให้ใช้ padding และ background ที่เหมาะสม >>>>>>> */}
-            <Card className="card job-detail-card shadow-sm mt-4"> {/* ใช้ Card จาก react-bootstrap */}
-                <Card.Body className="p-5" style={{ backgroundColor: '#fff' }}> {/* p-5 และพื้นหลังขาว */}
-
+            {/* เพิ่มส่วนนี้เพื่อสร้างกรอบครอบทั้งหมด */}
+            <div className="card job-detail-card shadow-sm mt-4">
+                <div className="card-body p-5" style={{ backgroundColor: '#fff' }}>
                     <div className="job-detail-content">
-
                         <div className="d-flex justify-content-between align-items-start">
                             <div>
                                 <h3 className="fw-bold">{jobPosting.job_title}</h3>
@@ -126,7 +118,6 @@ function JobPostingDetailPage() {
                         </div>
 
                         <div className="text-end">
-                            {/* ปุ่ม "กลับ" */}
                             <Button 
                                 variant="secondary" 
                                 className="px-4" 
@@ -135,12 +126,10 @@ function JobPostingDetailPage() {
                                 <FontAwesomeIcon icon={faArrowLeft} className="me-2" /> กลับหน้ารายการ
                             </Button>
                         </div>
-
-                    </div> {/* end job-detail-content */}
-                </Card.Body> {/* end card-body */}
-            </Card> {/* end card */}
+                    </div>
+                </div>
+            </div>
         </div>
-        // <<<<<<< สิ้นสุดส่วนโครงสร้างหลัก >>>>>>>
     );
 }
 

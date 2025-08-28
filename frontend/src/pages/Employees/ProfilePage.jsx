@@ -45,7 +45,7 @@ function ProfilePage() {
             <div className="d-flex justify-content-between align-items-center mb-3">
                 <h4 className="fw-bold text-dark" style={{ fontSize: '1.8rem' }}>ข้อมูลส่วนตัว</h4> {/* ใช้ h4 เป็น 2rem และ text-dark */}
             </div>
-            <p className="text-muted" style={{ fontSize: '0.95rem' }}>หน้าหลัก / <span className="text-dark">ข้อมูลส่วนตัว</span></p> {/* ปรับขนาดและสี breadcrumb */}
+            
 
             <div className="card detail-card p-4 mt-4"> {/* เพิ่ม mt-4 */}
                 <EmployeeInfo employee={employee} />

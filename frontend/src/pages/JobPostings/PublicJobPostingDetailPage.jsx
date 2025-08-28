@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { publicApi } from '../../api/axios';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { 
+import {
     faBuilding, faDollarSign, faLocationDot, faCalendarDays, faClock, faClipboardList, // ไอคอนสำหรับแสดงรายละเอียด
     faExclamationTriangle, faArrowLeft, faPaperPlane // สำหรับ Error และปุ่มย้อนกลับ (ถ้ามี)
 } from '@fortawesome/free-solid-svg-icons';
@@ -19,7 +19,7 @@ function PublicJobPostingDetailPage() {
         const fetchJobPosting = async () => {
             try {
                 setLoading(true);
-                const response = await publicApi.get(`/job-postings/public/${id}`); 
+                const response = await publicApi.get(`/job-postings/public/${id}`);
                 setJobPosting(response.data);
             } catch (err) {
                 console.error("Failed to fetch job posting:", err);
@@ -53,7 +53,7 @@ function PublicJobPostingDetailPage() {
                     <FontAwesomeIcon icon={faArrowLeft} className="me-1" /> กลับ
                 </Button>
             </div>
-            
+
             <Card className="shadow-lg border-0 mt-4">
                 <Card.Body className="p-4 p-md-5">
                     <div className="job-detail-content">
@@ -63,11 +63,11 @@ function PublicJobPostingDetailPage() {
                                 <p className="text-dark fs-5 mb-1">{jobPosting.company_name || "WorkSter"}</p>
                             </div>
                             <div className="text-muted text-end">
-                                <small>ประกาศเมื่อ: {formatDate(jobPosting.posted_at)}</small><br/>
+                                <small>ประกาศเมื่อ: {formatDate(jobPosting.posted_at)}</small><br />
                                 <small>หมดเขต: {jobPosting.application_deadline ? formatDate(jobPosting.application_deadline) : "-"}</small>
                             </div>
                         </div>
-                        
+
                         <hr className="my-4" />
 
                         {jobPosting.job_description && (
@@ -87,7 +87,7 @@ function PublicJobPostingDetailPage() {
                             </div>
                         )}
                         {qualifications.length > 0 && <hr className="my-4" />}
-                        
+
                         {benefits.length > 0 && (
                             <div className="mb-4">
                                 <h5 className="fw-bold text-dark mb-3" style={{ fontSize: '1.3rem' }}>สวัสดิการ</h5>
@@ -114,23 +114,24 @@ function PublicJobPostingDetailPage() {
                             <span className={`badge bg-${isApplicationOpen ? 'success' : 'secondary'}`} style={{ fontSize: '1rem', padding: '0.5em 0.8em' }}>
                                 {isApplicationOpen ? 'เปิดรับสมัคร' : 'ปิดรับสมัคร'}
                             </span>
-                            <Button
-                                variant="primary"
-                                size="lg"
-                                disabled={!isApplicationOpen}
-                                onClick={() => navigate(`/public/job-applications/${jobPosting.job_posting_id}`)}
-                                style={{
-                                    backgroundColor: isApplicationOpen ? '#007bff' : '#6c757d',
-                                    borderColor: isApplicationOpen ? '#007bff' : '#6c757d',
-                                    fontWeight: 'bold',
-                                    padding: '1rem 2.5rem',
-                                    borderRadius: '50px',
-                                    fontSize: '1.2rem',
-                                    transition: 'all 0.3s ease'
-                                }}
-                            >
-                                <FontAwesomeIcon icon={faPaperPlane} className="me-2" /> {isApplicationOpen ? 'ยืนยันสมัครงาน' : 'ยืนยันสมัครงาน (ยังไม่เปิดรับ)'}
-                            </Button>
+                            <Link to={`/public/job-applications/${jobPosting.job_posting_id}`}>
+                                <Button
+                                    variant="primary"
+                                    disabled={!isApplicationOpen}
+                                    style={{
+                                        backgroundColor: isApplicationOpen ? '#007bff' : '#6c757d',
+                                        borderColor: isApplicationOpen ? '#007bff' : '#6c757d',
+                                        fontWeight: 'bold',
+                                        // ลบ padding ที่ทำให้ปุ่มใหญ่เกินไปออก หรือปรับให้เล็กลง
+                                        // padding: '1rem 2.5rem', 
+                                        // fontSize: '1.2rem',
+                                        borderRadius: '50px',
+                                        transition: 'all 0.3s ease'
+                                    }}
+                                >
+                                    <FontAwesomeIcon icon={faPaperPlane} className="me-2" /> ยืนยันสมัครงาน
+                                </Button>
+                            </Link>
                         </div>
 
                     </div>

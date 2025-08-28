@@ -1,4 +1,3 @@
-// frontend/src/pages/JobPostings/JobPostingListPage.jsx
 import { useState, useEffect, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import api from '../../api/axios';
@@ -147,135 +146,144 @@ function JobPostingListPage() {
     return (
         <div>
             <div className="d-flex justify-content-between align-items-center mb-3">
-                <h4 className="fw-bold">จัดการประกาศรับสมัครงาน</h4>
+                <h4 className="fw-bold">ประกาศรับสมัครงาน</h4>
                 <Button variant="outline-primary" onClick={() => navigate('/job-postings/add')}>
                     <FontAwesomeIcon icon={faPlus} className="me-2" /> สร้างประกาศใหม่
                 </Button>
             </div>
-            <p>หน้าหลัก / จัดการประกาศรับสมัครงาน</p>
 
-            {/* Filter Section */}
-            <div className="row g-2 mb-3">
-                <div className="col-md-4">
-                    <form onSubmit={handleSearchSubmit} className="search-form">
-                        <div className="input-group">
-                            <input
-                                type="text"
-                                className="form-control"
-                                placeholder="ค้นหาชื่อตำแหน่ง หรือบริษัท..."
-                                value={searchInput}
-                                onChange={handleSearchInputChange}
-                            />
-                            <button className="btn btn-outline-secondary" type="submit">
-                                <FontAwesomeIcon icon={faSearch} />
-                            </button>
-                            {filters.search && (
-                                <button onClick={clearSearch} className="btn btn-outline-danger" type="button" title="ล้างการค้นหา">
-                                    <FontAwesomeIcon icon={faTimes} className="me-1" />
-                                </button>
-                            )}
+
+            {/* เพิ่มส่วนนี้เพื่อสร้างกรอบครอบทั้งหมด */}
+            <div className="card shadow-sm mt-4">
+                <div className="card-body p-4">
+                    {/* Filter Section */}
+                    <div className="row g-2 mb-3">
+                        <div className="col-md-4">
+                            <form onSubmit={handleSearchSubmit} className="search-form">
+                                <div className="input-group">
+                                    <input
+                                        type="text"
+                                        className="form-control"
+                                        placeholder="ค้นหาชื่อตำแหน่ง หรือบริษัท..."
+                                        value={searchInput}
+                                        onChange={handleSearchInputChange}
+                                    />
+                                    <button className="btn btn-outline-secondary" type="submit">
+                                        <FontAwesomeIcon icon={faSearch} />
+                                    </button>
+                                    {filters.search && (
+                                        <button onClick={clearSearch} className="btn btn-outline-danger" type="button" title="ล้างการค้นหา">
+                                            <FontAwesomeIcon icon={faTimes} className="me-1" />
+                                        </button>
+                                    )}
+                                </div>
+                            </form>
                         </div>
-                    </form>
-                </div>
-                <div className="col-md-3">
-                    <div className="input-group">
-                        <label className="input-group-text">สถานะ</label>
-                        <Form.Select name="status" value={filters.status} onChange={handleFilterChange}>
-                            <option value="">ทั้งหมด</option>
-                            <option value="active">เปิดรับสมัคร</option>
-                            <option value="closed">ปิดรับสมัคร</option>
-                            <option value="draft">ฉบับร่าง</option>
-                        </Form.Select>
+                        <div className="col-md-3">
+                            <div className="input-group">
+                                <label className="input-group-text">สถานะ</label>
+                                <Form.Select name="status" value={filters.status} onChange={handleFilterChange}>
+                                    <option value="">ทั้งหมด</option>
+                                    <option value="active">เปิดรับสมัคร</option>
+                                    <option value="closed">ปิดรับสมัคร</option>
+                                    <option value="draft">ฉบับร่าง</option>
+                                </Form.Select>
+                            </div>
+                        </div>
+                        <div className="col-md-3">
+                            <div className="input-group">
+                                <label className="input-group-text">ตำแหน่ง</label>
+                                <Form.Select name="jobpos_id" value={filters.jobpos_id} onChange={handleFilterChange}>
+                                    <option value="">ทุกตำแหน่ง</option>
+                                    {positions.map(pos => (
+                                        <option key={pos.jobpos_id} value={pos.jobpos_id}>{pos.jobpos_name}</option>
+                                    ))}
+                                </Form.Select>
+                            </div>
+                        </div>
                     </div>
-                </div>
-                <div className="col-md-3">
-                    <div className="input-group">
-                        <label className="input-group-text">ตำแหน่ง</label>
-                        <Form.Select name="jobpos_id" value={filters.jobpos_id} onChange={handleFilterChange}>
-                            <option value="">ทุกตำแหน่ง</option>
-                            {positions.map(pos => (
-                                <option key={pos.jobpos_id} value={pos.jobpos_id}>{pos.jobpos_name}</option>
-                            ))}
-                        </Form.Select>
+
+                    {filters.search && !error && (
+                        <div className="alert alert-info py-2">
+                            <FontAwesomeIcon icon={faInfoCircle} className="me-2" />
+                            ผลการค้นหา "<strong>{filters.search}</strong>" พบ {meta.totalItems || 0} รายการ
+                        </div>
+                    )}
+
+                    {/* Table Section */}
+                    <div className="table-responsive">
+                        <table className="table table-hover table-bordered text-center align-middle">
+                            <thead className="table-light">
+                                <tr>
+                                    <th onClick={() => handleSort('job_title')} style={{ cursor: 'pointer' }}>
+                                        ตำแหน่งที่ประกาศ {sortConfig.key === 'job_title' && <FontAwesomeIcon icon={sortConfig.direction === 'asc' ? faSortUp : faSortDown} />}
+                                    </th>
+                                    <th onClick={() => handleSort('jobpos_id')} style={{ cursor: 'pointer' }}>
+                                        ตำแหน่งในระบบ {sortConfig.key === 'jobpos_id' && <FontAwesomeIcon icon={sortConfig.direction === 'asc' ? faSortUp : faSortDown} />}
+                                    </th>
+                                    <th>ช่วงเงินเดือน</th>
+                                    <th onClick={() => handleSort('job_status')} style={{ cursor: 'pointer' }}>
+                                        สถานะ {sortConfig.key === 'job_status' && <FontAwesomeIcon icon={sortConfig.direction === 'asc' ? faSortUp : faSortDown} />}
+                                    </th>
+                                    <th onClick={() => handleSort('posted_at')} style={{ cursor: 'pointer' }}>
+                                        วันที่ประกาศ {sortConfig.key === 'posted_at' && <FontAwesomeIcon icon={sortConfig.direction === 'asc' ? faSortUp : faSortDown} />}
+                                    </th>
+                                    <th>ดำเนินการ</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {jobPostings.length > 0 ? jobPostings.map(post => (
+                                    <tr key={post.job_posting_id}>
+                                        <td>{post.job_title}</td>
+                                        <td>{post.jobpos_name || '-'}</td>
+                                        <td>{post.salary_min?.toLocaleString()} - {post.salary_max?.toLocaleString()} บาท</td>
+                                        <td>
+                                            <span className={`badge ${post.job_status === 'active' ? 'bg-success' : post.job_status === 'closed' ? 'bg-danger' : 'bg-secondary'}`}>
+                                                {post.job_status === 'active' ? 'เปิดรับ' : post.job_status === 'closed' ? 'ปิดรับ' : 'ฉบับร่าง'}
+                                            </span>
+                                        </td>
+                                        <td>{formatDate(post.posted_at)}</td>
+                                        <td style={{ minWidth: '180px' }}>
+                                            <Link to={`/job-postings/view/${post.job_posting_id}`} className="btn btn-info btn-sm me-2 text-white" title="ดูรายละเอียด">
+                                                <FontAwesomeIcon icon={faEye} /> ดู
+                                            </Link>
+                                            <Link to={`/job-postings/edit/${post.job_posting_id}`} className="btn btn-primary btn-sm me-2" title="แก้ไข">
+                                                <FontAwesomeIcon icon={faEdit} /> แก้ไข
+                                            </Link>
+                                            <Button variant="danger" size="sm" onClick={() => handleDelete(post.job_posting_id, post.job_title)} title="ลบ">
+                                                <FontAwesomeIcon icon={faTrash} /> ลบ
+                                            </Button>
+                                        </td>
+                                    </tr>
+                                )) : (
+                                    <tr>
+                                        <td colSpan="6" className="text-center text-muted p-4">
+                                            <FontAwesomeIcon icon={faInbox} className="fa-3x mb-3" />
+                                            <h4>ไม่พบข้อมูลประกาศรับสมัครงาน</h4>
+                                            <p>{filters.search || filters.status || filters.jobpos_id ? 'ไม่พบข้อมูลตามเงื่อนไขที่เลือก' : 'ยังไม่มีประกาศรับสมัครงาน'}</p>
+                                        </td>
+                                    </tr>
+                                )}
+                            </tbody>
+                        </table>
                     </div>
+
+                    {/* Pagination */}
+                    {meta.totalPages > 1 && (
+                        <div className="d-flex justify-content-between align-items-center mt-3">
+                            <span className="text-muted">หน้า {meta.currentPage || 1} / {meta.totalPages || 1} (ทั้งหมด {meta.totalItems || 0} รายการ)</span>
+                            <div className="btn-group">
+                                <Button variant="outline-secondary" onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1}>
+                                    ก่อนหน้า
+                                </Button>
+                                <Button variant="outline-secondary" onClick={() => handlePageChange(currentPage + 1)} disabled={!meta.totalPages || currentPage >= meta.totalPages}>
+                                    ถัดไป
+                                </Button>
+                            </div>
+                        </div>
+                    )}
                 </div>
             </div>
-
-            {filters.search && !error && (
-                <div className="alert alert-info py-2">
-                    <FontAwesomeIcon icon={faInfoCircle} className="me-2" />
-                    ผลการค้นหา "<strong>{filters.search}</strong>" พบ {meta.totalItems || 0} รายการ
-                </div>
-            )}
-
-            {/* Table Section */}
-            <div className="table-responsive">
-                <table className="table table-hover table-bordered text-center align-middle">
-                    <thead className="table-light">
-                        <tr>
-                            <th onClick={() => handleSort('job_title')} style={{ cursor: 'pointer' }}>
-                                ตำแหน่งที่ประกาศ {sortConfig.key === 'job_title' && <FontAwesomeIcon icon={sortConfig.direction === 'asc' ? faSortUp : faSortDown} />}
-                            </th>
-                            <th onClick={() => handleSort('jobpos_id')} style={{ cursor: 'pointer' }}>
-                                ตำแหน่งในระบบ {sortConfig.key === 'jobpos_id' && <FontAwesomeIcon icon={sortConfig.direction === 'asc' ? faSortUp : faSortDown} />}
-                            </th>
-                            <th>ช่วงเงินเดือน</th>
-                            <th onClick={() => handleSort('job_status')} style={{ cursor: 'pointer' }}>
-                                สถานะ {sortConfig.key === 'job_status' && <FontAwesomeIcon icon={sortConfig.direction === 'asc' ? faSortUp : faSortDown} />}
-                            </th>
-                            <th onClick={() => handleSort('posted_at')} style={{ cursor: 'pointer' }}>
-                                วันที่ประกาศ {sortConfig.key === 'posted_at' && <FontAwesomeIcon icon={sortConfig.direction === 'asc' ? faSortUp : faSortDown} />}
-                            </th>
-                            <th>ดำเนินการ</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {jobPostings.length > 0 ? jobPostings.map(post => (
-                            <tr key={post.job_posting_id}>
-                                <td>{post.job_title}</td>
-                                <td>{post.jobpos_name || '-'}</td>
-                                <td>{post.salary_min?.toLocaleString()} - {post.salary_max?.toLocaleString()} บาท</td>
-                                <td>{post.job_status === 'active' ? 'เปิดรับ' : post.job_status === 'closed' ? 'ปิดรับ' : 'ฉบับร่าง'}</td>
-                                <td>{formatDate(post.posted_at)}</td>
-                                <td style={{ minWidth: '180px' }}>
-                                    <Link to={`/job-postings/view/${post.job_posting_id}`} className="btn btn-info btn-sm me-2 text-white" title="ดูรายละเอียด">
-                                        <FontAwesomeIcon icon={faEye} /> ดู
-                                    </Link>
-                                    <Link to={`/job-postings/edit/${post.job_posting_id}`} className="btn btn-primary btn-sm me-2" title="แก้ไข">
-                                        <FontAwesomeIcon icon={faEdit} /> แก้ไข
-                                    </Link>
-                                    <Button variant="danger" size="sm" onClick={() => handleDelete(post.job_posting_id, post.job_title)} title="ลบ">
-                                        <FontAwesomeIcon icon={faTrash} /> ลบ
-                                    </Button>
-                                </td>
-                            </tr>
-                        )) : (
-                            <tr>
-                                <td colSpan="6" className="text-center text-muted p-4">
-                                    <FontAwesomeIcon icon={faInbox} className="fa-3x mb-3" />
-                                    <h4>ไม่พบข้อมูลประกาศรับสมัครงาน</h4>
-                                    <p>{filters.search || filters.status || filters.jobpos_id ? 'ไม่พบข้อมูลตามเงื่อนไขที่เลือก' : 'ยังไม่มีประกาศรับสมัครงาน'}</p>
-                                </td>
-                            </tr>
-                        )}
-                    </tbody>
-                </table>
-            </div>
-
-            {/* Pagination */}
-            {meta.totalPages > 1 && (
-                <div className="d-flex justify-content-between align-items-center mt-3">
-                    <span className="text-muted">หน้า {meta.currentPage || 1} / {meta.totalPages || 1} (ทั้งหมด {meta.totalItems || 0} รายการ)</span>
-                    <div className="btn-group">
-                        <Button variant="outline-secondary" onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1}>
-                            ก่อนหน้า
-                        </Button>
-                        <Button variant="outline-secondary" onClick={() => handlePageChange(currentPage + 1)} disabled={!meta.totalPages || currentPage >= meta.totalPages}>
-                            ถัดไป
-                        </Button>
-                    </div>
-                </div>
-            )}
         </div>
     );
 }

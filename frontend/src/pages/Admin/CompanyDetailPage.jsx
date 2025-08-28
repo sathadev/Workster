@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import api from '../../api/axios';
-import { Button, Card, Spinner, Alert, Modal } from 'react-bootstrap';
+import { Button, Card, Spinner, Alert, Modal, Row, Col } from 'react-bootstrap';
 import StatusBadge from '../../components/StatusBadge';
 
 function CompanyDetailPage() {
@@ -20,6 +20,7 @@ function CompanyDetailPage() {
         setActionType(type);
         setShowConfirm(true);
     };
+
     const handleConfirm = async () => {
         setActionLoading(true);
         setActionError(null);
@@ -61,15 +62,40 @@ function CompanyDetailPage() {
         <div className="container py-4">
             <Button variant="secondary" className="mb-3" onClick={() => navigate(-1)}>&larr; กลับ</Button>
             <Card className="shadow-sm">
-                <Card.Header as="h5">รายละเอียดบริษัท</Card.Header>
+                <Card.Header style={{ backgroundColor: '#1E56A0' }} className="text-white">
+                    <h5 className="mb-0 fw-bold">รายละเอียดบริษัท</h5>
+                </Card.Header>
                 <Card.Body>
-                    <h4 className="fw-bold mb-3">{company.company_name}</h4>
-                    <p><b>สถานะ:</b> <StatusBadge status={company.company_status} /></p>
-                    <p><b>ที่อยู่:</b> {company.company_address_number} {company.company_building} {company.company_street} {company.company_district} {company.company_province} {company.company_zip_code}</p>
-                    <p><b>เบอร์โทร:</b> {company.company_phone || '-'}</p>
-                    <p><b>อีเมล:</b> {company.company_email || '-'}</p>
-                    <p><b>รายละเอียด:</b> {company.company_description || '-'}</p>
-                    <p><b>วันที่สมัคร:</b> {company.created_at ? new Date(company.created_at).toLocaleDateString('th-TH') : '-'}</p>
+                    <div className="d-flex justify-content-between align-items-center mb-3">
+                        <h4 className="fw-bold mb-0">{company.company_name}</h4>
+                        <p className="text-muted mb-0">
+                            <b>วันที่สมัคร:</b> <small>{company.created_at ? new Date(company.created_at).toLocaleDateString('th-TH') : '-'}</small>
+                        </p>
+                    </div>
+                    <p className="text-muted mb-0"><b>สถานะ:</b> <StatusBadge status={company.company_status} /></p>
+
+                    <hr />
+
+                    <Row className="mb-3">
+                        <Col md={12}>
+                            <p className="mb-1"><b>ที่อยู่</b></p>
+                            <p className="text-muted mb-0">
+                                {company.company_address_number} {company.company_building} {company.company_street} {company.company_district} {company.company_province} {company.company_zip_code}
+                            </p>
+                        </Col>
+                        <Col md={12} className="mt-3">
+                            <p className="mb-1"><b>ข้อมูลติดต่อ</b></p>
+                            <p className="text-muted mb-0">
+                                <span className="d-block">เบอร์โทร: {company.company_phone || '-'}</span>
+                                <span className="d-block">อีเมล: {company.company_email || '-'}</span>
+                            </p>
+                        </Col>
+                    </Row>
+                    
+                    <div className="mb-3">
+                        <p className="mb-1"><b>รายละเอียด</b></p>
+                        <p className="text-muted mb-0">{company.company_description || '-'}</p>
+                    </div>
 
                     {/* ปุ่มอนุมัติ/ไม่อนุมัติ เฉพาะ pending */}
                     {company.company_status === 'pending' && (
@@ -102,4 +128,4 @@ function CompanyDetailPage() {
     );
 }
 
-export default CompanyDetailPage; 
+export default CompanyDetailPage;
