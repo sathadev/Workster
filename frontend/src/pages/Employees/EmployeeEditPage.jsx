@@ -1,9 +1,11 @@
 // frontend/src/pages/EmployeeEditPage.jsx
 import { useState, useEffect } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
-import api from '../../api/axios';
+import { useParams, useNavigate } from 'react-router-dom';
+import { Button, Spinner, Alert } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPlus, faTimesCircle } from '@fortawesome/free-solid-svg-icons';
+import { faPlus, faTimesCircle, faArrowLeft } from '@fortawesome/free-solid-svg-icons';
+
+import api from '../../api/axios';
 
 const BASE_URL_UPLOAD = 'http://localhost:5000/uploads/profile_pics/';
 
@@ -68,8 +70,8 @@ function EmployeeEditPage() {
     const handleSubmit = async (e) => {
         e.preventDefault();
         const dataToSubmit = new FormData();
-        ['emp_name', 'jobpos_id', 'emp_email', 'emp_tel', 'emp_address', 'emp_status', 'emp_birthday'].forEach(key => { // เพิ่ม emp_birthday
-            dataToSubmit.append(key, formData[key]);
+        ['emp_name', 'jobpos_id', 'emp_email', 'emp_tel', 'emp_address', 'emp_status', 'emp_birthday'].forEach(key => {
+            dataToSubmit.append(key, formData[key] || '');
         });
 
         if (imageFile) {
@@ -90,29 +92,28 @@ function EmployeeEditPage() {
         }
     };
 
-    if (loading) return <div className="text-center mt-5 text-muted">กำลังโหลด...</div>;
-    if (error) return <div className="alert alert-danger" style={{ fontSize: '0.95rem' }}>{error}</div>;
+    if (loading) return <div className="text-center mt-5 text-muted"><Spinner animation="border" /> กำลังโหลด...</div>;
+    if (error) return <div className="mt-5 text-center"><Alert variant="danger" style={{ fontSize: '0.95rem' }}>{error}</Alert></div>;
 
     return (
         <div>
-            <div className="d-flex justify-content-between align-items-center mb-3">
-                <h4 className="fw-bold text-dark" style={{ fontSize: '1.8rem' }}>แก้ไขข้อมูลพนักงาน</h4> {/* ใช้ h4 เป็น 2rem และ text-dark */}
+             <h4 className="fw-bold text-dark" style={{ fontSize: '1.8rem' }}>แก้ไขข้อมูลพนักงาน</h4>
+            <div className="d-flex justify-content-start align-items-center mb-3">
+                <Button variant="outline-secondary" onClick={() => navigate(-1)} style={{ fontSize: '1rem' }}>
+                    <FontAwesomeIcon icon={faArrowLeft} className="me-2" /> ย้อนกลับ
+                </Button>
             </div>
-            <p className="text-muted" style={{ fontSize: '0.95rem' }}> {/* ปรับขนาดและสี breadcrumb */}
-                <Link to="/employees"
-                    className="text-secondary text-decoration-none link-primary-hover">พนักงาน</Link> /
-                <Link to={`/employees/view/${id}`}
-                    className="text-secondary text-decoration-none link-primary-hover">{formData.emp_name || '...'}</Link> /
-                <span className="text-dark">แก้ไขข้อมูล</span>
-            </p>
+          
 
-            <div className="card p-4 shadow-sm mt-4"> {/* เพิ่ม shadow-sm และ mt-4 */}
+            {/* ส่วนที่ถูกลบออก */}
+
+            <div className="card p-4 shadow-sm mt-4">
                 <form onSubmit={handleSubmit}>
                     <div className="row">
                         {/* ส่วนรูปโปรไฟล์ */}
                         <div className="col-md-4 d-flex justify-content-center align-items-start mb-4">
                             <div style={{ position: 'relative', width: '150px', height: '150px' }}>
-                                <img src={imagePreview} alt="Profile Preview" className="rounded-circle border border-primary" style={{ width: '150px', height: '150px', objectFit: 'cover' }} /> {/* เพิ่ม border-primary */}
+                                <img src={imagePreview} alt="Profile Preview" className="rounded-circle border border-primary" style={{ width: '150px', height: '150px', objectFit: 'cover' }} />
                                 <label htmlFor="fileInput" className="btn btn-primary btn-sm rounded-circle d-flex align-items-center justify-content-center" style={{ position: 'absolute', bottom: 5, right: 5, cursor: 'pointer', width: '30px', height: '30px', fontSize: '0.8rem' }}>
                                     <FontAwesomeIcon icon={faPlus} />
                                 </label>

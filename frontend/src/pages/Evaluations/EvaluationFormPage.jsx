@@ -1,7 +1,10 @@
 import { useState, useEffect } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
+import { Button, Spinner, Alert } from 'react-bootstrap';
 import api from '../../api/axios';
 import EvaluationQuestion from '../../components/EvaluationQuestion';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faArrowLeft } from '@fortawesome/free-solid-svg-icons';
 
 const initialScores = { q1: '', q2: '', q3: '', q4: '', q5: '' };
 
@@ -75,7 +78,7 @@ function EvaluationFormPage() {
         }
     };
 
-    if (loading) return <div className="text-center mt-5 text-muted">กำลังโหลด...</div>;
+    if (loading) return <div className="text-center mt-5 text-muted"><Spinner animation="border" /> กำลังโหลด...</div>;
 
     if (!isEvaluationPeriod) {
         return (
@@ -95,17 +98,18 @@ function EvaluationFormPage() {
         );
     }
 
-    if (error) return <div className="alert alert-danger">{error}</div>;
-    if (!employee) return <div className="alert alert-warning">ไม่พบข้อมูลพนักงาน</div>;
+    if (error) return <div className="mt-5 text-center"><Alert variant="danger">{error}</Alert></div>;
+    if (!employee) return <div className="mt-5 text-center"><Alert variant="warning">ไม่พบข้อมูลพนักงาน</Alert></div>;
 
     return (
         <div>
-            <h4 className="fw-bold text-dark" style={{ fontSize: '2rem' }}>การประเมินผล</h4>
-            <p className="text-muted" style={{ fontSize: '0.95rem' }}>
-                <Link to="/evaluations" className="text-secondary text-decoration-none link-primary-hover">หน้าหลัก</Link> / <span className="text-dark">แบบฟอร์มการประเมิน</span>
-            </p>
-
-            {/* เพิ่มส่วนนี้เพื่อครอบองค์ประกอบหลักทั้งหมดในหน้า */}
+            <h4 className="fw-bold text-dark" style={{ fontSize: '1.8rem' }}>การประเมินผล</h4>
+            <div className="d-flex justify-content-start align-items-center mb-3">
+                <Button variant="outline-secondary" onClick={() => navigate(-1)} style={{ fontSize: '1rem' }}>
+                    <FontAwesomeIcon icon={faArrowLeft} className="me-2" /> ย้อนกลับ
+                </Button>
+            </div>
+            
             <div className="card shadow-sm mt-4">
                 <div className="card-header text-center bg-gradient-primary-custom text-white py-3">
                     <h5 className="mb-0 fw-bold" style={{ fontSize: '1.5rem' }}>แบบฟอร์มการประเมิน</h5>

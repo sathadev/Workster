@@ -1,8 +1,7 @@
-// frontend/src/pages/JobPostings/JobPostingFormPage.jsx
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import api from '../../api/axios'; // ตรวจสอบให้แน่ใจว่า path ถูกต้อง
-import { Form, Button, Alert } from 'react-bootstrap';
+import { Form, Button, Alert, Spinner } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSave, faTimesCircle, faArrowLeft, faExclamationTriangle } from '@fortawesome/free-solid-svg-icons';
 
@@ -154,22 +153,21 @@ function JobPostingFormPage() {
         }
     };
 
-    if (loading && isEditMode) return <div className="text-center mt-5">กำลังโหลดข้อมูล...</div>;
+    if (loading && isEditMode) return <div className="text-center mt-5"><Spinner animation="border" /> กำลังโหลดข้อมูล...</div>;
     if (error && (isEditMode || !submitting)) return <Alert variant="danger" className="mt-5 text-center"><FontAwesomeIcon icon={faExclamationTriangle} className="me-2" />{error}</Alert>;
 
     return (
         <div>
-            <div className="d-flex justify-content-between align-items-center mb-3">
-                <h4 className="fw-bold">{isEditMode ? 'แก้ไขประกาศรับสมัครงาน' : 'สร้างประกาศรับสมัครงานใหม่'}</h4>
-                <Button variant="outline-secondary" onClick={() => navigate('/job-postings')}>
-                    <FontAwesomeIcon icon={faArrowLeft} className="me-2" /> กลับไปยังรายการ
+            <h4 className="fw-bold text-dark" style={{ fontSize: '1.8rem' }}>{isEditMode ? 'แก้ไขประกาศรับสมัครงาน' : 'สร้างประกาศรับสมัครงานใหม่'}</h4>
+            <div className="d-flex justify-content-start align-items-center mb-3">
+                <Button variant="outline-secondary" onClick={() => navigate(-1)} style={{ fontSize: '1rem' }}>
+                    <FontAwesomeIcon icon={faArrowLeft} className="me-2" /> ย้อนกลับ
                 </Button>
             </div>
-            
 
-            {success && <Alert variant="success">{success}</Alert>}
+            {success && <Alert variant="success" className="mt-4">{success}</Alert>}
 
-            <Form onSubmit={handleSubmit} className="card p-4 shadow-sm">
+            <Form onSubmit={handleSubmit} className="card p-4 shadow-sm mt-4">
                 <Form.Group className="mb-3">
                     <Form.Label>ชื่อตำแหน่งที่ประกาศ <span className="text-danger">*</span></Form.Label>
                     <Form.Control
@@ -265,7 +263,7 @@ function JobPostingFormPage() {
                     </Form.Group>
                 </div>
 
-                <hr className="my-4" /> {/* คั่นส่วนข้อมูลติดต่อ */}
+                <hr className="my-4" />
                 <h5 className="mb-3">ข้อมูลผู้ติดต่อ</h5>
 
                 <Form.Group className="mb-3">
@@ -310,7 +308,7 @@ function JobPostingFormPage() {
                     />
                 </Form.Group>
 
-                <hr className="my-4" /> {/* คั่นส่วนสถานะและวันที่ */}
+                <hr className="my-4" />
 
                 <Form.Group className="mb-3">
                     <Form.Label>สถานะประกาศ <span className="text-danger">*</span></Form.Label>

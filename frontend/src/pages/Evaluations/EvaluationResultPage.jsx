@@ -38,9 +38,7 @@ function EvaluationResultPage() {
     return (
         <div>
             <h4 className="fw-bold text-dark" style={{ fontSize: '1.8rem' }}>ผลประเมินผล</h4>
-            <p className="text-muted" style={{ fontSize: '0.95rem' }}>
-                <Link to="/evaluations" className="text-secondary text-decoration-none link-primary-hover">หน้าหลัก</Link> / <Link to="/evaluations/history" className="text-secondary text-decoration-none link-primary-hover">ประวัติการประเมิน</Link> / <span className="text-dark">ผลการประเมิน</span>
-            </p>
+            
 
             <div className="card shadow-sm mt-4"> {/* เพิ่ม mt-4 */}
                 <div className="card-header bg-gradient-primary-custom text-white text-center position-relative py-3">
@@ -73,11 +71,7 @@ function EvaluationResultPage() {
                             </tr>
                         </tfoot>
                     </table>
-                    <div className="d-flex justify-content-center mt-4"> {/* เพิ่ม mt-4 */}
-                        <button onClick={() => navigate(-1)} className="btn btn-secondary fw-bold px-4" style={{ fontSize: '1rem' }}>
-                            <FontAwesomeIcon icon={faAngleLeft} className="me-2" /> กลับ
-                        </button>
-                    </div>
+                    
                 </div>
             </div>
         </div>

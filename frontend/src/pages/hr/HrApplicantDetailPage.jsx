@@ -39,7 +39,7 @@ const customSelectStyle = (status) => {
         default:
             break;
     }
-    
+
     // The key here is to set a solid background and color.
     return {
         backgroundColor: backgroundColor,
@@ -259,8 +259,11 @@ function HrApplicantDetailPage() {
 
             {/* Breadcrumbs and Back/Add Employee buttons moved here */}
             {/* ใช้ justify-content-end เพื่อจัดให้ไปอยู่ด้านขวา */}
-            <div className="d-flex justify-content-end align-items-center mb-3">
+            <div className="d-flex justify-content-start align-items-center mb-3">
                 <div className="d-flex gap-2">
+                    <Button variant="outline-secondary" onClick={() => navigate(-1)} style={{ fontSize: '1rem' }}>
+                        <FontAwesomeIcon icon={faArrowLeft} className="me-2" /> ย้อนกลับ
+                    </Button>
                     {/* ปุ่มเพิ่มเป็นพนักงาน — ใช้ได้เมื่อผ่าน (hired) */}
                     <Button
                         variant="success"
@@ -271,12 +274,8 @@ function HrApplicantDetailPage() {
                     >
                         เพิ่มเป็นพนักงาน
                     </Button>
-                    <Button variant="outline-secondary" onClick={() => navigate(-1)} style={{ fontSize: '1rem' }}>
-                        <FontAwesomeIcon icon={faArrowLeft} className="me-2" /> ย้อนกลับ
-                    </Button>
                 </div>
             </div>
-
             {/* Main content container with shadow and padding */}
             <div className="card shadow-sm mt-4">
                 <div className="card-body p-4">

@@ -1,9 +1,11 @@
 // frontend/src/pages/EmployeeAddPage.jsx
 import { useState, useEffect } from 'react';
-import { useNavigate, Link, useLocation } from 'react-router-dom';
-import api from '../../api/axios';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { Button, Spinner, Alert } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPlus } from '@fortawesome/free-solid-svg-icons';
+import { faPlus, faArrowLeft } from '@fortawesome/free-solid-svg-icons';
+
+import api from '../../api/axios';
 
 const initialFormData = {
   emp_name: '',
@@ -58,9 +60,9 @@ function EmployeeAddPage() {
     try {
       const raw = localStorage.getItem('employee_prefill');
       if (raw) lsPrefill = JSON.parse(raw);
-    } catch {}
+    } catch { }
     finally {
-      try { localStorage.removeItem('employee_prefill'); } catch {}
+      try { localStorage.removeItem('employee_prefill'); } catch { }
     }
 
     const chosen = statePrefill || lsPrefill || null;
@@ -119,7 +121,8 @@ function EmployeeAddPage() {
       emp_email: email || prev.emp_email,
       emp_tel: phone || prev.emp_tel,
       emp_username: username || prev.emp_username,
-      // ฟิลด์อื่น ๆ ให้ผู้ใช้เติมเอง (address, password, birthday)
+      emp_birthday: pf.start_date || prev.emp_birthday,
+      // ฟิลด์อื่น ๆ ให้ผู้ใช้เติมเอง (address, password)
     }));
 
     setAppliedPrefill(true);
@@ -191,12 +194,14 @@ function EmployeeAddPage() {
 
   return (
     <div>
-      <div className="d-flex justify-content-between align-items-center mb-3">
-        <h4 className="fw-bold text-dark" style={{ fontSize: '2rem' }}>เพิ่มข้อมูลพนักงาน</h4>
+      <h4 className="fw-bold text-dark" style={{ fontSize: '1.8rem' }}>เพิ่มข้อมูลพนักงาน</h4>
+      {/* เปลี่ยนส่วน Breadcrumb เป็นปุ่ม "ย้อนกลับ" */}
+      <div className="d-flex justify-content-start align-items-center mb-3">
+        <Button variant="outline-secondary" onClick={() => navigate(-1)} style={{ fontSize: '1rem' }}>
+          <FontAwesomeIcon icon={faArrowLeft} className="me-2" /> ย้อนกลับ
+        </Button>
       </div>
-      <p className="text-muted" style={{ fontSize: '0.95rem' }}>
-        <Link to="/employees" className="text-secondary text-decoration-none link-primary-hover">พนักงาน</Link> / <span className="text-dark">เพิ่มข้อมูลพนักงาน</span>
-      </p>
+
 
       <div className="card p-4 shadow-sm mt-4">
         <form onSubmit={handleSubmit} onReset={handleReset}>

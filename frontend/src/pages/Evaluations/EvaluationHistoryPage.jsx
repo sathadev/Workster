@@ -1,19 +1,21 @@
 import { useState, useEffect, useMemo } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import api from '../../api/axios';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { 
-    faSearch, faInbox, faTimes, faInfoCircle, // ไอคอนสำหรับ Search และ Info
-    faSort, faSortUp, faSortDown // ไอคอนสำหรับ Sort
-} from '@fortawesome/free-solid-svg-icons'; 
+import {
+    faSearch, faInbox, faTimes, faInfoCircle,
+    faSort, faSortUp, faSortDown, faArrowLeft
+} from '@fortawesome/free-solid-svg-icons';
+import { Button, Spinner, Alert } from 'react-bootstrap';
 
 function EvaluationHistoryPage() {
+    const navigate = useNavigate();
     const [evaluations, setEvaluations] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    
+
     const [searchInput, setSearchInput] = useState('');
-    const [filters, setFilters] = useState({ 
+    const [filters, setFilters] = useState({
         search: '',
         year: ''
     });
@@ -21,12 +23,12 @@ function EvaluationHistoryPage() {
     const [currentPage, setCurrentPage] = useState(1);
     const [meta, setMeta] = useState({});
 
-    const [actualAvailableYears, setActualAvailableYears] = useState([]); 
+    const [actualAvailableYears, setActualAvailableYears] = useState([]);
 
     useEffect(() => {
         const fetchHistory = async () => {
             setLoading(true);
-            setError(null); 
+            setError(null);
             try {
                 const params = {
                     search: filters.search,
@@ -62,7 +64,7 @@ function EvaluationHistoryPage() {
     };
 
     const handleSearchSubmit = (e) => {
-        e.preventDefault(); 
+        e.preventDefault();
         setCurrentPage(1);
         setFilters(prev => ({ ...prev, search: searchInput }));
     };
@@ -77,7 +79,7 @@ function EvaluationHistoryPage() {
         setCurrentPage(1);
         setFilters(prev => ({ ...prev, year: e.target.value }));
     };
-    
+
     const handleSort = (key) => {
         setCurrentPage(1);
         let direction = 'asc';
@@ -92,36 +94,38 @@ function EvaluationHistoryPage() {
             setCurrentPage(newPage);
         }
     };
-    
+
     const formatDate = (dateString) => new Date(dateString).toLocaleDateString('th-TH', {
         year: 'numeric',
         month: 'long',
         day: 'numeric'
     });
 
-    if (loading) return <div className="text-center mt-5 text-muted">กำลังโหลด...</div>;
-    if (error) return <div className="alert alert-danger">{error}</div>;
+    if (loading) return <div className="text-center mt-5 text-muted"><Spinner animation="border" /> กำลังโหลด...</div>;
+    if (error) return <div className="mt-5 text-center"><Alert variant="danger">{error}</Alert></div>;
 
     return (
         <div>
             <h4 className="fw-bold text-dark" style={{ fontSize: '1.8rem' }}>ประวัติการประเมินผล</h4>
-            <p className="text-muted" style={{ fontSize: '0.95rem' }}>
-                <Link to="/evaluations" className="text-secondary text-decoration-none link-primary-hover">การประเมินผล</Link> / <span className="text-dark">ประวัติการประเมิน</span>
-            </p>
-            
+            <div className="d-flex justify-content-start align-items-center mb-3">
+                <Button variant="outline-secondary" onClick={() => navigate(-1)} style={{ fontSize: '1rem' }}>
+                    <FontAwesomeIcon icon={faArrowLeft} className="me-2" /> ย้อนกลับ
+                </Button>
+            </div>
+
             {/* เพิ่มส่วนนี้เพื่อสร้างกรอบครอบทั้งหมด */}
             <div className="card shadow-sm mt-4">
                 <div className="card-body p-4">
-                    <div className="row g-2 mb-3"> 
+                    <div className="row g-2 mb-3">
                         <div className="col-md-5">
                             <form onSubmit={handleSearchSubmit} className="search-form">
                                 <div className="input-group w-100">
-                                    <input 
-                                        type="text" 
-                                        className="form-control" 
+                                    <input
+                                        type="text"
+                                        className="form-control"
                                         placeholder="ค้นหาตามชื่อพนักงาน..."
-                                        value={searchInput} 
-                                        onChange={handleSearchInputChange} 
+                                        value={searchInput}
+                                        onChange={handleSearchInputChange}
                                         style={{ fontSize: '1rem' }}
                                     />
                                     <button className="btn btn-outline-secondary" type="submit" style={{ fontSize: '1rem' }}>
@@ -137,7 +141,7 @@ function EvaluationHistoryPage() {
                         </div>
                         <div className="col-md-3 offset-md-4">
                             <div className="input-group">
-                                <label className="input-group-text bg-light text-dark" style={{ fontSize: '1rem' }}>ปีที่ประเมิน</label> 
+                                <label className="input-group-text bg-light text-dark" style={{ fontSize: '1rem' }}>ปีที่ประเมิน</label>
                                 <select
                                     className="form-select"
                                     name="year"
@@ -193,7 +197,7 @@ function EvaluationHistoryPage() {
                                 )) : (
                                     <tr>
                                         <td colSpan="4" className="text-center text-muted p-4">
-                                            <FontAwesomeIcon icon={faInbox} className="fa-2x mb-2 d-block"/>
+                                            <FontAwesomeIcon icon={faInbox} className="fa-2x mb-2 d-block" />
                                             <span style={{ fontSize: '1rem' }}>{filters.search || filters.year ? `ไม่พบข้อมูลตามเงื่อนไข` : 'ไม่พบข้อมูล'}</span>
                                         </td>
                                     </tr>

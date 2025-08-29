@@ -171,36 +171,81 @@ function PositionListPage() {
         );
     }
 
-    // ---------- Client-side safety filter ----------
-    // แสดงเฉพาะ Global + ของบริษัทตัวเอง (กันเผื่อ data side-effect)
-    const filteredPositions = positions.filter((pos) => {
-        if (!user) return false;
-        return pos.company_id === null || pos.company_id === user.company_id;
-    });
+    // ---------- Client-side safety filter and sort ----------
+    const sortedPositions = positions
+        .filter((pos) => {
+            if (!user) return false;
+            return pos.company_id === null || pos.company_id === user.company_id;
+        })
+        .sort((a, b) => {
+            const aName = a.jobpos_name;
+            const bName = b.jobpos_name;
+
+            // Priority 1: 'ประธานบริษัท'
+            if (aName === 'ประธานบริษัท' && bName !== 'ประธานบริษัท') {
+                return -1;
+            }
+            if (aName !== 'ประธานบริษัท' && bName === 'ประธานบริษัท') {
+                return 1;
+            }
+
+            // Priority 2: 'รองประธานบริษัท'
+            if (aName === 'รองประธานบริษัท' && bName !== 'รองประธานบริษัท') {
+                return -1;
+            }
+            if (aName !== 'รองประธานบริษัท' && bName === 'รองประธานบริษัท') {
+                return 1;
+            }
+
+            // Priority 3: 'Super Admin'
+            if (aName === 'Super Admin' && bName !== 'Super Admin') {
+                return -1;
+            }
+            if (aName !== 'Super Admin' && bName === 'Super Admin') {
+                return 1;
+            }
+
+            // Priority 4: 'HR'
+            if (aName === 'HR' && bName !== 'HR') {
+                return -1;
+            }
+            if (aName !== 'HR' && bName === 'HR') {
+                return 1;
+            }
+
+            // Remaining: Sort by global positions first (company_id === null)
+            if (a.company_id === null && b.company_id !== null) {
+                return -1;
+            }
+            if (a.company_id !== null && b.company_id === null) {
+                return 1;
+            }
+
+            // Finally: Sort alphabetically for all other positions
+            return aName.localeCompare(bName, 'th');
+        });
 
     return (
         <div>
             <div className="d-flex justify-content-between align-items-center mb-3">
-                <h4 className="fw-bold text-dark" style={{ fontSize: '2rem' }}>ตำแหน่งงาน</h4>
+                <h4 className="fw-bold text-dark" style={{ fontSize: '1.8rem' }}>ตำแหน่งงาน</h4>
                 <Button variant="outline-primary" onClick={handleShowAddModal}>
                     <FontAwesomeIcon icon={faPlus} className="me-2" />
                     เพิ่มตำแหน่งใหม่
                 </Button>
             </div>
 
-           
-
             {/* เพิ่มส่วนนี้เพื่อสร้างกรอบครอบทั้งหมด */}
             <div className="card shadow-sm mt-4">
                 <div className="card-body p-4">
-                    {filteredPositions.length === 0 && (
+                    {sortedPositions.length === 0 && (
                         <Alert variant="info" className="text-center">
                             <FontAwesomeIcon icon={faInfoCircle} className="me-2" />
                             ไม่พบตำแหน่งงาน
                         </Alert>
                     )}
 
-                    {filteredPositions.length > 0 && (
+                    {sortedPositions.length > 0 && (
                         <div className="table-responsive">
                             <table className="table table-hover table-bordered text-center align-middle">
                                 <thead className="table-light">
@@ -210,7 +255,7 @@ function PositionListPage() {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {filteredPositions.map((pos) => (
+                                    {sortedPositions.map((pos) => (
                                         <tr key={pos.jobpos_id}>
                                             <td>{pos.jobpos_name}</td>
                                             <td>

@@ -1,4 +1,3 @@
-// frontend/src/pages/JobPostings/JobPostingDetailPage.jsx
 // หน้าดูรายละเอียดประกาศงานสำหรับ HR/Admin (ดีไซน์ตามคำขอและแก้ไขข้อผิดพลาด)
 
 import { useState, useEffect } from 'react';
@@ -52,15 +51,15 @@ function JobPostingDetailPage() {
 
     return (
         <div>
+            <h4 className="fw-bold text-dark" style={{ fontSize: '1.8rem' }}>รายละเอียดประกาศงาน</h4>
             <div className="d-flex justify-content-between align-items-center mb-3">
-                <h4 className="fw-bold text-dark" style={{ fontSize: '1.8rem' }}>รายละเอียดประกาศงาน</h4>
+                <Button variant="outline-secondary" onClick={() => navigate(-1)} style={{ fontSize: '1rem' }}>
+                    <FontAwesomeIcon icon={faArrowLeft} className="me-2" /> ย้อนกลับ
+                </Button>
                 <Button variant="primary" onClick={() => navigate(`/job-postings/edit/${jobPosting.job_posting_id}`)} style={{ fontSize: '1rem' }}>
                     <FontAwesomeIcon icon={faEdit} className="me-2" /> แก้ไขประกาศ
                 </Button>
             </div>
-            <p className="text-muted mb-4" style={{ fontSize: '0.95rem' }}>
-                <Link to="/job-postings" className="text-secondary text-decoration-none link-primary-hover">ประกาศรับสมัครงาน</Link> / <span className="text-dark">รายละเอียด</span>
-            </p>
 
             {/* เพิ่มส่วนนี้เพื่อสร้างกรอบครอบทั้งหมด */}
             <div className="card job-detail-card shadow-sm mt-4">
@@ -117,15 +116,7 @@ function JobPostingDetailPage() {
                             <p className="mb-1"><span className="fw-bold">อีเมล :</span> {jobPosting.contact_email || '-'}</p>
                         </div>
 
-                        <div className="text-end">
-                            <Button 
-                                variant="secondary" 
-                                className="px-4" 
-                                onClick={() => navigate('/job-postings')} 
-                            >
-                                <FontAwesomeIcon icon={faArrowLeft} className="me-2" /> กลับหน้ารายการ
-                            </Button>
-                        </div>
+                        {/* ลบปุ่ม "กลับหน้ารายการ" ที่นี่ */}
                     </div>
                 </div>
             </div>
