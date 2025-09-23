@@ -5,8 +5,7 @@ import api from '../../api/axios';
 import { Modal, Button, Form, Spinner, Alert } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
-    faInfoCircle, faCheckCircle, faExclamationTriangle,
-    faCircleUser, faSignOutAlt, faUser
+    faCheckCircle, faExclamationTriangle
 } from '@fortawesome/free-solid-svg-icons';
 
 import './RegisterUserPage.css';
@@ -26,7 +25,7 @@ function RegisterUserPage() {
         companyDescription: '',
     });
 
-    // --- State สำหรับ UI และการโหลดข้อมูล ---
+    // --- State สำหรับ UI ---
     const [currentStep, setCurrentStep] = useState(1);
     const [thaiGeoData, setThaiGeoData] = useState([]);
     const [isLoadingGeoData, setIsLoadingGeoData] = useState(true);
@@ -51,15 +50,15 @@ function RegisterUserPage() {
 
     const empDistrictOptions = useMemo(() => {
         if (!selectedEmpProvinceId) return [];
-        const selectedProvince = thaiGeoData.find(p => String(p.id) === selectedEmpProvinceId);
-        return (selectedProvince?.amphure || []).map(a => ({ id: String(a.id), name_th: a.name_th }));
+        const selectedProvince = thaiGeoData.find(p => String(p.id) === String(selectedEmpProvinceId));
+        return (selectedProvince?.districts || []).map(a => ({ id: String(a.id), name_th: a.name_th }));
     }, [selectedEmpProvinceId, thaiGeoData]);
 
     const empSubdistrictOptions = useMemo(() => {
         if (!selectedEmpDistrictId) return [];
-        const selectedProvince = thaiGeoData.find(p => String(p.id) === selectedEmpProvinceId);
-        const selectedDistrict = selectedProvince?.amphure?.find(a => String(a.id) === selectedEmpDistrictId);
-        return (selectedDistrict?.tambon || []).map(t => ({ id: String(t.id), name_th: t.name_th, zip_code: t.zip_code }));
+        const selectedProvince = thaiGeoData.find(p => String(p.id) === String(selectedEmpProvinceId));
+        const selectedDistrict = selectedProvince?.districts?.find(a => String(a.id) === String(selectedEmpDistrictId));
+        return (selectedDistrict?.sub_districts || []).map(t => ({ id: String(t.id), name_th: t.name_th, zip_code: t.zip_code }));
     }, [selectedEmpDistrictId, selectedEmpProvinceId, thaiGeoData]);
 
     const companyProvinceOptions = useMemo(() => {
@@ -68,22 +67,24 @@ function RegisterUserPage() {
 
     const companyDistrictOptions = useMemo(() => {
         if (!selectedCompanyProvinceId) return [];
-        const selectedProvince = thaiGeoData.find(p => String(p.id) === selectedCompanyProvinceId);
-        return (selectedProvince?.amphure || []).map(a => ({ id: String(a.id), name_th: a.name_th }));
+        const selectedProvince = thaiGeoData.find(p => String(p.id) === String(selectedCompanyProvinceId));
+        return (selectedProvince?.districts || []).map(a => ({ id: String(a.id), name_th: a.name_th }));
     }, [selectedCompanyProvinceId, thaiGeoData]);
 
     const companySubdistrictOptions = useMemo(() => {
         if (!selectedCompanyDistrictId) return [];
-        const selectedProvince = thaiGeoData.find(p => String(p.id) === selectedCompanyProvinceId);
-        const selectedDistrict = selectedProvince?.amphure?.find(a => String(a.id) === selectedCompanyDistrictId);
-        return (selectedDistrict?.tambon || []).map(t => ({ id: String(t.id), name_th: t.name_th, zip_code: t.zip_code }));
+        const selectedProvince = thaiGeoData.find(p => String(p.id) === String(selectedCompanyProvinceId));
+        const selectedDistrict = selectedProvince?.districts?.find(a => String(a.id) === String(selectedCompanyDistrictId));
+        return (selectedDistrict?.sub_districts || []).map(t => ({ id: String(t.id), name_th: t.name_th, zip_code: t.zip_code }));
     }, [selectedCompanyDistrictId, selectedCompanyProvinceId, thaiGeoData]);
 
     // --- โหลดข้อมูลจังหวัด/อำเภอ/ตำบล ---
     useEffect(() => {
         const fetchGeoData = async () => {
             try {
-                const response = await fetch('https://raw.githubusercontent.com/kongvut/thai-province-data/master/api_province_with_amphure_tambon.json');
+                const response = await fetch(
+                    'https://raw.githubusercontent.com/kongvut/thai-province-data/refs/heads/master/api/latest/province_with_district_and_sub_district.json'
+                );
                 if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
                 const data = await response.json();
                 setThaiGeoData(data);
@@ -97,7 +98,7 @@ function RegisterUserPage() {
         fetchGeoData();
     }, []);
 
-    // --- Reset ID เมื่อ Options เปลี่ยน (emp) ---
+    // --- Reset ID เมื่อ Options เปลี่ยน ---
     useEffect(() => {
         if (selectedEmpDistrictId && !empDistrictOptions.some(d => d.id === selectedEmpDistrictId)) {
             setSelectedEmpDistrictId('');
@@ -109,7 +110,6 @@ function RegisterUserPage() {
         }
     }, [empDistrictOptions, empSubdistrictOptions, selectedEmpDistrictId, selectedEmpSubdistrictId]);
 
-    // --- Reset ID เมื่อ Options เปลี่ยน (company) ---
     useEffect(() => {
         if (selectedCompanyDistrictId && !companyDistrictOptions.some(d => d.id === selectedCompanyDistrictId)) {
             setSelectedCompanyDistrictId('');
@@ -129,46 +129,43 @@ function RegisterUserPage() {
 
     const handleEmpAddressSelectChange = (e) => {
         const { name, value } = e.target;
-        const selectedText = e.target.options[e.target.selectedIndex].text;
-        setFormData(prev => ({ ...prev, [name]: selectedText }));
-
         if (name === 'empProvince') {
-            setSelectedEmpProvinceId(value);
+            setSelectedEmpProvinceId(String(value));
+            const selectedProvince = empProvinceOptions.find(p => p.id === String(value));
+            setFormData(prev => ({ ...prev, empProvince: selectedProvince?.name_th || '', empDistrict: '', empSubdistrict: '', empZipCode: '' }));
             setSelectedEmpDistrictId('');
             setSelectedEmpSubdistrictId('');
-            setFormData(prev => ({ ...prev, empDistrict: '', empSubdistrict: '', empZipCode: '' }));
         } else if (name === 'empDistrict') {
-            setSelectedEmpDistrictId(value);
+            setSelectedEmpDistrictId(String(value));
+            const selectedDistrict = empDistrictOptions.find(d => d.id === String(value));
+            setFormData(prev => ({ ...prev, empDistrict: selectedDistrict?.name_th || '', empSubdistrict: '', empZipCode: '' }));
             setSelectedEmpSubdistrictId('');
-            setFormData(prev => ({ ...prev, empSubdistrict: '', empZipCode: '' }));
         } else if (name === 'empSubdistrict') {
-            setSelectedEmpSubdistrictId(value);
-            const selectedSubdistrictObj = empSubdistrictOptions.find(t => t.id === value);
-            setFormData(prev => ({ ...prev, empZipCode: selectedSubdistrictObj ? selectedSubdistrictObj.zip_code : '' }));
+            setSelectedEmpSubdistrictId(String(value));
+            const selectedSubdistrictObj = empSubdistrictOptions.find(t => t.id === String(value));
+            setFormData(prev => ({ ...prev, empSubdistrict: selectedSubdistrictObj?.name_th || '', empZipCode: selectedSubdistrictObj?.zip_code || '' }));
         }
     };
 
     const handleCompanyAddressSelectChange = (e) => {
         const { name, value } = e.target;
-        const selectedText = e.target.options[e.target.selectedIndex].text;
-        setFormData(prev => ({ ...prev, [name]: selectedText }));
-
         if (name === 'companyProvince') {
-            setSelectedCompanyProvinceId(value);
+            setSelectedCompanyProvinceId(String(value));
+            const selectedProvince = companyProvinceOptions.find(p => p.id === String(value));
+            setFormData(prev => ({ ...prev, companyProvince: selectedProvince?.name_th || '', companyDistrict: '', companySubdistrict: '', companyZipCode: '' }));
             setSelectedCompanyDistrictId('');
             setSelectedCompanySubdistrictId('');
-            setFormData(prev => ({ ...prev, companyDistrict: '', companySubdistrict: '', companyZipCode: '' }));
         } else if (name === 'companyDistrict') {
-            setSelectedCompanyDistrictId(value);
+            setSelectedCompanyDistrictId(String(value));
+            const selectedDistrict = companyDistrictOptions.find(d => d.id === String(value));
+            setFormData(prev => ({ ...prev, companyDistrict: selectedDistrict?.name_th || '', companySubdistrict: '', companyZipCode: '' }));
             setSelectedCompanySubdistrictId('');
-            setFormData(prev => ({ ...prev, companySubdistrict: '', companyZipCode: '' }));
         } else if (name === 'companySubdistrict') {
-            setSelectedCompanySubdistrictId(value);
-            const selectedSubdistrictObj = companySubdistrictOptions.find(t => t.id === value);
-            setFormData(prev => ({ ...prev, companyZipCode: selectedSubdistrictObj ? selectedSubdistrictObj.zip_code : '' }));
+            setSelectedCompanySubdistrictId(String(value));
+            const selectedSubdistrictObj = companySubdistrictOptions.find(t => t.id === String(value));
+            setFormData(prev => ({ ...prev, companySubdistrict: selectedSubdistrictObj?.name_th || '', companyZipCode: selectedSubdistrictObj?.zip_code || '' }));
         }
     };
-
     const handleNextStep = useCallback(() => {
         setFormError(null);
         let isValid = true;
