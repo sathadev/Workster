@@ -10,6 +10,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 
 import "./RegisterUserPage.css";
+import thaiGeoJson from "../../data/thai-provinces.json";
 
 function RegisterUserPage() {
   const navigate = useNavigate();
@@ -130,23 +131,14 @@ function RegisterUserPage() {
 
   // --- โหลดข้อมูลจังหวัด/อำเภอ/ตำบล ---
   useEffect(() => {
-    const fetchGeoData = async () => {
-      try {
-        const response = await fetch(
-          "https://raw.githubusercontent.com/kongvut/thai-province-data/refs/heads/master/api/latest/province_with_district_and_sub_district.json"
-        );
-        if (!response.ok)
-          throw new Error(`HTTP error! status: ${response.status}`);
-        const data = await response.json();
-        setThaiGeoData(data);
-      } catch (error) {
-        console.error("Error fetching geographical data:", error);
-        setGeoDataError("ไม่สามารถโหลดข้อมูลจังหวัดได้ กรุณาลองใหม่ในภายหลัง");
-      } finally {
-        setIsLoadingGeoData(false);
-      }
-    };
-    fetchGeoData();
+    try {
+      setThaiGeoData(thaiGeoJson); 
+      setIsLoadingGeoData(false);
+    } catch (error) {
+      console.error("Error loading local JSON:", error);
+      setGeoDataError("ไม่สามารถโหลดข้อมูลจังหวัดได้ กรุณาลองใหม่ในภายหลัง");
+      setIsLoadingGeoData(false);
+    }
   }, []);
 
   // --- Reset ID เมื่อ Options เปลี่ยน ---
