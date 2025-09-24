@@ -100,7 +100,7 @@ router.post('/public-register-company-admin', async (req, res) => {
     try {
         const {
             username, email, password, // User credentials
-            fullName, phone, empAddressNo, empMoo, empBuilding, // Employee address details
+            fullName, phone, birthday, empAddressNo, empMoo, empBuilding, // Employee address details
             empStreet, empSoi, empSubdistrict, empDistrict, empProvince, empZipCode,
             companyName, companyAddressNo, companyMoo, companyBuilding, // Company details
             companyStreet, companySoi, companySubdistrict, companyDistrict,
@@ -158,6 +158,7 @@ router.post('/public-register-company-admin', async (req, res) => {
             emp_email: email,
             emp_name: fullName,
             emp_tel: phone,
+            emp_birthday: birthday, 
             emp_address: emp_address_string,
             jobpos_id: 1, // Assumed jobpos_id for Admin/President
             emp_status: 'active' // Initial employee status
