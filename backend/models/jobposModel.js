@@ -14,11 +14,11 @@ const Jobpos = {
     const params = [];
 
     if (companyId === null) {
-      // public: เห็นเฉพาะ Global
-      sql += ` WHERE company_id IS NULL`;
+      // public: เห็นเฉพาะ Global (ยกเว้น Super Admin id=0)
+      sql += ` WHERE company_id IS NULL AND jobpos_id != 0`;
     } else {
-      // ผู้ใช้ทั่วไป: Global + ของบริษัทตัวเอง
-      sql += ` WHERE company_id IS NULL OR company_id = ?`;
+      // ผู้ใช้ทั่วไป: Global (ยกเว้น Super Admin) + ของบริษัทตัวเอง
+      sql += ` WHERE (company_id IS NULL AND jobpos_id != 0) OR company_id = ?`;
       params.push(companyId);
     }
 

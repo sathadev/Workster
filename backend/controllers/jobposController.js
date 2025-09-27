@@ -96,7 +96,8 @@ exports.deletePosition = async (req, res) => {
  */
 exports.getPublicPositions = async (_req, res) => {
   try {
-    const positions = await Jobpos.getAll(null); // null => Global only
+    const positions = await Jobpos.getAll(null);
+    // กันอีกชั้น
     res.status(200).json(positions.filter(pos => pos.jobpos_id !== 0));
   } catch (err) {
     console.error("API Error [getPublicPositions]:", err);
