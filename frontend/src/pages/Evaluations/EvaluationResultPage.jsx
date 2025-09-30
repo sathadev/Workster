@@ -37,7 +37,7 @@ function EvaluationResultPage() {
 
     return (
         <div>
-            <h4 className="fw-bold text-dark" style={{ fontSize: '1.8rem' }}>ผลประเมินผล</h4>
+            <h4 className="fw-bold text-dark" style={{ fontSize: '1.8rem' }}>ผลการประเมินผล</h4>
             
 
             <div className="card shadow-sm mt-4"> {/* เพิ่ม mt-4 */}

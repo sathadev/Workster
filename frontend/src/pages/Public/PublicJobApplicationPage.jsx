@@ -116,9 +116,15 @@ function PublicJobApplicationPage() {
     };
 
     return (
-        <div style={{ fontFamily: '"Noto Sans Thai", sans-serif', background: '#f0f2f5', minHeight: '100vh' }}>
+        <div style={{
+      fontFamily: '"Noto Sans Thai", sans-serif',
+      background: "#f0f2f5",
+      minHeight: "100vh",
+      display: "flex",
+      flexDirection: "column",
+    }}>
             <PublicNavbar />
-            <Container className="py-5">
+            <Container className="py-5" style={{ flex: 1 }}>
                 <Card className="shadow-lg p-4">
                     <Card.Body>
                         <h2 className="fw-bold mb-1 text-primary">สมัครงาน</h2>
