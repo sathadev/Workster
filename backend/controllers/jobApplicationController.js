@@ -122,3 +122,38 @@ exports.createJobApplication = async (req, res) => {
     return res.status(500).json({ message: 'เกิดข้อผิดพลาดภายในเซิร์ฟเวอร์' });
   }
 };
+
+exports.updateApplicationStatus = async (req, res) => {
+  try {
+    const { applicationId } = req.params;
+    const { status } = req.body;
+    const companyId = req.user.company_id; // สมมติว่า JWT หรือ session มี companyId
+
+    const updated = await JobApplicationModel.updateStatusByCompany({
+      applicationId,
+      companyId,
+      status,
+    });
+
+    return res.status(200).json({
+      message: 'อัปเดตสถานะเรียบร้อยแล้ว',
+      application: updated,
+    });
+  } catch (err) {
+    console.error("Update application status error:", err);
+
+    switch (err.code) {
+      case 'ALREADY_FINALIZED':
+        return res.status(400).json({ message: 'ไม่สามารถเปลี่ยนสถานะได้ เนื่องจากใบสมัครถูก Finalized แล้ว' });
+      case 'BAD_STATUS':
+        return res.status(400).json({ message: 'สถานะที่ส่งมาไม่ถูกต้อง (ต้องเป็น pending/reviewed/rejected/hired)' });
+      case 'NOT_FOUND':
+        return res.status(404).json({ message: 'ไม่พบใบสมัครนี้ หรือไม่ใช่ของบริษัทคุณ' });
+      case 'NO_STATUS_COLUMN':
+        return res.status(500).json({ message: 'ฐานข้อมูลไม่มีคอลัมน์ application_status' });
+      default:
+        // fallback
+        return res.status(500).json({ message: err.message || 'เกิดข้อผิดพลาดภายในเซิร์ฟเวอร์' });
+    }
+  }
+};

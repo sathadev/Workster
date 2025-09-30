@@ -232,7 +232,6 @@ const JobApplicationModel = {
       INNER JOIN ${POST_TABLE} jp ON jp.job_posting_id = ja.job_posting_id
       SET ja.application_status = ?
       WHERE ja.application_id = ? AND jp.company_id = ?
-      LIMIT 1
     `;
     const result = await query(sql, [status, applicationId, companyId]);
     if (result.affectedRows === 0) {
