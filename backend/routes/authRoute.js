@@ -160,7 +160,7 @@ router.post('/public-register-company-admin', async (req, res) => {
             emp_tel: phone,
             emp_birthday: birthday, 
             emp_address: emp_address_string,
-            jobpos_id: 1, // Assumed jobpos_id for Admin/President
+            jobpos_id: 3, // Assumed jobpos_id for Admin/President
             emp_status: 'active' // Initial employee status
         };
         // แก้ไข: ส่ง newCompany.company_id เป็น Argument ตัวที่สอง
