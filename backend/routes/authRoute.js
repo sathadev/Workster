@@ -72,7 +72,7 @@ router.post('/login', async (req, res) => {
         res.status(200).json({
             message: 'เข้าสู่ระบบสำเร็จ',
             token: token,
-            user: safeUser // จะมี company_id เป็น NULL และ isSuperAdmin เป็น true สำหรับ Super Admin
+            user: safeUser // จะมี company_id เป็น 0 และ isSuperAdmin เป็น true สำหรับ Super Admin
         });
 
     } catch (err) {
@@ -114,7 +114,7 @@ router.post('/public-register-company-admin', async (req, res) => {
         }
 
         // 1. Hash รหัสผ่าน
-        const hashedPassword = await bcrypt.hash(password, 12);
+        const hashedPassword = await bcrypt.hash(password, 10);
 
         // 2. สร้างบริษัทใหม่
         const companyPayload = { // Map frontend formData to backend model fields

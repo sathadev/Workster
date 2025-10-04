@@ -291,7 +291,7 @@ function PublicJobPostingDetailPage() {
                     }}
                   >
                     <FontAwesomeIcon icon={faPaperPlane} className="me-2" />{" "}
-                    ยืนยันสมัครงาน
+                    ยื่นสมัครงาน
                   </Button>
                 </Link>
               </div>

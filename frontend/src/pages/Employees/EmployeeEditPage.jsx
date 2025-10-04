@@ -164,15 +164,9 @@ function EmployeeEditPage() {
                                 </div>
                             </div>
                             <div className="row mb-3">
-                                <label htmlFor="emp_address" className="col-sm-3 col-form-label text-md-end text-dark" style={{ fontSize: '1.2rem' }}>ที่อยู่ :</label>
+                                <label htmlFor="emp_address" className="col-sm-3 col-form-label text-md-end text-dark" style={{ fontSize: '1rem' }}>ที่อยู่ :</label>
                                 <div className="col-sm-9">
                                     <textarea id="emp_address" name="emp_address" value={formData.emp_address || ''} onChange={handleChange} className="form-control" rows="3" style={{ fontSize: '1rem' }}></textarea>
-                                </div>
-                            </div>
-                            <div className="row mb-3">
-                                <label htmlFor="emp_birthday" className="col-sm-3 col-form-label text-md-end text-dark" style={{ fontSize: '1rem' }}>วันเกิด :</label>
-                                <div className="col-sm-9">
-                                    <input type="date" id="emp_birthday" name="emp_birthday" value={formData.emp_birthday?.split('T')[0] || ''} onChange={handleChange} className="form-control" style={{ fontSize: '1rem' }} />
                                 </div>
                             </div>
                             <div className="row mb-3">
