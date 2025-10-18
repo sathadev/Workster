@@ -1,16 +1,29 @@
 // backend/routes/companyRoutes.js
+// Route สำหรับจัดการข้อมูลบริษัท (Company Management)
+
 const express = require('express');
 const router = express.Router();
-const companyController = require('../controllers/companyController'); // ตรวจสอบให้แน่ใจว่าเส้นทางนี้ถูกต้อง
+const companyController = require('../controllers/companyController');
+const { protect } = require('../middleware/authMiddleware');
 
-// หากคุณมี middleware สำหรับการตรวจสอบสิทธิ์ (Authentication) และบทบาท (Authorization)
-// เช่น const { protect, authorize } = require('../middleware/authMiddleware');
-// คุณสามารถนำมาใช้ได้ที่นี่ เช่น router.get('/', protect, authorize(['admin']), companyController.getAllCompanies);
+// [GET] /api/v1/companies
+// ดึงข้อมูลบริษัททั้งหมด (ต้องล็อกอิน)
+router.get('/', protect, companyController.getAllCompanies);
 
-router.get('/', companyController.getAllCompanies);
-router.get('/:id', companyController.getCompanyById);
-router.post('/', companyController.createCompany);
-router.put('/:id', companyController.updateCompany); // ใช้ PUT สำหรับการอัปเดตข้อมูลทั้งหมด
-router.delete('/:id', companyController.deleteCompany);
+// [GET] /api/v1/companies/:id
+// ดึงข้อมูลรายละเอียดบริษัทตาม ID (ต้องล็อกอิน)
+router.get('/:id', protect, companyController.getCompanyById);
 
-module.exports = router; 
+// [POST] /api/v1/companies
+// เพิ่มข้อมูลบริษัทใหม่ (ต้องล็อกอิน)
+router.post('/', protect, companyController.createCompany);
+
+// [PUT] /api/v1/companies/:id
+// อัปเดตข้อมูลบริษัททั้งหมด (ต้องล็อกอิน)
+router.put('/:id', protect, companyController.updateCompany);
+
+// [DELETE] /api/v1/companies/:id
+// ลบบริษัทออกจากระบบ (ต้องล็อกอิน)
+router.delete('/:id', protect, companyController.deleteCompany);
+
+module.exports = router;

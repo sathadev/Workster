@@ -1,25 +1,30 @@
 // backend/models/jobApplicationModel.js
+// Model สำหรับจัดการข้อมูลใบสมัครงาน (Job Applications)
+// ครอบคลุมการสร้างใบสมัคร ดึงรายละเอียด ค้นหา และอัปเดตสถานะ
+
 const query = require('../utils/db');
 
 const APP_TABLE = 'job_applications';
 const POST_TABLE = 'job_postings';
 
+// ฟังก์ชันดึงชื่อคอลัมน์ทั้งหมดของตาราง เพื่อเช็คว่ามีฟิลด์นั้นจริงหรือไม่
 async function getTableColumns(table) {
   const rows = await query(`SHOW COLUMNS FROM ${table}`);
   return new Set(rows.map(r => r.Field));
 }
 
+// ฟังก์ชันช่วยเพิ่มคอลัมน์ลง SQL เฉพาะเมื่อคอลัมน์นั้นมีอยู่ในตาราง
 function addIfExists(colsSet, cols, vals, params, name, value, { raw = false } = {}) {
   if (!colsSet.has(name)) return;
   cols.push(name);
-  if (raw) {
-    vals.push(value);
-  } else {
+  if (raw) vals.push(value);
+  else {
     vals.push('?');
     params.push(value);
   }
 }
 
+// ฟังก์ชันช่วยสร้าง expression สำหรับชื่อ “ตำแหน่งงาน” จากตาราง job_postings
 function buildPositionExpr(postColsSet, alias = 'position_name') {
   const candidates = ['position_title', 'position_name', 'job_position', 'job_level', 'job_title'];
   const existing = candidates.filter(c => postColsSet.has(c)).map(c => `jp.${c}`);
@@ -27,6 +32,7 @@ function buildPositionExpr(postColsSet, alias = 'position_name') {
   return `COALESCE(${existing.join(', ')}) AS ${alias}`;
 }
 
+// ฟังก์ชันช่วยสร้าง expression สำหรับ “ชื่องาน” ที่ประกาศไว้
 function buildJobTitleExpr(postColsSet) {
   const candidates = ['job_title', 'title', 'position_title'];
   const existing = candidates.filter(c => postColsSet.has(c));
@@ -34,7 +40,7 @@ function buildJobTitleExpr(postColsSet) {
   return `jp.${existing[0]} AS job_title`;
 }
 
-// ✅ ตัวช่วยสร้าง expression สำหรับสถานะ finalized
+// ฟังก์ชันช่วยสร้าง expression สำหรับเช็คสถานะ finalized (hired หรือ rejected)
 function buildFinalizedExpr(appColsSet) {
   if (appColsSet.has('application_status')) {
     return `CASE WHEN ja.application_status IN ('hired','rejected') THEN 1 ELSE 0 END AS is_finalized`;
@@ -42,10 +48,12 @@ function buildFinalizedExpr(appColsSet) {
   return `COALESCE((SELECT f.is_finalized FROM job_application_flags f WHERE f.application_id = ja.application_id LIMIT 1), 0) AS is_finalized`;
 }
 
+// MAIN MODEL OBJECT — ฟังก์ชันหลักของ JobApplication
 const JobApplicationModel = {
+
+  // [POST] เพิ่มใบสมัครใหม่
   create: async (data) => {
     const appCols = await getTableColumns(APP_TABLE);
-
     const cols = [];
     const vals = [];
     const params = [];
@@ -61,9 +69,12 @@ const JobApplicationModel = {
     addIfExists(appCols, cols, vals, params, 'available_start_date', data.available_start_date ?? null);
     addIfExists(appCols, cols, vals, params, 'consent_privacy', data.consent_privacy ? 1 : 0);
 
+    // กำหนดสถานะเริ่มต้นเป็น pending ถ้ายังไม่ได้ระบุ
     if (appCols.has('application_status')) {
       addIfExists(appCols, cols, vals, params, 'application_status', data.application_status || 'pending');
     }
+
+    // เพิ่มวันที่สร้างใบสมัคร
     if (appCols.has('created_at')) {
       addIfExists(appCols, cols, vals, params, 'created_at', 'NOW()', { raw: true });
     }
@@ -74,12 +85,13 @@ const JobApplicationModel = {
     return rows[0];
   },
 
+  // [GET] ดึงใบสมัครตาม ID
   getById: async (id) => {
     const rows = await query(`SELECT * FROM ${APP_TABLE} WHERE application_id = ?`, [id]);
     return rows[0] || null;
   },
 
-  // ✅ ใช้เช็คว่าถูก finalize แล้วหรือยัง
+  // [GET] ตรวจสอบว่าใบสมัครถูก finalize แล้วหรือยัง (hired หรือ rejected)
   isFinalized: async ({ applicationId, companyId }) => {
     const appCols = await getTableColumns(APP_TABLE);
     const finalizedExpr = buildFinalizedExpr(appCols);
@@ -90,23 +102,19 @@ const JobApplicationModel = {
       INNER JOIN ${POST_TABLE} jp ON jp.job_posting_id = ja.job_posting_id
       WHERE ja.application_id = ? AND jp.company_id = ?
       LIMIT 1
-    `,
+      `,
       [Number(applicationId), Number(companyId)]
     );
-    if (rows.length === 0) return null; // ไม่ใช่ของบริษัทนี้/ไม่มีข้อมูล
+    if (rows.length === 0) return null;
     return rows[0].is_finalized === 1;
   },
 
-  // ===== List by Company =====
+  // [GET] ดึงรายการใบสมัครของบริษัท (พร้อมค้นหา กรอง และแบ่งหน้า)
   listByCompany: async ({ companyId, page = 1, pageSize = 10, q, status, jobPostingId }) => {
     const appCols = await getTableColumns(APP_TABLE);
     const postCols = await getTableColumns(POST_TABLE);
 
-    const selectAppCols = [
-      'ja.application_id',
-      'ja.job_posting_id',
-      'ja.applicant_name',
-    ];
+    const selectAppCols = ['ja.application_id', 'ja.job_posting_id', 'ja.applicant_name'];
     if (appCols.has('application_status')) selectAppCols.push('ja.application_status');
 
     const jobTitleExpr = buildJobTitleExpr(postCols);
@@ -125,6 +133,7 @@ const JobApplicationModel = {
     const where = ['jp.company_id = ?'];
     const params = [companyId];
 
+    // ค้นหาจากชื่อผู้สมัครหรือชื่องาน
     if (q) {
       const like = `LIKE CONCAT('%', ?, '%')`;
       const conds = [`ja.applicant_name ${like}`];
@@ -135,18 +144,22 @@ const JobApplicationModel = {
       for (let i = 0; i < conds.length; i++) params.push(q);
     }
 
+    // กรองตาม job_posting_id
     if (jobPostingId) {
       where.push('ja.job_posting_id = ?');
       params.push(Number(jobPostingId));
     }
 
+    // กรองตามสถานะใบสมัคร
     if (status && appCols.has('application_status')) {
       where.push('ja.application_status = ?');
       params.push(status);
     }
 
     const whereSql = where.length ? `WHERE ${where.join(' AND ')}` : '';
-    const orderSql = appCols.has('created_at') ? 'ORDER BY ja.created_at DESC' : 'ORDER BY ja.application_id DESC';
+    const orderSql = appCols.has('created_at')
+      ? 'ORDER BY ja.created_at DESC'
+      : 'ORDER BY ja.application_id DESC';
 
     const limit = Math.max(1, Number(pageSize));
     const offset = Math.max(0, (Number(page) - 1) * limit);
@@ -162,10 +175,16 @@ const JobApplicationModel = {
     `;
     const [{ total }] = await query(countSql, params);
 
-    return { items: rows, page: Number(page), pageSize: limit, total: Number(total), totalPages: Math.ceil(total / limit) };
+    return {
+      items: rows,
+      page: Number(page),
+      pageSize: limit,
+      total: Number(total),
+      totalPages: Math.ceil(total / limit),
+    };
   },
 
-  // ===== Detail by Company =====
+  // [GET] ดึงรายละเอียดใบสมัครของบริษัทพร้อมข้อมูลประกาศงาน
   getDetailByCompany: async ({ applicationId, companyId }) => {
     const appCols = await getTableColumns(APP_TABLE);
     const postCols = await getTableColumns(POST_TABLE);
@@ -203,7 +222,7 @@ const JobApplicationModel = {
     return rows[0] || null;
   },
 
-  // ===== Update Status =====
+  // [PUT] อัปเดตสถานะใบสมัคร เช่น pending → reviewed → hired
   updateStatusByCompany: async ({ applicationId, companyId, status }) => {
     const appCols = await getTableColumns(APP_TABLE);
     if (!appCols.has('application_status')) {
@@ -212,7 +231,7 @@ const JobApplicationModel = {
       throw err;
     }
 
-    // ❗ ถ้า finalized แล้ว ไม่ให้แก้
+    // ป้องกันการแก้ไขถ้าใบสมัครถูก finalized แล้ว
     const finalized = await JobApplicationModel.isFinalized({ applicationId, companyId });
     if (finalized) {
       const e = new Error('Application already finalized.');
@@ -220,6 +239,7 @@ const JobApplicationModel = {
       throw e;
     }
 
+    // ตรวจสอบสถานะใหม่ที่อนุญาต
     const allow = new Set(['pending', 'reviewed', 'rejected', 'hired']);
     if (!allow.has(String(status))) {
       const err = new Error('Invalid application status.');
@@ -240,10 +260,15 @@ const JobApplicationModel = {
       throw e;
     }
 
+    // ดึงข้อมูลที่อัปเดตแล้วกลับไป
     const rows = await query(
-      `SELECT ja.*, jp.job_title FROM ${APP_TABLE} ja
-       INNER JOIN ${POST_TABLE} jp ON jp.job_posting_id = ja.job_posting_id
-       WHERE ja.application_id = ? LIMIT 1`,
+      `
+      SELECT ja.*, jp.job_title
+      FROM ${APP_TABLE} ja
+      INNER JOIN ${POST_TABLE} jp ON jp.job_posting_id = ja.job_posting_id
+      WHERE ja.application_id = ?
+      LIMIT 1
+      `,
       [applicationId]
     );
     return rows[0];

@@ -1,51 +1,49 @@
+// backend/routes/salaryRoutes.js
+// Route สำหรับจัดการข้อมูลเงินเดือน (Salary Management)
+// ใช้สำหรับทั้งพนักงาน (ดูเงินเดือนตนเอง) และ HR/Admin (ดู/แก้ไข/ประมวลผลเงินเดือน)
+
 const express = require('express');
 const router = express.Router();
 const salaryController = require('../controllers/salaryController');
 const { protect } = require('../middleware/authMiddleware');
 
-// --- เพิ่ม import ที่จำเป็น ---
+// ใช้ในส่วน Payroll Service สำหรับการประมวลผลการหักเงินมาสาย
 const PayrollService = require('../services/payrollService');
 const db = require('../config/db');
 const util = require('util');
 const query = util.promisify(db.query).bind(db);
-// ----------------------------
 
-
-// === ROUTES เดิม (สำหรับ Admin/HR และพนักงาน) ===
-
-// GET /api/v1/salaries/me - พนักงานดูเงินเดือนของตัวเอง
+// [GET] /api/v1/salaries/me
+// พนักงานดูข้อมูลเงินเดือนของตนเอง (ต้องล็อกอินก่อน)
 router.get('/me', protect, salaryController.getMySalary);
 
-// GET /api/v1/salaries - Admin ดึงข้อมูลเงินเดือนทั้งหมด
+// [GET] /api/v1/salaries
+// HR/Admin ดึงข้อมูลเงินเดือนของพนักงานทั้งหมดในบริษัท
 router.get('/', protect, salaryController.getAllSalaries);
 
-// PUT /api/v1/salaries/:empId - Admin อัปเดตข้อมูลเงินเดือน
+// [PUT] /api/v1/salaries/:empId
+// HR/Admin อัปเดตข้อมูลเงินเดือนของพนักงานรายคน
 router.put('/:empId', protect, salaryController.updateSalary);
 
-// GET /api/v1/salaries/:empId - Admin ดูข้อมูลเงินเดือนของพนักงานรายคน
+// [GET] /api/v1/salaries/:empId
+// HR/Admin ดูรายละเอียดเงินเดือนของพนักงานรายคน
 router.get('/:empId', protect, salaryController.getSalaryByEmpId);
 
-
-// === ROUTE ใหม่ (สำหรับประมวลผลเงินเดือน) ===
-
-/**
- * [POST] /api/v1/salaries/process-payroll
- * Route สำหรับให้ Admin สั่งประมวลผลการหักเงินจากการมาสายของพนักงานทุกคนในรอบบิล
- * รับ body: { startDate: "YYYY-MM-DD", endDate: "YYYY-MM-DD" }
- */
+// [POST] /api/v1/salaries/process-payroll
+// HR/Admin สั่งประมวลผลการหักเงินจากการมาสายของพนักงานทั้งหมดในรอบบิล
+// รับ body: { startDate: "YYYY-MM-DD", endDate: "YYYY-MM-DD" }
 router.post('/process-payroll', protect, async (req, res) => {
     try {
         const { startDate, endDate } = req.body;
-        // ดึง companyId จาก middleware protect ที่แนบข้อมูล user มากับ request
         const { company_id: companyId } = req.user;
 
         if (!startDate || !endDate) {
             return res.status(400).json({ message: 'กรุณาระบุวันที่เริ่มและสิ้นสุดรอบบิล' });
         }
 
-        // 1. ดึง ID ของพนักงานที่ยังทำงานอยู่ (active) ทั้งหมดในบริษัท
+        // ดึงพนักงานที่ยังทำงานอยู่ในบริษัท
         const employees = await query(
-            "SELECT emp_id FROM employee WHERE company_id = ? AND emp_status = 'active'", 
+            "SELECT emp_id FROM employee WHERE company_id = ? AND emp_status = 'active'",
             [companyId]
         );
 
@@ -56,24 +54,30 @@ router.post('/process-payroll', protect, async (req, res) => {
         let totalProcessedCount = 0;
         let errors = [];
 
-        // 2. วนลูปพนักงานแต่ละคนเพื่อคำนวณและบันทึกการหักเงิน
+        // วนลูปคำนวณและบันทึกค่าหักเงินมาสายของแต่ละคน
         for (const emp of employees) {
             try {
-                // เรียกใช้ Service เพื่อคำนวณ
-                const { deductionAmount, notes } = await PayrollService.calculateLateDeduction(emp.emp_id, companyId, startDate, endDate);
+                const { deductionAmount, notes } = await PayrollService.calculateLateDeduction(
+                    emp.emp_id,
+                    companyId,
+                    startDate,
+                    endDate
+                );
 
-                // 3. ถ้ามีจำนวนเงินที่ต้องหัก ให้บันทึกลงในตาราง `deduction_logs`
                 if (deductionAmount > 0) {
-                    // ก่อนบันทึก อาจจะลบ log เก่าของรอบบิลนี้ออกก่อน เพื่อป้องกันการกดซ้ำ
+                    // ลบข้อมูล log เดิมในรอบบิลนั้น (กันข้อมูลซ้ำ)
                     await query(
-                        `DELETE FROM deduction_logs WHERE emp_id = ? AND deduction_type = 'late_count_exceeded' AND deduction_date BETWEEN ? AND ?`,
+                        `DELETE FROM deduction_logs 
+                         WHERE emp_id = ? 
+                         AND deduction_type = 'late_count_exceeded' 
+                         AND deduction_date BETWEEN ? AND ?`,
                         [emp.emp_id, startDate, endDate]
                     );
 
                     const logData = {
                         emp_id: emp.emp_id,
                         company_id: companyId,
-                        deduction_date: new Date(endDate), // ใช้วันสุดท้ายของรอบบิลเป็นวันที่หักเงิน
+                        deduction_date: new Date(endDate),
                         deduction_amount: deductionAmount,
                         deduction_type: 'late_count_exceeded',
                         notes: notes
@@ -87,17 +91,14 @@ router.post('/process-payroll', protect, async (req, res) => {
             }
         }
 
-        // 4. ส่งผลลัพธ์กลับไป
         res.status(200).json({
             message: `ประมวลผลการหักเงินมาสายสำเร็จ ${totalProcessedCount} รายการ`,
-            errors: errors
+            errors
         });
-
     } catch (err) {
         console.error("API Error [process-payroll]:", err);
         res.status(500).json({ message: 'เกิดข้อผิดพลาดร้ายแรงในการประมวลผลเงินเดือน' });
     }
 });
-
 
 module.exports = router;

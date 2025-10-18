@@ -1,15 +1,15 @@
 // backend/controllers/jobPostingController.js
+// Controller สำหรับจัดการ “ประกาศรับสมัครงาน (Job Postings)”
+// แยกตามสิทธิ์การใช้งาน: HR/Admin (ภายในบริษัท) และ Public (ภายนอกบริษัท)
+
 const JobPostingModel = require('../models/jobPostingModel');
 const EmployeeModel = require('../models/employeeModel'); // เพื่อดึง jobpos_name ของผู้ประกาศ
 
-/**
- * @desc ดึงข้อมูลประกาศรับสมัครงานทั้งหมด (สำหรับ HR/Admin)
- * @route GET /api/v1/job-postings
- * @access HR/Admin (jobpos_id 1,2,3)
- */
+// [GET] /api/v1/job-postings
+// ดึงข้อมูลประกาศรับสมัครงานทั้งหมด (เฉพาะ HR/Admin)
+// จำกัดสิทธิ์เฉพาะตำแหน่งงานที่ jobpos_id เป็น 1, 2, 3
 exports.getAllJobPostings = async (req, res) => {
     try {
-        // ตรวจสอบสิทธิ์: เฉพาะ Admin/HR เท่านั้น
         if (!req.user || ![1, 2, 3].includes(req.user.jobpos_id)) {
             return res.status(403).json({ message: 'คุณไม่มีสิทธิ์เข้าถึงฟังก์ชันนี้' });
         }
@@ -22,14 +22,10 @@ exports.getAllJobPostings = async (req, res) => {
     }
 };
 
-/**
- * @desc ดึงข้อมูลประกาศรับสมัครงานเดียวด้วย ID
- * @route GET /api/v1/job-postings/:id
- * @access HR/Admin (jobpos_id 1,2,3)
- */
+// [GET] /api/v1/job-postings/:id
+// ดึงข้อมูลประกาศรับสมัครงานรายตัว (เฉพาะ HR/Admin)
 exports.getJobPostingById = async (req, res) => {
     try {
-        // ตรวจสอบสิทธิ์: เฉพาะ Admin/HR เท่านั้น
         if (!req.user || ![1, 2, 3].includes(req.user.jobpos_id)) {
             return res.status(403).json({ message: 'คุณไม่มีสิทธิ์เข้าถึงฟังก์ชันนี้' });
         }
@@ -47,14 +43,10 @@ exports.getJobPostingById = async (req, res) => {
     }
 };
 
-/**
- * @desc สร้างประกาศรับสมัครงานใหม่
- * @route POST /api/v1/job-postings
- * @access HR/Admin (jobpos_id 1,2,3)
- */
+// [POST] /api/v1/job-postings
+// สร้างประกาศรับสมัครงานใหม่ (เฉพาะ HR/Admin)
 exports.createJobPosting = async (req, res) => {
     try {
-        // ตรวจสอบสิทธิ์: เฉพาะ Admin/HR เท่านั้น
         if (!req.user || ![1, 2, 3].includes(req.user.jobpos_id)) {
             return res.status(403).json({ message: 'คุณไม่มีสิทธิ์สร้างประกาศรับสมัครงาน' });
         }
@@ -67,14 +59,10 @@ exports.createJobPosting = async (req, res) => {
     }
 };
 
-/**
- * @desc อัปเดตประกาศรับสมัครงาน
- * @route PUT /api/v1/job-postings/:id
- * @access HR/Admin (jobpos_id 1,2,3)
- */
+// [PUT] /api/v1/job-postings/:id
+// แก้ไขข้อมูลประกาศรับสมัครงาน (เฉพาะ HR/Admin)
 exports.updateJobPosting = async (req, res) => {
     try {
-        // ตรวจสอบสิทธิ์: เฉพาะ Admin/HR เท่านั้น
         if (!req.user || ![1, 2, 3].includes(req.user.jobpos_id)) {
             return res.status(403).json({ message: 'คุณไม่มีสิทธิ์แก้ไขประกาศรับสมัครงาน' });
         }
@@ -92,14 +80,10 @@ exports.updateJobPosting = async (req, res) => {
     }
 };
 
-/**
- * @desc ลบประกาศรับสมัครงาน
- * @route DELETE /api/v1/job-postings/:id
- * @access HR/Admin (jobpos_id 1,2,3)
- */
+// [DELETE] /api/v1/job-postings/:id
+// ลบประกาศรับสมัครงาน (เฉพาะ HR/Admin)
 exports.deleteJobPosting = async (req, res) => {
     try {
-        // ตรวจสอบสิทธิ์: เฉพาะ Admin/HR เท่านั้น
         if (!req.user || ![1, 2, 3].includes(req.user.jobpos_id)) {
             return res.status(403).json({ message: 'คุณไม่มีสิทธิ์ลบประกาศรับสมัครงาน' });
         }
@@ -110,29 +94,21 @@ exports.deleteJobPosting = async (req, res) => {
         if (!deleted) {
             return res.status(404).json({ message: 'ไม่พบประกาศรับสมัครงานที่ต้องการลบ หรือคุณไม่มีสิทธิ์' });
         }
-        res.status(204).send(); // 204 No Content สำหรับการลบสำเร็จ
+        res.status(204).send();
     } catch (err) {
         console.error("API Error [deleteJobPosting]:", err);
         res.status(500).json({ message: "เกิดข้อผิดพลาดในการลบประกาศรับสมัครงาน" });
     }
 };
 
-// --- Public Endpoints (สำหรับผู้สมัครงานทั่วไป) ---
-
-/**
- * @desc ดึงข้อมูลประกาศรับสมัครงานทั้งหมดที่ Active (สำหรับ Public)
- * @route GET /api/v1/public/job-postings
- * @access Public
- */
+// [GET] /api/v1/public/job-postings
+// ดึงข้อมูลประกาศรับสมัครงานทั้งหมดที่เปิดรับสมัคร (Public)
+// แสดงเฉพาะที่ job_status = 'active' และ company_status = 'approved'
 exports.getPublicJobPostings = async (req, res) => {
     try {
-        // ดึงเฉพาะประกาศที่ status เป็น 'active' และ company_status เป็น 'approved'
         const options = { ...req.query, status: 'active' };
-        const result = await JobPostingModel.getAllJobPostings(options, null); // companyId เป็น null เพื่อดึงทั้งหมด
-        
-        // กรองเฉพาะบริษัทที่ approved
+        const result = await JobPostingModel.getAllJobPostings(options, null);
         result.data = result.data.filter(post => post.company_status === 'approved');
-
         res.status(200).json(result);
     } catch (err) {
         console.error("API Error [getPublicJobPostings]:", err);
@@ -140,15 +116,13 @@ exports.getPublicJobPostings = async (req, res) => {
     }
 };
 
-/**
- * @desc ดึงข้อมูลประกาศรับสมัครงานเดียวด้วย ID (สำหรับ Public)
- * @route GET /api/v1/public/job-postings/:id
- * @access Public
- */
+// [GET] /api/v1/public/job-postings/:id 
+// ดึงประกาศรับสมัครงานเฉพาะรายการ (Public) 
+// ใช้สำหรับหน้ารายละเอียดประกาศที่ผู้สมัครดูได้ 
 exports.getPublicJobPostingById = async (req, res) => {
     try {
         const { id } = req.params;
-        const jobPosting = await JobPostingModel.getJobPostingById(id, null); // companyId เป็น null เพื่อดึงไม่ว่าบริษัทไหน
+        const jobPosting = await JobPostingModel.getJobPostingById(id, null);
 
         if (!jobPosting || jobPosting.job_status !== 'active' || jobPosting.company_status !== 'approved') {
             return res.status(404).json({ message: 'ไม่พบประกาศรับสมัครงานนี้ หรือประกาศไม่พร้อมใช้งาน' });

@@ -1,32 +1,36 @@
 // backend/routes/employeeRoutes.js
+// Route สำหรับจัดการข้อมูลพนักงาน (Employee Management)
+
 const express = require('express');
 const router = express.Router();
 const employeeController = require('../controllers/employeeController');
 const { protect } = require('../middleware/authMiddleware');
 
-// --- ส่วนที่แก้ไข ---
-// ดึง Middleware 'uploadImage' ที่เราสร้างไว้ใน Controller ออกมา
-// (uploadImage คือ multer ที่ตั้งค่าแล้ว)
+// ดึง middleware uploadImage จาก controller (multer สำหรับจัดการรูปภาพพนักงาน)
 const { uploadImage } = employeeController;
 
-
-// --- แก้ไข Routes ที่มีการอัปโหลดไฟล์ ---
+// [GET] /api/v1/employees/profile
+// ดึงข้อมูลโปรไฟล์ของผู้ใช้ที่ล็อกอินอยู่
 router.get('/profile', protect, employeeController.viewProfile);
 
-// POST /api/v1/employees - สร้างพนักงานใหม่
-// เราต้องเพิ่ม `uploadImage` เข้าไปคั่นกลาง เพื่อให้ multer จัดการ req.body และ req.file ให้เรา
+// [POST] /api/v1/employees
+// เพิ่มข้อมูลพนักงานใหม่ พร้อมอัปโหลดรูปภาพ
 router.post('/', protect, uploadImage, employeeController.createEmployee);
 
-// PUT /api/v1/employees/:id - อัปเดตข้อมูล
-// ต้องมี uploadImage ด้วยเผื่อมีการอัปเดตไฟล์รูป
+// [PUT] /api/v1/employees/:id
+// แก้ไขข้อมูลพนักงาน พร้อมอัปโหลดรูปภาพใหม่ (ถ้ามี)
 router.put('/:id', protect, uploadImage, employeeController.updateEmployee);
 
-
-// --- Routes อื่นๆ ที่ไม่มีการอัปโหลดไฟล์ ก็จะใช้แค่ protect เหมือนเดิม ---
+// [GET] /api/v1/employees
+// ดึงข้อมูลพนักงานทั้งหมด (ต้องล็อกอิน)
 router.get('/', protect, employeeController.getAllEmployees);
+
+// [GET] /api/v1/employees/:id
+// ดึงข้อมูลพนักงานรายบุคคล (ต้องล็อกอิน)
 router.get('/:id', protect, employeeController.getEmployeeById);
+
+// [DELETE] /api/v1/employees/:id
+// ลบข้อมูลพนักงานออกจากระบบ (ต้องล็อกอิน)
 router.delete('/:id', protect, employeeController.deleteEmployee);
-
-
 
 module.exports = router;

@@ -1,15 +1,17 @@
 // backend/routes/aboutRoutes.js
+// Route สำหรับจัดการข้อมูลการตั้งค่า (Settings / About Company Policy)
+
 const express = require('express');
 const router = express.Router();
 const aboutController = require('../controllers/aboutController');
-const { protect } = require('../middleware/authMiddleware'); // <-- Import เข้ามา
+const { protect } = require('../middleware/authMiddleware');
 
-// GET /api/v1/settings - ดึงข้อมูลการตั้งค่า
-// ต้อง protect เพื่อให้เฉพาะผู้ที่ login แล้วเท่านั้นที่เห็นได้
+// [GET] /api/v1/settings
+// ดึงข้อมูลการตั้งค่า (เฉพาะผู้ที่ล็อกอินเท่านั้น)
 router.get('/', protect, aboutController.getSettings);
 
-// PUT /api/v1/settings - อัปเดตข้อมูลการตั้งค่า
-// ต้อง protect เพื่อให้เฉพาะผู้ที่ login แล้วเท่านั้นที่แก้ไขได้
+// [PUT] /api/v1/settings
+// อัปเดตข้อมูลการตั้งค่า (เฉพาะผู้ที่ล็อกอินเท่านั้น)
 router.put('/', protect, aboutController.updateSettings);
 
 module.exports = router;

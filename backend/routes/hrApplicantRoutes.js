@@ -1,37 +1,32 @@
 // backend/routes/hrApplicantRoutes.js
+// ใช้ protect แทน requireCompanyAuth (ไม่ต้องมี middleware แยก)
+
 const express = require('express');
 const router = express.Router();
+const { protect } = require('../middleware/authMiddleware');
 const hrApplicantController = require('../controllers/hrApplicantController');
 const hrInterviewController = require('../controllers/hrInterviewController');
 const hrDecisionController = require('../controllers/hrDecisionController');
 
-// Inline middleware: require company
-const requireCompanyAuth = (req, res, next) => {
-  try {
-    const raw = (req.user && req.user.company_id) || req.headers['x-company-id'];
-    const companyId = Number(raw);
-    if (!raw || Number.isNaN(companyId) || companyId <= 0) {
-      return res.status(401).json({ message: 'ต้องมี company_id (ผ่าน JWT หรือ X-Company-Id header ระหว่าง dev)' });
-    }
-    req.companyId = companyId;
-    next();
-  } catch {
-    return res.status(401).json({ message: 'Unauthorized' });
-  }
-};
+// ใช้ protect เพื่อดึง company_id และข้อมูลผู้ใช้จาก JWT
+router.use(protect);
 
-router.use(requireCompanyAuth);
-
-// List + Detail + Update status (เดิม)
+// [GET] /api/v1/hr/applicants - ดึงรายการใบสมัครทั้งหมดของบริษัท
 router.get('/', hrApplicantController.listMyApplicants);
+
+// [GET] /api/v1/hr/applicants/:applicationId - ดึงรายละเอียดใบสมัครรายบุคคล
 router.get('/:applicationId', hrApplicantController.getMyApplicantDetail);
+
+// [PATCH] /api/v1/hr/applicants/:applicationId/status - อัปเดตสถานะใบสมัคร
 router.patch('/:applicationId/status', hrApplicantController.updateMyApplicantStatus);
 
-// Interviews
+// [GET] /api/v1/hr/applicants/:applicationId/interviews - ดึงรายการนัดสัมภาษณ์ทั้งหมด
 router.get('/:applicationId/interviews', hrInterviewController.listInterviews);
+
+// [POST] /api/v1/hr/applicants/:applicationId/interviews - สร้างการนัดสัมภาษณ์ใหม่
 router.post('/:applicationId/interviews', hrInterviewController.scheduleInterview);
 
-// Decision (result email)
+// [PATCH] /api/v1/hr/applicants/:applicationId/decision - ส่งผลการพิจารณา (ผ่าน/ไม่ผ่าน)
 router.patch('/:applicationId/decision', hrDecisionController.sendDecision);
 
 module.exports = router;
