@@ -1,26 +1,32 @@
 // frontend/src/pages/JobPostings/PublicJobPostingListPage.jsx
+
 import { useState, useEffect, useCallback } from 'react';
 import { NavLink, Link } from 'react-router-dom';
-import { publicApi } from '../../api/axios';
+import { publicApi } from '../../api/axios'; //axios instance สำหรับ endpoint แบบ public
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faSearch, faTimes, faInbox, faInfoCircle, faSortUp, faSortDown, faBuilding, faExclamationTriangle,
   faMapMarkerAlt, faMoneyBillWave, faFilter
 } from '@fortawesome/free-solid-svg-icons';
 import { Form, Button, Alert, Card, Row, Col, Spinner, Container, Navbar } from 'react-bootstrap';
-import './PublicJobPostingListPage.css';
+import './PublicJobPostingListPage.css'; // สไตล์เฉพาะหน้ารายการประกาศงาน
 
+// Navbar โหมด Public 
 const PublicNavbar = () => {
   return (
     <Navbar expand="lg" variant="dark" className="ws-navbar sticky-top" style={{ backgroundColor: 'rgb(33, 37, 41)' }}>
       <Container>
+        {/* โลโก้/ชื่อเว็บ กลับหน้าแรก */}
         <NavLink className="navbar-brand" to="/" aria-label="WorkSter Home">
           WorkSter
         </NavLink>
+
+        {/* ปุ่ม toggle สำหรับจอเล็ก */}
         <Navbar.Toggle aria-controls="regNav" />
         <Navbar.Collapse id="regNav">
           <ul className="navbar-nav ms-auto align-items-lg-center">
             <li className="nav-item me-lg-2">
+              {/* ปุ่มไปหน้าเข้าสู่ระบบ */}
               <NavLink to="/login" className="btn btn-outline-light ws-btn">
                 เข้าสู่ระบบ
               </NavLink>
@@ -33,44 +39,52 @@ const PublicNavbar = () => {
 };
 
 function PublicJobPostingListPage() {
-  const [jobPostings, setJobPostings] = useState([]);
-  const [meta, setMeta] = useState({});
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  //  State หลัก
+  const [jobPostings, setJobPostings] = useState([]); // รายการประกาศงาน (data)
+  const [meta, setMeta] = useState({});               // ข้อมูลเพจจิเนชัน { totalPages, currentPage, totalItems, ... }
+  const [loading, setLoading] = useState(true);       // สถานะระหว่างโหลดข้อมูล
+  const [error, setError] = useState(null);           // ข้อความผิดพลาดกรณีโหลดไม่สำเร็จ
 
+  // ค่าช่องค้นหา (ที่ผู้ใช้พิมพ์) + เงื่อนไขกรองที่ส่งไป API
   const [searchInput, setSearchInput] = useState('');
   const [filters, setFilters] = useState({
-    search: '',
-    jobpos_id: ''
+    search: '',   
+    jobpos_id: '' 
   });
-  const [sortConfig, setSortConfig] = useState({ key: 'posted_at', direction: 'desc' });
-  const [currentPage, setCurrentPage] = useState(1);
-  const [positions, setPositions] = useState([]);
 
+  // การเรียงลำดับ (คีย์คอลัมน์ + ทิศทาง)
+  const [sortConfig, setSortConfig] = useState({ key: 'posted_at', direction: 'desc' });
+  const [currentPage, setCurrentPage] = useState(1); // หน้าปัจจุบัน
+  const [positions, setPositions] = useState([]);    // รายการตำแหน่งสำหรับ dropdown
+
+  //  โหลดรายการตำแหน่ง (สำหรับ filter) 
   useEffect(() => {
     const fetchPositions = async () => {
       try {
-        const response = await publicApi.get('/positions/public');
+        const response = await publicApi.get('/positions/public'); // ดึงตำแหน่งงานทั้งหมดแบบ public
         setPositions(response.data);
       } catch (err) {
         console.error("Failed to fetch positions for public job postings:", err);
       }
     };
     fetchPositions();
-  }, []);
+  }, []); // โหลดครั้งเดียวตอน mount
 
+  //  โหลดรายการประกาศงานตาม filters/sort/page 
   const fetchJobPostings = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
       const params = {
-        ...filters,
-        sort: sortConfig.key,
-        order: sortConfig.direction,
-        page: currentPage,
-        limit: 10,
+        ...filters,                // search, jobpos_id
+        sort: sortConfig.key,      // คอลัมน์สำหรับ sort เช่น 'posted_at'
+        order: sortConfig.direction, // 'asc' | 'desc'
+        page: currentPage,         // เพจปัจจุบัน
+        limit: 10,                 // จำนวนรายการต่อหน้า
       };
       const response = await publicApi.get('/job-postings/public', { params });
+
+      // โครงสร้างสมมติ: { data: [...], meta: {...} }
       setJobPostings(response.data.data || []);
       setMeta(response.data.meta || {});
     } catch (err) {
@@ -81,13 +95,15 @@ function PublicJobPostingListPage() {
     }
   }, [filters, sortConfig, currentPage]);
 
+  // เรียกโหลดทุกครั้งที่ filters/sort/page เปลี่ยน
   useEffect(() => {
     fetchJobPostings();
   }, [fetchJobPostings]);
 
+  // Handlers: ควบคุมฟอร์ม/ตัวกรอง/เพจ/เรียง 
   const handleFilterChange = (e) => {
     const { name, value } = e.target;
-    setCurrentPage(1);
+    setCurrentPage(1);                            // เปลี่ยนเงื่อนไข -> กลับหน้า 1
     setFilters(prev => ({ ...prev, [name]: value }));
   };
 
@@ -96,51 +112,56 @@ function PublicJobPostingListPage() {
   const handleSearchSubmit = (e) => {
     e.preventDefault();
     setCurrentPage(1);
-    setFilters(prev => ({ ...prev, search: searchInput }));
+    setFilters(prev => ({ ...prev, search: searchInput })); // โยนค่าที่พิมพ์ไปใช้จริงในการค้นหา
   };
 
   const clearSearch = () => {
     setSearchInput('');
     setCurrentPage(1);
-    setFilters(prev => ({ ...prev, search: '' }));
+    setFilters(prev => ({ ...prev, search: '' })); // ล้างคำค้นหา
   };
 
   const handleSort = (key) => {
     setCurrentPage(1);
     let direction = 'asc';
     if (sortConfig.key === key && sortConfig.direction === 'asc') {
-      direction = 'desc';
+      direction = 'desc'; // ถ้ากดซ้ำคอลัมน์เดิม -> สลับทิศทาง
     }
     setSortConfig({ key, direction });
   };
 
   const handlePageChange = (newPage) => {
+    // กันออกนอกช่วงหน้า
     if (newPage >= 1 && (!meta.totalPages || newPage <= meta.totalPages)) {
       setCurrentPage(newPage);
     }
   };
 
+  // แปลงวันที่แบบไทยให้อ่านง่าย
   const formatDate = (dateString) => {
     if (!dateString) return '-';
     const date = new Date(dateString);
     return date.toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric' });
   };
 
+  // Render 
   return (
     <div
       style={{
         fontFamily: '"Noto Sans Thai", sans-serif',
         background: '#f0f2f5',
         minHeight: '100vh',
-        display: 'flex',          // ✅ make the page a column flex container
-        flexDirection: 'column'   // ✅ stack children vertically
+        display: 'flex',          // ทำให้ทั้งหน้ากลายเป็นคอลัมน์ flex
+        flexDirection: 'column'   // เรียงแนวตั้ง เพื่อดัน footer ชิดล่าง
       }}
     >
       <PublicNavbar />
 
       {/* Main Content */}
-      <Container className="py-5" style={{ flex: 1 /* ✅ take remaining height to push footer down */ }}>
+      <Container className="py-5" style={{ flex: 1 /* กินความสูงที่เหลือ เพื่อให้ footer ติดล่าง */ }}>
         <h2 className="fw-bold mb-4 text-center text-dark">ประกาศรับสมัครงานทั้งหมด</h2>
+
+        {/* กล่องค้นหา + ตัวกรอง + เรียงลำดับ */}
         <Card className="p-4 mb-4 shadow-sm border-0">
           <Form onSubmit={handleSearchSubmit}>
             <Row className="align-items-start g-3">
@@ -162,6 +183,7 @@ function PublicJobPostingListPage() {
                   </div>
                 </div>
               </Col>
+
               {/* Filter by Position Dropdown */}
               <Col md={3}>
                 <div className="d-flex flex-column">
@@ -176,7 +198,8 @@ function PublicJobPostingListPage() {
                   </Form.Select>
                 </div>
               </Col>
-              {/* Sort Dropdown */}
+
+              {/* Sort Dropdown (เปลี่ยน key ที่ใช้ sort) */}
               <Col md={3}>
                 <div className="d-flex flex-column">
                   <Form.Label className="fw-bold">เรียงลำดับ</Form.Label>
@@ -187,6 +210,8 @@ function PublicJobPostingListPage() {
                 </div>
               </Col>
             </Row>
+
+            {/* ปุ่มล้างการค้นหา (แสดงต่อเมื่อมีข้อความในช่องค้นหา) */}
             <Row>
               <Col>
                 {searchInput && (
@@ -199,6 +224,7 @@ function PublicJobPostingListPage() {
           </Form>
         </Card>
 
+        {/* ส่วนแสดงรายการประกาศงาน / โหลด / error / empty state */}
         {loading ? (
           <div className="text-center my-5">
             <Spinner animation="border" /> กำลังโหลด...
@@ -212,15 +238,27 @@ function PublicJobPostingListPage() {
             <Row xs={1} md={2} className="g-4">
               {jobPostings.map(post => (
                 <Col key={post.job_posting_id}>
+                  {/* คลิกการ์ดแล้วไปหน้า detail (ใช้ Link ครอบ Card ทั้งใบ) */}
                   <Link to={`/public/job-postings/${post.job_posting_id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
                     <Card className="job-card shadow-sm border-0 h-100">
                       <Card.Body>
+                        {/* หัวการ์ด: ชื่อตำแหน่ง + วันที่โพสต์ */}
                         <div className="d-flex justify-content-between align-items-center mb-2">
                           <h5 className="card-title fw-bold text-primary mb-0">{post.job_title}</h5>
                           <small className="text-muted">{formatDate(post.posted_at)}</small>
                         </div>
-                        <p className="card-text text-muted mb-1"><FontAwesomeIcon icon={faBuilding} className="me-2" /> {post.company_name}</p>
-                        <p className="card-text text-muted mb-2"><FontAwesomeIcon icon={faMapMarkerAlt} className="me-2" /> {post.job_location_text || '-'}</p>
+
+                        {/* ชื่อบริษัท */}
+                        <p className="card-text text-muted mb-1">
+                          <FontAwesomeIcon icon={faBuilding} className="me-2" /> {post.company_name}
+                        </p>
+
+                        {/* สถานที่ทำงาน (หรือ '-') */}
+                        <p className="card-text text-muted mb-2">
+                          <FontAwesomeIcon icon={faMapMarkerAlt} className="me-2" /> {post.job_location_text || '-'}
+                        </p>
+
+                        {/* ช่วงเงินเดือน (toLocaleString เพื่อคั่นหลัก) */}
                         <h6 className="card-text text-success fw-bold">
                           <FontAwesomeIcon icon={faMoneyBillWave} className="me-2" /> {post.salary_min?.toLocaleString()} - {post.salary_max?.toLocaleString()} บาท
                         </h6>
@@ -232,20 +270,26 @@ function PublicJobPostingListPage() {
             </Row>
           </div>
         ) : (
+          // ถ้าไม่มีประกาศงาน แสดงหน้าว่างสวย ๆ
           <div className="text-center text-muted p-5">
             <FontAwesomeIcon icon={faInbox} className="fa-4x mb-3" />
             <h4>ไม่พบประกาศรับสมัครงาน</h4>
-            <p className="mb-0">{filters.search || filters.jobpos_id ? 'ไม่พบประกาศตามเงื่อนไขที่เลือก' : 'ยังไม่มีประกาศรับสมัครงานที่เปิดรับ'}</p>
+            <p className="mb-0">
+              {filters.search || filters.jobpos_id ? 'ไม่พบประกาศตามเงื่อนไขที่เลือก' : 'ยังไม่มีประกาศรับสมัครงานที่เปิดรับ'}
+            </p>
           </div>
         )}
 
+        {/* เพจจิเนชัน: แสดงเมื่อมีหลายหน้า */}
         {meta.totalPages > 1 && (
           <div className="d-flex justify-content-center align-items-center mt-4">
             <div className="btn-group">
               <Button variant="outline-primary" onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1}>
                 ก่อนหน้า
               </Button>
-              <span className="btn btn-light text-muted">หน้า {meta.currentPage || 1} / {meta.totalPages || 1}</span>
+              <span className="btn btn-light text-muted">
+                หน้า {meta.currentPage || 1} / {meta.totalPages || 1}
+              </span>
               <Button variant="outline-primary" onClick={() => handlePageChange(currentPage + 1)} disabled={!meta.totalPages || currentPage >= meta.totalPages}>
                 ถัดไป
               </Button>
@@ -254,7 +298,7 @@ function PublicJobPostingListPage() {
         )}
       </Container>
 
-      {/* Footer (ติดล่างเสมอ) */}
+      {/* Footer (ติดล่างเสมอ ด้วย flex layout ของ wrapper) */}
       <footer className="bg-dark text-white text-center py-3 mt-5">
         <p className="mb-0">&copy; 2025 WorkSter. All rights reserved.</p>
       </footer>

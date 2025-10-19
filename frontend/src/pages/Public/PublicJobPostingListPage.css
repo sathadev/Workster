@@ -1,53 +1,61 @@
+/* โหลดฟอนต์ Noto Sans Thai จาก Google Fonts มาใช้ทั้งเว็บ */
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@100..900&display=swap');
 
+/* ตั้งค่าฟอนต์หลัก + สีพื้นหลังของหน้า */
 html, body {
-    font-family: "Noto Sans Thai", sans-serif;
-    background-color: #f8f9fa;
+    font-family: "Noto Sans Thai", sans-serif; 
+    background-color: #f8f9fa;                 
 }
 
+/* แถบด้านข้าง (Sidebar) */
 .sidebar {
-    background-color: #f8f9fa;
-    min-height: 100vh;
-    padding-top: 20px;
+    background-color: #f8f9fa; 
+    min-height: 100vh;        
+    padding-top: 20px;        
 }
 
+/* ลิงก์ใน Sidebar: ทำให้คลิกง่ายและจัดวางสวย */
 .sidebar a {
-    display: block;
-    padding: 10px 20px;
-    color: #000;
-    text-decoration: none;
+    display: block;        /* ยืดเต็มความกว้างบรรทัด */
+    padding: 10px 20px;    
+    color: #000;          
+    text-decoration: none; /* ตัดเส้นใต้ */
 }
 
+/* เอฟเฟกต์ตอนเอาเมาส์ชี้ลิงก์ใน Sidebar */
 .sidebar a:hover {
     background-color: #e2e6ea;
-    border-radius: 5px;
+    border-radius: 5px;       
 }
 
 /* Custom Styles for Job Page */
+
+/* การ์ดประกาศงานแต่ละใบ */
 .job-card {
-    border-radius: 1rem;
-    margin-bottom: 1.5rem;
-    padding: 1rem;
-    background-color: #fff;
-    border: 1px solid #e0e0e0;
-    /* ✨ เพิ่ม transition เพื่อให้สมูท */
-    transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+    border-radius: 1rem;                      
+    margin-bottom: 1.5rem;                    
+    padding: 1rem;                          
+    background-color: #fff;                
+    border: 1px solid #e0e0e0;               
+    transition: border-color 0.2s ease-in-out,/* ทำให้การเปลี่ยนสีขอบลื่น */
+                box-shadow 0.2s ease-in-out;  /* ทำให้เงาเปลี่ยนลื่น */
 }
 
-/* ✨ เพิ่ม :hover เพื่อให้เปลี่ยนสไตล์เมื่อเมาส์ชี้ */
+/* เอฟเฟกต์เมื่อโฮเวอร์การ์ดประกาศงาน */
 .job-card:hover {
-    border-color: #8ab4f8; /* เส้นขอบสีฟ้า */
-    box-shadow: 0 4px 12px rgba(138, 180, 248, 0.25);
-    cursor: pointer;
+    border-color: #8ab4f8;                          /* ขอบฟ้าเน้นจุดสนใจ */
+    box-shadow: 0 4px 12px rgba(138, 180, 248, 0.25);/* เงานุ่มดูมีมิติ */
+    cursor: pointer;                                 /* สื่อว่าคลิกได้ */
 }
 
+/* กล่องค้นหา: ตัดมุมให้ต่อเนื่องระหว่าง input กับปุ่ม/ไอคอน */
 .search-input .form-control {
-    border-top-right-radius: 0;
-    border-bottom-right-radius: 0;
+    border-top-right-radius: 0;    /* ตัดมุมขวาบนของ input */
+    border-bottom-right-radius: 0; /* ตัดมุมขวาล่างของ input */
 }
 
 .search-input .input-group-text {
-    border-top-left-radius: 0;
-    border-bottom-left-radius: 0;
-    background-color: #fff;
+    border-top-left-radius: 0;     /* ตัดมุมซ้ายบนของส่วนไอคอน/ปุ่ม */
+    border-bottom-left-radius: 0;  /* ตัดมุมซ้ายล่างของส่วนไอคอน/ปุ่ม */
+    background-color: #fff;        /* ให้พื้นหลังเข้ากับ input */
 }

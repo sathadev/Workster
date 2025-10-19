@@ -1,11 +1,11 @@
 // frontend/src/pages/JobPostings/PublicJobPostingDetailPage.jsx
+
 import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
-import { publicApi } from "../../api/axios";
+import { publicApi } from "../../api/axios"; // axios instance สำหรับ public endpoint (ไม่ต้องแนบ token)
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Navbar, Nav } from "react-bootstrap";
 import { NavLink } from "react-router-dom";
-
 
 import {
   faBuilding,
@@ -13,11 +13,12 @@ import {
   faLocationDot,
   faCalendarDays,
   faClock,
-  faClipboardList, // ไอคอนสำหรับแสดงรายละเอียด
-  faExclamationTriangle,
-  faArrowLeft,
-  faPaperPlane, // สำหรับ Error และปุ่มย้อนกลับ (ถ้ามี)
+  faClipboardList,       // ใช้แสดง bullet รายการ (คุณสมบัติ/สวัสดิการ)
+  faExclamationTriangle, 
+  faArrowLeft,           // ปุ่มกลับ
+  faPaperPlane,          // ปุ่มยื่นสมัครงาน
 } from "@fortawesome/free-solid-svg-icons";
+
 import {
   Card,
   Button,
@@ -29,22 +30,27 @@ import {
   ListGroup,
 } from "react-bootstrap";
 
+// Navbar
 const PublicNavbar = () => {
   return (
     <Navbar
       expand="lg"
       variant="dark"
       className="ws-navbar sticky-top"
-      style={{ backgroundColor: "rgb(33, 37, 41)" }}
+      style={{ backgroundColor: "rgb(33, 37, 41)" }} 
     >
       <Container>
+        {/* โลโก้/ชื่อเว็บ กดแล้วกลับหน้าแรก */}
         <NavLink className="navbar-brand" to="/" aria-label="WorkSter Home">
           WorkSter
         </NavLink>
+
+        {/* ปุ่มสลับเมนูเมื่อหน้าจอแคบ */}
         <Navbar.Toggle aria-controls="regNav" />
         <Navbar.Collapse id="regNav">
           <ul className="navbar-nav ms-auto align-items-lg-center">
             <li className="nav-item me-lg-2">
+              {/* ปุ่มไปหน้าเข้าสู่ระบบ */}
               <NavLink to="/login" className="btn btn-outline-light ws-btn">
                 เข้าสู่ระบบ
               </NavLink>
@@ -57,17 +63,21 @@ const PublicNavbar = () => {
 };
 
 function PublicJobPostingDetailPage() {
-  const { id } = useParams();
-  const [jobPosting, setJobPosting] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  // รับพารามิเตอร์จาก URL 
+  const { id } = useParams(); // job_posting_id จาก path
 
+  // State หลัก 
+  const [jobPosting, setJobPosting] = useState(null); // เก็บรายละเอียดประกาศงาน
+  const [loading, setLoading] = useState(true);       // ระหว่างโหลด
+  const [error, setError] = useState(null);           // ข้อความผิดพลาด
+
+  // โหลดประกาศงานตาม id
   useEffect(() => {
     const fetchJobPosting = async () => {
       try {
         setLoading(true);
-        const response = await publicApi.get(`/job-postings/public/${id}`);
-        setJobPosting(response.data);
+        const response = await publicApi.get(`/job-postings/public/${id}`); // ดึงข้อมูลสาธารณะ
+        setJobPosting(response.data); // สมมติ backend คืน object รายละเอียดงาน
       } catch (err) {
         console.error("Failed to fetch job posting:", err);
         setError(
@@ -81,8 +91,9 @@ function PublicJobPostingDetailPage() {
     fetchJobPosting();
   }, [id]);
 
+  // ฟังก์ชันช่วย: แปลงวันที่แบบไทย 
   const formatDate = (dateString) => {
-    if (!dateString) return "-";
+    if (!dateString) return "-"; // กันค่าว่าง
     const date = new Date(dateString);
     return date.toLocaleDateString("th-TH", {
       year: "numeric",
@@ -91,12 +102,14 @@ function PublicJobPostingDetailPage() {
     });
   };
 
+  //  สถานะระหว่างโหลด/ผิดพลาด/ไม่มีข้อมูล 
   if (loading)
     return (
       <div className="text-center mt-5 text-muted">
         <Spinner animation="border" /> กำลังโหลดรายละเอียดประกาศงาน...
       </div>
     );
+
   if (error)
     return (
       <Alert variant="danger" className="mt-5 text-center">
@@ -104,6 +117,7 @@ function PublicJobPostingDetailPage() {
         {error}
       </Alert>
     );
+
   if (!jobPosting)
     return (
       <div
@@ -114,7 +128,9 @@ function PublicJobPostingDetailPage() {
       </div>
     );
 
-  const isApplicationOpen = jobPosting.job_status === "active";
+  //  แปลงฟิลด์ก่อนแสดงผล 
+  const isApplicationOpen = jobPosting.job_status === "active"; //  เปิดรับสมัคร
+  // แปลงข้อความยาวให้เป็น array ตามบรรทัด 
   const qualifications = jobPosting.qualifications_text
     ? jobPosting.qualifications_text.split("\n").filter(Boolean)
     : [];
@@ -125,31 +141,37 @@ function PublicJobPostingDetailPage() {
   return (
     <div
       style={{
-      fontFamily: '"Noto Sans Thai", sans-serif',
-      background: "#f0f2f5",
-      minHeight: "100vh",
-      display: "flex",
-      flexDirection: "column",
-    }}ห
+        fontFamily: '"Noto Sans Thai", sans-serif',
+        background: "#f0f2f5",
+        minHeight: "100vh",
+        display: "flex",
+        flexDirection: "column",
+      }} 
+      
     >
       <PublicNavbar /> 
+
+      {/* คอนเทนเนอร์หลัก */}
       <Container className="py-4" style={{ flex: 1 }}>
+        {/* ส่วนหัว + ปุ่มย้อนกลับ */}
         <div className="d-flex justify-content-between align-items-center mb-3">
           <h4 className="fw-bold text-dark" style={{ fontSize: "1.8rem" }}>
             รายละเอียดประกาศงาน
           </h4>
           <Button
             variant="outline-secondary"
-            onClick={() => window.history.back()}
+            onClick={() => window.history.back()} // ย้อนกลับหน้าเดิมของเบราว์เซอร์
             style={{ fontSize: "0.9rem" }}
           >
             <FontAwesomeIcon icon={faArrowLeft} className="me-1" /> กลับ
           </Button>
         </div>
 
+        {/* การ์ดแสดงรายละเอียดงาน */}
         <Card className="shadow-lg border-0 mt-4">
           <Card.Body className="p-4 p-md-5">
             <div className="job-detail-content">
+              {/* แถวบน: ชื่อประกาศ + บริษัท + วันที่โพสต์/หมดเขต */}
               <div className="d-flex justify-content-between align-items-start">
                 <div>
                   <h3 className="fw-bold" style={{ fontSize: "2rem" }}>
@@ -159,6 +181,8 @@ function PublicJobPostingDetailPage() {
                     {jobPosting.company_name || "WorkSter"}
                   </p>
                 </div>
+
+                {/* วันที่โพสต์/สิ้นสุดรับสมัคร */}
                 <div className="text-muted text-end">
                   <small>ประกาศเมื่อ: {formatDate(jobPosting.posted_at)}</small>
                   <br />
@@ -173,6 +197,7 @@ function PublicJobPostingDetailPage() {
 
               <hr className="my-4" />
 
+              {/* รายละเอียดงาน (ข้อความยาว) */}
               {jobPosting.job_description && (
                 <div className="mb-4">
                   <h5
@@ -183,14 +208,16 @@ function PublicJobPostingDetailPage() {
                   </h5>
                   <p
                     className="text-secondary"
-                    style={{ whiteSpace: "pre-wrap" }}
+                    style={{ whiteSpace: "pre-wrap" }} // คงรูปแบบขึ้นบรรทัดจาก backend
                   >
                     {jobPosting.job_description}
                   </p>
                 </div>
               )}
+
               <hr className="my-4" />
 
+              {/* คุณสมบัติผู้สมัคร (แสดงเป็น bullet) */}
               {qualifications.length > 0 && (
                 <div className="mb-4">
                   <h5
@@ -214,6 +241,7 @@ function PublicJobPostingDetailPage() {
               )}
               {qualifications.length > 0 && <hr className="my-4" />}
 
+              {/* สวัสดิการ (แสดงเป็น bullet) */}
               {benefits.length > 0 && (
                 <div className="mb-4">
                   <h5
@@ -237,6 +265,7 @@ function PublicJobPostingDetailPage() {
               )}
               {benefits.length > 0 && <hr className="my-4" />}
 
+              {/* ช่องทางติดต่อ (ถ้ามี) */}
               {jobPosting.contact_person_name && (
                 <div className="mb-4">
                   <h5
@@ -262,36 +291,31 @@ function PublicJobPostingDetailPage() {
               )}
               {jobPosting.contact_person_name && <hr className="my-4" />}
 
+              {/* สถานะรับสมัคร + ปุ่มยื่นสมัคร */}
               <div className="d-flex justify-content-between align-items-center mb-4">
+                {/* Badge แสดงสถานะประกาศ */}
                 <span
-                  className={`badge bg-${
-                    isApplicationOpen ? "success" : "secondary"
-                  }`}
+                  className={`badge bg-${isApplicationOpen ? "success" : "secondary"}`}
                   style={{ fontSize: "1rem", padding: "0.5em 0.8em" }}
                 >
                   {isApplicationOpen ? "เปิดรับสมัคร" : "ปิดรับสมัคร"}
                 </span>
-                <Link
-                  to={`/public/job-applications/${jobPosting.job_posting_id}`}
-                >
+
+                {/* ปุ่มไปหน้าฟอร์มยื่นสมัคร  */}
+                <Link to={`/public/job-applications/${jobPosting.job_posting_id}`}>
                   <Button
                     variant="primary"
                     disabled={!isApplicationOpen}
                     style={{
-                      backgroundColor: isApplicationOpen
-                        ? "#007bff"
-                        : "#6c757d",
+                      backgroundColor: isApplicationOpen ? "#007bff" : "#6c757d",
                       borderColor: isApplicationOpen ? "#007bff" : "#6c757d",
                       fontWeight: "bold",
-                      // ลบ padding ที่ทำให้ปุ่มใหญ่เกินไปออก หรือปรับให้เล็กลง
-                      // padding: '1rem 2.5rem',
-                      // fontSize: '1.2rem',
+                      // padding/fontSize ถูกคอมเมนต์ไว้ เพื่อไม่ให้ปุ่มใหญ่เกิน
                       borderRadius: "50px",
                       transition: "all 0.3s ease",
                     }}
                   >
-                    <FontAwesomeIcon icon={faPaperPlane} className="me-2" />{" "}
-                    ยื่นสมัครงาน
+                    <FontAwesomeIcon icon={faPaperPlane} className="me-2" /> ยื่นสมัครงาน
                   </Button>
                 </Link>
               </div>
@@ -300,11 +324,10 @@ function PublicJobPostingDetailPage() {
         </Card>
       </Container>
 
-      {/* Footer (ติดล่างเสมอ) */}
-    {/* Footer (ติดล่างเสมอ) */}
-    <footer className="bg-dark text-white text-center py-3">
-      <p className="mb-0">&copy; 2025 WorkSter. All rights reserved.</p>
-    </footer>
+      {/* Footer (ติดล่างเสมอด้วย flex layout ของ wrapper) */}
+      <footer className="bg-dark text-white text-center py-3">
+        <p className="mb-0">&copy; 2025 WorkSter. All rights reserved.</p>
+      </footer>
     </div>
   );
 }

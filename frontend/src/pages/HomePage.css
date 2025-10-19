@@ -1,95 +1,92 @@
-/* สไตล์สำหรับการ์ดสรุปผล */
+/* สไตล์สำหรับการ์ดสรุปผล (Summary Cards) */
 .dashboard-summary .card {
- color: #333; /* Default text color, will be overridden by gradient cards */
- border-radius: 0.75rem; /* เพิ่มความโค้งมน */
- box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08); /* ปรับเงาให้ดูสวยขึ้น */
- transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+  color: #333;                    
+  border-radius: 0.75rem;          
+  box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+  transition: transform .2s, box-shadow .2s; 
 }
 
 .dashboard-summary .card:hover {
- transform: translateY(-5px);
- box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+  transform: translateY(-5px);     /* ลอยขึ้นเล็กน้อยเมื่อโฮเวอร์ */
+  box-shadow: 0 10px 25px rgba(0,0,0,0.15); /* เงาเข้มขึ้น */
 }
 
+/* การ์ดแบบไล่สี (สถานะต่างๆ) */
 .dashboard-summary .bg-ontime {
- background: linear-gradient(135deg, #28a745, #218838); /* เขียว */
- border: none;
+  background: linear-gradient(135deg, #28a745, #218838);
+  border: none;
 }
-
 .dashboard-summary .bg-late {
- background: linear-gradient(135deg, #ffc107, #e0a800); /* เหลือง */
- border: none;
+  background: linear-gradient(135deg, #ffc107, #e0a800); 
+  border: none;
 }
-
 .dashboard-summary .bg-absent {
- background: linear-gradient(135deg, #dc3545, #c82333); /* แดง */
- border: none;
+  background: linear-gradient(135deg, #dc3545, #c82333);
+  border: none;
 }
 
-/*
-* แก้ไขเพื่อให้ตัวอักษร "จำนวนบริษัททั้งหมด" และ "จำนวนผู้ใช้ทั้งหมด"
-* รวมถึงข้อความที่อยู่ในการ์ดสำหรับ Super Admin และ HR เป็นขนาดเดียวกัน
-*/
+/* ปรับขนาดข้อความให้สม่ำเสมอระหว่างบทบาท (Super Admin / HR) */
 .dashboard-summary .card-title {
- font-weight: 500; /* ปรับน้ำหนักฟอนต์ */
- font-size: 0.9rem; /* ปรับขนาดฟอนต์ให้เท่ากัน */
+  font-weight: 500;  
+  font-size: 0.9rem;  
 }
-
 .dashboard-summary .card-value {
- font-size: 1.5rem; /* ปรับขนาดฟอนต์ตัวเลขให้เท่ากัน */
- font-weight: 700;
+  font-size: 1.5rem;  
+  font-weight: 700;   
 }
-
 .dashboard-summary .card-text {
- font-size: 0.85rem; /* ปรับขนาดฟอนต์ให้เท่ากัน */
+  font-size: 0.85rem; /* คำอธิบายย่อย */
 }
 
-/* เพิ่มส่วนนี้เพื่อควบคุมสีตัวอักษรเมื่อใช้การ์ดสี */
+/* บังคับสีตัวอักษรเป็นขาวเมื่อการ์ดมีพื้นหลังเข้ม (เช่น .text-white ครอบ) */
 .dashboard-summary .text-white .card-title,
 .dashboard-summary .text-white .card-value,
 .dashboard-summary .text-white .card-text {
- color: #fff !important;
+  color: #fff !important;
 }
 
-/* สไตล์สำหรับส่วนลงเวลา */
+/*  ส่วนลงเวลา (Clock In/Out) */
 .clock-in-out-section .card {
- border-radius: 0.75rem;
- box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+  border-radius: 0.75rem;                         
+  box-shadow: 0 4px 12px rgba(0,0,0,0.06);        
 }
-
 .clock-in-out-section .card-header {
- background-color: #f0f2f5; /* สีพื้นหลัง header อ่อนๆ */
- font-weight: 600;
- font-size: 1.1rem;
- color: #333;
+  background-color: #f0f2f5; 
+  font-weight: 600;
+  font-size: 1.1rem;
+  color: #333;
 }
 
+/* ปุ่มบันทึกเวลา */
 .clock-in-out-section .btn-time-action {
- background-color: #1E56A0; /* สีเดียวกับ Navbar Brand / Hero Gradient */
- color: #fff;
- border-radius: 0.5rem;
- font-weight: 600;
- padding: 0.75rem 1.5rem;
- transition: background-color 0.3s ease;
- font-size: 1.1rem; /* Adjust font size for action button */
+  background-color: #1E56A0; 
+  color: #fff;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  padding: 0.75rem 1.5rem;
+  transition: background-color .3s ease;
+  font-size: 1.1rem;         
 }
-
 .clock-in-out-section .btn-time-action:hover {
- background-color: #3E8DCF;
+  background-color: #3E8DCF; 
 }
 
+/* นาฬิกาแสดงเวลาใหญ่ชัด */
 .clock-in-out-section .time-display {
- font-size: 2.5rem; /* ขนาดใหญ่สำหรับเวลา */
- font-weight: 700;
- color: #1E56A0; /* สีน้ำเงินเข้ม */
- margin-bottom: 0.5rem;
+  font-size: 2.5rem;  
+  font-weight: 700;
+  color: #1E56A0;     
+  margin-bottom: 0.5rem;
 }
 
+/* ข้อความสถานะใต้เวลา */
 .clock-in-out-section .status-text {
- font-size: 1.1rem;
- font-weight: 500;
- color: #555;
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: #555;
 }
+
+/* แถบเตือนแบบกำหนดเอง (พื้นหลังเหลือง) */
 .my-custom-warning {
-  background-color: #ffac07; /* หรือสีเหลืองที่คุณต้องการ */
+  background-color: #ffac07; 
 }

@@ -1,58 +1,71 @@
+// frontend/src/pages/LandingPage.jsx
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
 export default function LandingPage() {
-  const { user } = useAuth();
-  const navigate = useNavigate();
+  const { user } = useAuth();            //  ดึงข้อมูลผู้ใช้ปัจจุบันจาก AuthContext (ถ้ายังไม่ล็อกอิน = null)
+  const navigate = useNavigate();        //  ใช้เปลี่ยนเส้นทาง (route)
 
-  // ถ้าล็อกอินแล้ว เด้งไป /home ทันที
+  //  ถ้าผู้ใช้ล็อกอินแล้ว ให้เด้งไปหน้า /home ทันที (กันผู้ใช้ที่ล็อกอินแล้วเห็นหน้าแลนด์ดิ้ง)
   useEffect(() => {
     if (user) {
-      navigate("/home", { replace: true });
+      navigate("/home", { replace: true }); // replace: ไม่ให้ย้อนกลับมาหน้านี้ด้วยปุ่มย้อน
     }
   }, [user, navigate]);
 
-  // Smooth scroll + ปิด Navbar collapse บนมือถือเมื่อคลิกลิงก์
+  // Smooth scroll ภายในหน้า + ปิดเมนู Navbar (collapse) บนมือถือเมื่อคลิกลิงก์ anchor (#)
   useEffect(() => {
     const handler = (e) => {
       const a = e.target.closest('a.nav-link[href^="#"]');
       if (!a) return;
 
-      const id = a.getAttribute("href").slice(1);
-      const el = document.getElementById(id);
+      const id = a.getAttribute("href").slice(1); 
+      const el = document.getElementById(id);     // หา element ปลายทางของ anchor
       if (el) {
-        e.preventDefault();
-        el.scrollIntoView({ behavior: "smooth", block: "start" });
+        e.preventDefault(); // กัน default jump ทันที
+        el.scrollIntoView({ behavior: "smooth", block: "start" }); // เลื่อนแบบนุ่ม ๆ ไปตำแหน่งเป้าหมาย
+
+        // ปิดเมนูที่เปิดค้างอยู่บนมือถือ (Bootstrap collapse)
         const nav = document.getElementById("wsNav");
         if (nav && nav.classList.contains("show") && window.bootstrap) {
           new window.bootstrap.Collapse(nav).hide();
         }
       }
     };
-    document.addEventListener("click", handler);
-    return () => document.removeEventListener("click", handler);
+    document.addEventListener("click", handler); // ติด global handler
+    return () => document.removeEventListener("click", handler); // ถอดทิ้งเมื่อ unmount
   }, []);
 
   return (
     <>
+      {/* Navbar ส่วนบน (ติดบนสุด) */}
       <nav className="navbar navbar-expand-lg navbar-dark sticky-top" style={{ backgroundColor: "#212529" }}>
         <div className="container">
+          {/* โลโก้/แบรนด์ ลิงก์ไปส่วน #home ของหน้า */}
           <a className="navbar-brand" href="#home" aria-label="WorkSter Home">WorkSter</a>
+
+          {/* ปุ่ม hamburger (จอเล็ก) เปิด/ปิดเมนู */}
           <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#wsNav" aria-controls="wsNav" aria-expanded="false" aria-label="Toggle navigation">
             <span className="navbar-toggler-icon"></span>
           </button>
+
+          {/* เมนูนำทาง (ลิสต์ลิงก์ + ปุ่ม Register/Login) */}
           <div id="wsNav" className="collapse navbar-collapse">
             <ul className="navbar-nav ms-auto align-items-lg-center">
               <li className="nav-item"><a className="nav-link active" href="#home">หน้าหลัก</a></li>
               <li className="nav-item"><a className="nav-link" href="#features">คุณสมบัติ</a></li>
               <li className="nav-item"><a className="nav-link" href="#about">เกี่ยวกับเรา</a></li>
               <li className="nav-item"><a className="nav-link" href="#contact">ติดต่อ</a></li>
+
+              {/* ปุ่มไปหน้า Register */}
               <li className="nav-item ms-lg-3">
                 <button className="btn btn-primary btn-sm" onClick={() => navigate("/register")}>
                   <i className="fas fa-user-plus me-2" aria-hidden="true"></i>สมัครใช้บริการ
                 </button>
               </li>
+
+              {/* ปุ่มไปหน้า Login */}
               <li className="nav-item ms-lg-2">
                 <button className="btn btn-outline-light btn-sm" onClick={() => navigate("/login")}>
                   <i className="fas fa-sign-in-alt me-2" aria-hidden="true"></i>เข้าสู่ระบบ
@@ -63,6 +76,7 @@ export default function LandingPage() {
         </div>
       </nav>
 
+      {/* สไตล์เฉพาะหน้านี้ (inline style tag) */}
       <style>{`
         :root{--ws-primary:#1E56A0;--ws-accent:#3E8DCF;--ws-text:#333;--ws-shadow:0 10px 30px rgba(0,0,0,.08);--ws-shadow-lg:0 15px 40px rgba(0,0,0,.12)}
         body{font-family:'Noto Sans Thai', sans-serif}
@@ -80,7 +94,7 @@ export default function LandingPage() {
         footer.footer{background:#343a40; color:#bbb; font-size:.95rem; padding:2rem 0}
         footer.footer a{color:#bbb; text-decoration:none}
         footer.footer a:hover{color:#fff}
-        :target{scroll-margin-top:80px}
+        :target{scroll-margin-top:80px} /* เวลา scroll ไป anchor ให้เผื่อพื้นที่ใต้ navbar */
         @media(max-width:768px){
           .hero{padding:5.5rem 0 4.5rem}
           .hero-title{font-size:2.4rem}
@@ -88,12 +102,17 @@ export default function LandingPage() {
         }
       `}</style>
 
+      {/*  ส่วน Hero บนสุด (หัวเรื่อง + ปุ่ม ) */}
       <section id="home" className="hero">
         <div className="container text-center">
-          <h1 className="hero-title">บริหารงานบุคคลยุคใหม่ <br className="d-none d-md-block" />ครบ จบ ในที่เดียว</h1>
+          <h1 className="hero-title">
+            บริหารงานบุคคลยุคใหม่ <br className="d-none d-md-block" />ครบ จบ ในที่เดียว
+          </h1>
           <p className="hero-subtitle">
             WorkSter คือ HR Management System สำหรับธุรกิจไทย จัดการพนักงาน เงินเดือน การลา ประเมินผล และรับสมัครงาน ครบในระบบเดียว
           </p>
+
+          {/* ปุ่มหลัก 3 ปุ่ม: Register / Login / ไปหน้าประกาศงานสาธารณะ */}
           <div className="d-flex flex-wrap justify-content-center gap-2">
             <button className="btn btn-primary btn-hero" onClick={() => navigate("/register")}>
               <i className="fas fa-user-plus me-2" aria-hidden="true"></i>เริ่มต้นใช้งานฟรี
@@ -108,37 +127,45 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* คุณสมบัติเด่น (Features) */}
       <section id="features" className="features">
         <div className="container">
           <h2 className="text-center mb-5 feature-title">คุณสมบัติเด่นของ WorkSter</h2>
-        <div className="row g-4">
-          {[
-            {icon:"users", title:"จัดการข้อมูลพนักงาน", desc:"เก็บข้อมูลครบถ้วน ค้นหาไว พร้อมประวัติและไฟล์แนบ"},
-            {icon:"dollar-sign", title:"เงินเดือนและค่าตอบแทน", desc:"คำนวณภาษี/ประกันสังคม ออกรายงานทันที"},
-            {icon:"calendar-alt", title:"การจัดการการลา", desc:"ยื่น อนุมัติ ติดตามสถานะ ได้ทุกที่ทุกเวลา"},
-            {icon:"chart-line", title:"ประเมินผลการทำงาน", desc:"กำหนด KPI/OKR และติดตามความคืบหน้า"},
-            {icon:"bullhorn", title:"รับสมัครงาน", desc:"โพสต์งาน คัดกรองผู้สมัคร นัดสัมภาษณ์"},
-            {icon:"cogs", title:"ปรับแต่งได้ยืดหยุ่น", desc:"ตั้งค่าตามโครงสร้างและนโยบายของบริษัท"},
-          ].map((f,i)=>(
-            <div className="col-md-4" key={i}>
-              <div className="feature-card h-100">
-                <i className={`fas fa-${f.icon} feature-icon`} aria-hidden="true"></i>
-                <h3 className="h5 feature-title">{f.title}</h3>
-                <p className="mb-0">{f.desc}</p>
+
+          {/* วนรายการคุณสมบัติแบบ array -> map เพื่อเรนเดอร์การ์ด */}
+          <div className="row g-4">
+            {[
+              {icon:"users",        title:"จัดการข้อมูลพนักงาน",      desc:"เก็บข้อมูลครบถ้วน ค้นหาไว พร้อมประวัติและไฟล์แนบ"},
+              {icon:"dollar-sign",  title:"เงินเดือนและค่าตอบแทน",   desc:"คำนวณภาษี/ประกันสังคม ออกรายงานทันที"},
+              {icon:"calendar-alt", title:"การจัดการการลา",          desc:"ยื่น อนุมัติ ติดตามสถานะ ได้ทุกที่ทุกเวลา"},
+              {icon:"chart-line",   title:"ประเมินผลการทำงาน",       desc:"กำหนด KPI/OKR และติดตามความคืบหน้า"},
+              {icon:"bullhorn",     title:"รับสมัครงาน",             desc:"โพสต์งาน คัดกรองผู้สมัคร นัดสัมภาษณ์"},
+              {icon:"cogs",         title:"ปรับแต่งได้ยืดหยุ่น",     desc:"ตั้งค่าตามโครงสร้างและนโยบายของบริษัท"},
+            ].map((f,i)=>(
+              <div className="col-md-4" key={i}>
+                <div className="feature-card h-100">
+                  <i className={`fas fa-${f.icon} feature-icon`} aria-hidden="true"></i>
+                  <h3 className="h5 feature-title">{f.title}</h3>
+                  <p className="mb-0">{f.desc}</p>
+                </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
         </div>
       </section>
 
+      {/* เกี่ยวกับเรา (About) */}
       <section id="about" className="about">
         <div className="container">
           <h2 className="text-center mb-5 feature-title">เกี่ยวกับ WorkSter</h2>
+
           <div className="row align-items-center">
+            {/* ภาพโลโก้ทางซ้าย (จัดกึ่งกลางเมื่อจอเล็ก) */}
             <div className="col-md-6 text-center mb-4 mb-md-0">
               <img src="/images/logo.png" alt="โลโก้ WorkSter" className="img-fluid" style={{maxWidth:"80%"}} loading="lazy" />
             </div>
+
+            {/* ข้อความแนะนำทางขวา */}
             <div className="col-md-6">
               <p className="lead">
                 WorkSter มุ่งมั่นพัฒนาโซลูชัน HR สำหรับองค์กรทุกขนาด
@@ -153,6 +180,7 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* ติดต่อ/เชิญชวนลงทะเบียน (Call to Action) */}
       <section id="contact" className="cta">
         <div className="container text-center">
           <h2 className="hero-title mb-3">พร้อมยกระดับงาน HR ของคุณหรือยัง?</h2>
@@ -163,6 +191,7 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* ฟุตเตอร์ */}
       <footer className="footer">
         <div className="container">
           <div className="row gy-2 align-items-center">
@@ -170,6 +199,7 @@ export default function LandingPage() {
               &copy; 2025 WorkSter. All rights reserved.
             </div>
             <div className="col-md-6 text-center text-md-end">
+              {/* ลิงก์ภายในหน้า (anchor) + อีเมลติดต่อ */}
               <a href="#home" className="me-3">หน้าหลัก</a>
               <a href="#features" className="me-3">คุณสมบัติ</a>
               <a href="#about" className="me-3">เกี่ยวกับเรา</a>

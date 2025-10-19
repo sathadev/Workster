@@ -1,30 +1,20 @@
-/* ./App.css */
-
-/* ลบสไตล์ที่ไม่จำเป็นหรือปรับให้เข้ากับธีมหลัก */
-
+/* พื้นที่รากของแอป (wrapper หลัก) */
 #root {
-  max-width: 1280px; /* อาจจะปรับให้เหมาะสมกับ layout รวมของ app */
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
-  /* ให้ใช้ font-family จาก index.css แทน */
-  /* font-family: 'Noto Sans Thai', sans-serif; */
-  color: #333; /* สีข้อความทั่วไป */
+  max-width: 1280px;      
+  margin: 0 auto;         
+  padding: 2rem;         
+  text-align: center;     
+  color: #333;            
 }
-
-/* ลบ .logo และ keyframes ที่ไม่เกี่ยวข้องกับ WorkSter Project */
-/* .logo { ... } */
-/* @keyframes logo-spin { ... } */
-/* @media (prefers-reduced-motion: no-preference) { ... } */
-
+/* สไตล์การ์ดพื้นฐานให้เข้ากับธีมของ WorkSter */
 .card {
-  padding: 2em;
-  /* เพิ่มสไตล์ให้เข้ากับการ์ดใน WorkSter */
-  border-radius: 0.75rem; /* เพิ่มความโค้งมน */
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06); /* เพิ่มเงา */
+  padding: 2em;                                   
+  border-radius: 0.75rem;                         
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);    
 }
 
+/* สไตล์ข้อความอธิบาย/โน้ต */
 .read-the-docs {
-  color: #888; /* คงสีเทาไว้ */
-  font-size: 0.95rem; /* ปรับขนาดฟอนต์ */
+  color: #888;        
+  font-size: 0.95rem; 
 }

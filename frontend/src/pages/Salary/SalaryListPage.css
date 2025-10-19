@@ -1,144 +1,131 @@
 body,
 #root {
-  margin: 0;
-  padding: 0;
-  height: 100%;
+  margin: 0;          
+  padding: 0;         
+  height: 100%;      
   /* ทำให้ #root และ body สูงเต็มหน้าจอ */
-  width: 100%;
+  width: 100%;        /* กว้างเต็มหน้าจอ */
 }
 
 body {
-  font-family: "Noto Sans Thai", sans-serif;
-  background-color: #ffffff;
-  /* ตั้งสีพื้นหลังเผื่อไว้ */
+  font-family: "Noto Sans Thai", sans-serif; 
+  background-color: #ffffff;              
+ 
 }
 
-
+/* Sidebar และเมนู  */
 .sidebar {
-  background-color: #1E56A0;
-  min-height: 100vh;
-  padding-top: 20px;
+  background-color: #1E56A0; 
+  min-height: 100vh;         
+  padding-top: 20px;        
 }
 
 .sidebar a {
-  display: block;
-  padding: 10px 20px;
-  color: #ffffff;
-  text-decoration: none;
+  display: block;            /* ให้ลิงก์กินความกว้างเต็มบรรทัด (แถบคลิกใหญ่ขึ้น) */
+  padding: 10px 20px;       
+  color: #ffffff;            
+  text-decoration: none;     /* ตัดเส้นใต้ลิงก์ */
 }
 
 .sidebar a:hover {
-  background-color: #e2e6ea;
-  border-radius: 5px;
+  background-color: #e2e6ea; 
+  border-radius: 5px;        
 }
 
-.card-green {
-  background-color: #a7f9a2;
-}
+/* การ์ดสีสถานะ */
+.card-green {  background-color: #a7f9a2; } 
+.card-yellow { background-color: #f9f59a; } 
+.card-red {    background-color: #f9a2a2; } 
 
-.card-yellow {
-  background-color: #f9f59a;
-}
-
-.card-red {
-  background-color: #f9a2a2;
-}
-
+/*  ตารางโปรไฟล์/ข้อมูล  */
 /* เส้นขอบรอบนอกของตาราง */
 .table {
-  border: 2px solid #dee2e6;
-  /* เส้นขอบรอบตาราง */
+  border: 2px solid #dee2e6; /* เส้นขอบนอกตารางสีเทาอ่อนเข้มขึ้น */
 }
 
-/* เส้นขอบใต้หัวข้อ */
+/* แถวหัวข้อโปรไฟล์ */
 .table .profile {
-  border-bottom: 2px solid #dee2e6;
-  /* เส้นขอบใต้หัวข้อ */
-  text-align: center;
-  /* จัดกลางหัวข้อ */
+  border-bottom: 2px solid #dee2e6; /* เส้นคั่นด้านล่างหัวข้อ */
+  text-align: center;               /* จัดชิดกลาง */
 }
 
-/* ลบเส้นขอบในเซลล์ */
+/* ลบเส้นขอบภายในเซลล์ทั้งหมด ให้ดูสะอาด */
 .table td,
 .table th {
-  border: none;
-  /* ไม่มีเส้นขอบในเซลล์ */
+  border: none; /* ไม่มีเส้นขอบระหว่างคอลัมน์/แถว */
 }
 
-/* จัดรูปภาพให้เป็นวงกลม และให้ครอบคลุมพื้นที่ */
+/* รูปโปรไฟล์ในตารางให้เป็นวงกลมและไม่บิดเบี้ยว */
 .profile-image {
   width: 40px;
   height: 40px;
-  object-fit: cover;
-  /* ให้รูปภาพครอบคลุมพื้นที่โดยไม่เพี้ยน */
-  border-radius: 50%;
+  object-fit: cover; /* ครอบภาพพอดีกล่องโดยไม่เพี้ยน */
+  border-radius: 50%;/* ทำให้เป็นทรงกลม */
 }
 
-/* จัดให้อยู่ตรงกลาง */
+/* จัดเซลล์ที่มีรูป/คอนเทนต์ให้กึ่งกลางทั้งแนวตั้งและแนวนอน */
 .profile-cell {
   display: flex;
   justify-content: center;
   align-items: center;
 }
 
+/* โลโก้/ชื่อแบรนด์ใน Navbar: ลิงก์ไม่ขีดเส้นใต้และรับสีจากพ่อแม่ */
 .navbar-brand a {
   text-decoration: none;
   color: inherit;
 }
 
+/* เอาลูกศรเล็ก ๆ หลังปุ่ม dropdown ออก */
 .dropdown-toggle::after {
   display: none;
 }
-/* frontend/src/pages/EmployeeListPage.css 
+
 
 /* --- สไตล์สำหรับช่องค้นหาแบบใหม่ --- */
 .search-form-custom {
-    display: flex;
-    align-items: center;
-    border: 1px solid #ced4da; /* สีขอบเทาอ่อน */
-    border-radius: 0.5rem; /* ทำให้ขอบมน */
-    overflow: hidden; /* ซ่อนส่วนเกินของ border */
-    max-width: 450px; /* กำหนดความกว้างสูงสุด */
-    margin-bottom: 1.5rem;
+    display: flex;                 /* ใช้ flex เพื่อจัดวาง input + ปุ่มเรียงแนวนอน */
+    align-items: center;           /* แนวตั้งให้อยู่กึ่งกลาง */
+    border: 1px solid #ced4da;   
+    border-radius: 0.5rem;      
+    overflow: hidden;              /* ซ่อนส่วนที่เกินขอบมน */
+    max-width: 450px;              
+    margin-bottom: 1.5rem;         
 }
 
 .search-input {
-    border: none;
-    flex-grow: 1; /* ให้ช่อง input ขยายเต็มพื้นที่ */
-    padding: 0.5rem 1rem;
+    border: none;                  /* ตัดขอบของ input ออก ให้ใช้ขอบ container แทน */
+    flex-grow: 1;                  /* กินพื้นที่ที่เหลือทั้งหมด */
+    padding: 0.5rem 1rem;          
 }
 .search-input:focus {
-    outline: none; /* เอาเส้นขอบสีฟ้าตอน focus ออก */
-    box-shadow: none;
+    outline: none;                 /* เอาขอบฟ้า default ออก */
+    box-shadow: none;              /* ไม่ให้เกิดเงาตอนโฟกัส */
 }
 
 .search-button {
-    border: none;
-    background-color: #ffffff;
-    padding: 0.5rem 1rem;
-    border-left: 1px solid #ced4da; /* เพิ่มเส้นคั่นทางซ้าย */
-    color: #6c757d;
+    border: none;                  /* ปุ่มไม่มีเส้นขอบของตัวเอง */
+    background-color: #ffffff;     
+    padding: 0.5rem 1rem;          
+    border-left: 1px solid #ced4da;
+    color: #6c757d;                
 }
 .search-button:hover {
-    background-color: #f8f9fa;
+    background-color: #f8f9fa;     /* เปลี่ยนพื้นหลังเวลาชี้ ให้ feedback เล็กน้อย */
 }
 
-/* frontend/src/pages/EmployeeListPage.css */
-
-/* ...สไตล์อื่นๆ ของคุณ... */
-
-/* --- FIX: สำหรับจัดแนว Input Group --- */
+/*  FIX: สำหรับจัดแนว Input Group */
 .search-form .input-group {
-    /* ทำให้ flex container จัด item ให้อยู่ตรงกลางในแนวตั้ง */
-    /* วิธีนี้มักจะแก้ปัญหาความสูงต่างกันเล็กน้อยได้ */
+    /* ทำให้ flex container จัด item ให้อยู่แนวเดียวกันเต็มความสูง */
+    /* ช่วยแก้เคสปุ่ม/อินพุตสูงไม่เท่ากันเล็กน้อย */
     align-items: stretch; 
 }
 
-/* บังคับให้ปุ่มและ input มีความสูงเท่ากัน */
+/* บังคับให้ปุ่มและ input มีความสูงเท่ากันในแถบค้นหา */
 .search-form .form-control,
 .search-form .btn {
-    height: 38px; /* ความสูงมาตรฐานของ Bootstrap form-control */
-    display: inline-flex;
+    height: 38px;                  /* ความสูงมาตรฐานของ Bootstrap form-control */
+    display: inline-flex;          /* ใช้ inline-flex เพื่อจัดกึ่งกลางข้อความในปุ่ม/อินพุต */
     align-items: center;
     justify-content: center;
 }

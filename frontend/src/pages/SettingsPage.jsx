@@ -1,8 +1,9 @@
+// frontend/src/pages/SettingsPage.jsx
 import { useState, useEffect } from 'react';
 import api from '../api/axios';
-import { Form, Button, Row, Col, Card } from 'react-bootstrap'; // Import Card
+import { Form, Button, Row, Col, Card } from 'react-bootstrap'; // ใช้ Card/Row/Col จาก react-bootstrap จัด layout
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-// <<<<<<< สำคัญมาก! ต้องแน่ใจว่าได้เพิ่มไอคอนเหล่านี้ใน FontAwesome Library ที่ src/main.jsx แล้ว >>>>>>>
+
 import { 
     faEdit, faSave, faTimes, 
     faClock, faDollarSign, faStopwatch, faCalendarDays, faListCheck,
@@ -10,8 +11,12 @@ import {
     faBookOpenReader, faBandAid, faBook, faCross, faCalendarAlt, faCalendarCheck
 } from '@fortawesome/free-solid-svg-icons'; 
 
-
-// --- Data for fields, grouped for clarity (เพิ่ม icon attribute และปรับ label ให้กระชับขึ้น) ---
+/* ---------------------------------------------
+   ฟิลด์ตั้งค่า: แยกเป็น 2 กลุ่มใหญ่
+   1) เวลาทำงาน/กฎการมาสาย
+   2) โควต้าวันลา
+   เพิ่ม icon/label/type เพื่อใช้วาด UI แบบทั่วไปด้วยคอมโพเนนต์ SettingRow
+----------------------------------------------*/
 const workAndLateFields = [
     { label: 'เวลาเข้างาน', name: 'startwork', type: 'time', icon: faClock },
     { label: 'เวลาเลิกงาน', name: 'endwork', type: 'time', icon: faClock },
@@ -34,34 +39,43 @@ const leaveQuotaFields = [
     { label: 'ลาจัดการศพ', name: 'about_funeralleave', type: 'number', icon: faCross }, 
 ];
 
+// ค่าคงที่ของวันทำงาน + label ภาษาไทยแบบย่อ
 const ALL_DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 const THAI_DAYS_SHORT = { Mon: 'จ.', Tue: 'อ.', Wed: 'พ.', Thu: 'พฤ.', Fri: 'ศ.', Sat: 'ส.', Sun: 'อา.' };
 
-// --- Reusable Component for Each Setting Row ---
+/* ---------------------------------------------
+   คอมโพเนนต์แถวตั้งค่าที่นำกลับมาใช้ซ้ำ (Reusable)
+   - แสดงหัวข้อ + ไอคอน
+   - โหมดดู: โชว์ค่าอ่านอย่างเดียว
+   - โหมดแก้ไข: ใช้ <Form.Control> ให้แก้ไขค่าได้
+----------------------------------------------*/
 const SettingRow = ({ field, value, isEditMode, onChange, formatDisplayValue }) => (
-    <Col sm={12} md={6} lg={4} className="mb-3"> {/* ใช้ Col เพื่อจัด layout เป็น grid */}
-        <Card className="h-100 shadow-sm border-0 setting-item-card"> {/* เพิ่ม Card เพื่อห่อหุ้มแต่ละรายการ */}
+    <Col sm={12} md={6} lg={4} className="mb-3"> {/* แบ่งคอลัมน์ 12/6/4 เพื่อให้ responsive */}
+        <Card className="h-100 shadow-sm border-0 setting-item-card"> {/* กล่องตั้งค่าของแต่ละฟิลด์ */}
             <Card.Body className="d-flex flex-column justify-content-between">
+                {/* หัวข้อ + ไอคอน */}
                 <div className="d-flex align-items-center mb-2">
-                    {field.icon && <FontAwesomeIcon icon={field.icon} className="me-2 text-info fs-5" />} {/* ไอคอนใหญ่ขึ้นและสี info */}
+                    {field.icon && <FontAwesomeIcon icon={field.icon} className="me-2 text-info fs-5" />} 
                     <Card.Title className="mb-0 fw-bold text-dark" style={{ fontSize: '1rem' }}>
                         {field.label} :
                     </Card.Title>
                 </div>
+
+                {/* สลับโหมดระหว่าง "อ่าน" กับ "แก้ไข" */}
                 {isEditMode ? (
                     <Form.Control
                         type={field.type}
                         name={field.name}
-                        value={value || (field.type === 'number' ? '0' : '')}
+                        value={value || (field.type === 'number' ? '0' : '')} // กันค่าว่าง/undefined
                         onChange={onChange}
-                        step={field.name === 'late_deduction_amount' ? '0.01' : '1'}
+                        step={field.name === 'late_deduction_amount' ? '0.01' : '1'} // ยอมรับทศนิยมสำหรับยอดเงิน
                         className="form-control mt-2"
-                        style={{ fontSize: '1rem', height: '40px' }} // ปรับความสูงเล็กน้อย
+                        style={{ fontSize: '1rem', height: '40px' }}
                     />
                 ) : (
-                    <Card.Text className="mb-0 ms-4 fw-bold text-primary" style={{ fontSize: '1.2rem' }}> {/* ปรับขนาดและสี */}
-                        {formatDisplayValue(field, value)}
-                        {field.unit && ` ${field.unit}`}
+                    <Card.Text className="mb-0 ms-4 fw-bold text-primary" style={{ fontSize: '1.2rem' }}>
+                        {formatDisplayValue(field, value)} {/* แปลงค่าก่อนแสดงผล (เช่น 08:30 / 0.00) */}
+                        {field.unit && ` ${field.unit}`}    {/* หน่วย (นาที/ครั้ง/บาทฯ) */}
                     </Card.Text>
                 )}
             </Card.Body>
@@ -69,37 +83,50 @@ const SettingRow = ({ field, value, isEditMode, onChange, formatDisplayValue }) 
     </Col>
 );
 
-// --- Main Page Component ---
+/* ---------------------------------------------
+   คอมโพเนนต์หลัก: SettingsPage
+   - โหลดค่า settings เริ่มต้นจาก API /settings
+   - มีโหมดแก้ไข (isEditMode) เพื่อให้แก้ทุกฟิลด์ในแต่ละส่วน
+   - ปุ่มบันทึก/ยกเลิก อยู่ท้ายฟอร์ม
+----------------------------------------------*/
 function SettingsPage() {
+    // settings = ค่าปัจจุบันบนหน้าจอ, originalSettings = สำเนาก่อนแก้ไข (ไว้ยกเลิก)
     const [settings, setSettings] = useState({});
     const [originalSettings, setOriginalSettings] = useState({});
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
-    const [isEditMode, setIsEditMode] = useState(false);
+    const [loading, setLoading] = useState(true);   // โหลดข้อมูลหน้าแรก
+    const [error, setError] = useState(null);       // เก็บ error ขณะโหลด
+    const [isEditMode, setIsEditMode] = useState(false); // โหมดแก้ไขทั้งหมด
 
+    // รูปแบบการแสดงผลค่าตามชนิดฟิลด์ (อ่านอย่างเดียว)
     const formatDisplayValue = (field, value) => {
         if (value === null || value === undefined) {
-            return field.type === 'number' ? '0' : '--:--';
+            return field.type === 'number' ? '0' : '--:--'; // กันค่าหาย
         }
         if (field.type === 'time' && value) {
-            const [hour, minute] = value.split(':');
+            const [hour, minute] = value.split(':'); // ตัดวินาทีทิ้ง ถ้ามี
             return `${hour}:${minute}`;
         }
         if (field.name === 'late_deduction_amount') {
-            return Number(value).toFixed(2);
+            return Number(value).toFixed(2); // เงินทศนิยม 2 ตำแหน่ง
         }
         return value;
     };
 
+    // โหลดค่าตั้งค่าเริ่มต้นจาก API ครั้งแรก
     useEffect(() => {
         const fetchSettings = async () => {
             setLoading(true);
             try {
                 const response = await api.get('/settings');
                 const fetched = response.data || {};
-                fetched.work_days = (typeof fetched.work_days === 'string') ? fetched.work_days.split(',').filter(Boolean) : [];
+
+                // work_days อาจเป็น string จากแบ็กเอนด์ -> แปลงเป็น array เพื่อใช้กับ checkbox
+                fetched.work_days = (typeof fetched.work_days === 'string')
+                    ? fetched.work_days.split(',').filter(Boolean)
+                    : [];
+
                 setSettings(fetched);
-                setOriginalSettings(JSON.parse(JSON.stringify(fetched)));
+                setOriginalSettings(JSON.parse(JSON.stringify(fetched))); // clone เก็บไว้สำหรับกดยกเลิก
             } catch (err) {
                 setError("เกิดข้อผิดพลาดในการดึงข้อมูล");
             } finally {
@@ -109,25 +136,35 @@ function SettingsPage() {
         fetchSettings();
     }, []);
 
+    // อัปเดตค่าใน state เมื่อพิมพ์/แก้ไข input (number -> แปลงเป็น Number)
     const handleChange = (e) => {
         const { name, value, type } = e.target;
         setSettings(prev => ({ ...prev, [name]: type === 'number' ? Number(value) || 0 : value }));
     };
 
+    // จัดการ checkbox สำหรับวันทำงาน (ใส่/เอาออกจาก array)
     const handleWorkDaysChange = (e) => {
         const { value, checked } = e.target;
         setSettings(prev => ({
             ...prev,
-            work_days: checked ? [...(prev.work_days || []), value] : (prev.work_days || []).filter(day => day !== value)
+            work_days: checked
+                ? [...(prev.work_days || []), value]
+                : (prev.work_days || []).filter(day => day !== value)
         }));
     };
     
+    // บันทึกการตั้งค่าใหม่ (PUT ไปที่ /settings) แล้วอัปเดต state + ปิดโหมดแก้ไข
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
             const response = await api.put('/settings', settings);
             const updated = response.data || {};
-            updated.work_days = (typeof updated.work_days === 'string') ? updated.work_days.split(',').filter(Boolean) : [];
+
+            // ซิงค์ชนิดข้อมูล work_days ให้เป็น array สำหรับ UI เช่นเดิม
+            updated.work_days = (typeof updated.work_days === 'string')
+                ? updated.work_days.split(',').filter(Boolean)
+                : [];
+
             setSettings(updated);
             setOriginalSettings(JSON.parse(JSON.stringify(updated)));
             setIsEditMode(false);
@@ -137,41 +174,43 @@ function SettingsPage() {
         }
     };
     
+    // ยกเลิกการแก้ไข -> คืนค่าเดิม + ปิดโหมดแก้ไข
     const handleCancel = () => {
         setSettings(originalSettings); 
         setIsEditMode(false);
     };
 
+    // สถานะโหลด/ผิดพลาด
     if (loading) return <div className="text-center mt-5 text-muted">กำลังโหลด...</div>;
     if (error) return <div className="alert alert-danger" style={{ fontSize: '0.95rem' }}>{error}</div>;
 
     return (
         <div className="settings-page-container">
-            {/* Page Header and Breadcrumb */}
+            {/* หัวหน้าเพจ */}
             <div className="d-flex justify-content-between align-items-center mb-3">
                 <h4 className="fw-bold text-dark" style={{ fontSize: '1.8rem' }}>ตั้งค่าข้อมูลบริษัท</h4>
-                {/* ปุ่ม "แก้ไขข้อมูล" จะถูกย้ายไปอยู่ภายในส่วนหัวข้อแต่ละส่วน */}
+                {/* ปุ่มแก้ไขหลักถูกย้ายไปไว้ในหัวข้อ Section 1 */}
             </div>
             
-
-            {/* Main Settings Card */}
+            {/* กล่องหลักครอบทุก Section */}
             <Card className="p-4 shadow-lg border-0 mt-4"> 
                 <Card.Body>
                     <Form onSubmit={handleSubmit}>
                         {/* Section 1: เวลาทำงานและกฎการมาสาย */}
                         <div className="settings-section mb-5">
-                            {/* <<<<<<< ส่วนที่แก้ไข: ย้ายปุ่ม "แก้ไขข้อมูล" มาไว้ในหัวข้อนี้ >>>>>>> */}
+                            {/* ปุ่ม "แก้ไขข้อมูล" อยู่ในหัวส่วนนี้ (เปิดโหมดแก้ไขทั้งหมด) */}
                             <div className="d-flex justify-content-between align-items-center mb-4" style={{ borderBottom: '2px solid #eee', paddingBottom: '0.5rem' }}>
-                                <h5 className="setting-section-title mb-0" style={{ fontSize: '1.5rem', color: '#1E56A0' }}> {/* mb-0 เพื่อให้ไม่ชนกับปุ่ม */}
+                                <h5 className="setting-section-title mb-0" style={{ fontSize: '1.5rem', color: '#1E56A0' }}>
                                     <FontAwesomeIcon icon={faClock} className="me-2" /> เวลาทำงานและกฎการมาสาย
                                 </h5>
                                 {!isEditMode && (
-                                    <Button variant="primary" onClick={() => setIsEditMode(true)} style={{ fontSize: '0.9rem', fontWeight: 'bold' }}> {/* ปรับขนาดปุ่ม */}
+                                    <Button variant="primary" onClick={() => setIsEditMode(true)} style={{ fontSize: '0.9rem', fontWeight: 'bold' }}>
                                         <FontAwesomeIcon icon={faEdit} className="me-1" /> แก้ไขข้อมูล
                                     </Button>
                                 )}
                             </div>
-                            {/* <<<<<<< สิ้นสุดส่วนที่แก้ไข >>>>>>> */}
+
+                            {/* วนฟิลด์ในกลุ่มเวลากับกฎสาย ด้วย SettingRow */}
                             <Row className="justify-content-start"> 
                                 {workAndLateFields.map(field => (
                                     <SettingRow 
@@ -210,6 +249,8 @@ function SettingsPage() {
                             <h5 className="setting-section-title mb-4" style={{ fontSize: '1.5rem', color: '#1E56A0', borderBottom: '2px solid #eee', paddingBottom: '0.5rem' }}>
                                 <FontAwesomeIcon icon={faCalendarCheck} className="me-2" /> วันที่ทำงาน
                             </h5>
+
+                            {/* กล่อง checkbox เลือกวันทำงาน (ปิดแก้ไขเมื่อไม่ใช่โหมดแก้ไข) */}
                             <div className="bg-light p-3 rounded d-flex flex-wrap justify-content-center gap-3" style={{ fontSize: '1rem', border: '1px solid #dee2e6' }}>
                                 {ALL_DAYS.map(day => (
                                     <Form.Check 
@@ -229,7 +270,7 @@ function SettingsPage() {
                             </div>
                         </div>
 
-                        {/* ปุ่ม ยกเลิก/บันทึก อยู่ด้านล่างสุดของ Form */}
+                        {/* ปุ่มบันทึก/ยกเลิก (แสดงเฉพาะตอนแก้ไข) */}
                         {isEditMode && (
                             <div className="d-flex justify-content-end gap-3 mt-4"> 
                                 <Button variant="secondary" onClick={handleCancel} style={{ fontSize: '1rem', fontWeight: 'bold' }}>

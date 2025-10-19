@@ -1,75 +1,76 @@
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@100..900&display=swap');
 
-/* แก้ไขใหม่เพื่อให้พื้นหลังครอบคลุมและสมส่วน */
+/* ทำให้หน้าเต็มสูงหน้าจอ และวาง layout แบบคอลัมน์ */
 body, html, #root, .full-screen-bg {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
+  min-height: 100vh;       
+  display: flex;           
+  flex-direction: column;  
 }
 
+/* ตั้งค่าพื้นฐานของทั้งเว็บ */
 body {
-  font-family: "Noto Sans Thai", sans-serif;
-  background-color: #f8f9fa; /* สีพื้นหลังหลักที่อ่อนกว่า */
+  font-family: "Noto Sans Thai", sans-serif; 
+  background-color: #f8f9fa;                 
 }
 
+/* พื้นหลังฉากเต็มหน้าจอ */
 .full-screen-bg {
-  background: #f8f9fa;
-  min-height: 100vh;
+  background: #f8f9fa; 
+  min-height: 100vh;   
 }
 
+/* การ์ดฟอร์มสมัคร/ลงทะเบียน */
 .registration-card {
   max-width: 100%;
-  width: 100%; /* ทำให้การ์ดเต็มความกว้างของ col ที่ครอบอยู่ */
-  margin: 50px 0; /* ปรับ margin เป็น 50px บน/ล่าง */
-  padding: 30px;
-  border-radius: 8px;
+  width: 100%;
+  margin: 50px 0;                        
+  padding: 30px;                           
+  border-radius: 8px;                     
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-/* ลบโค้ดที่ไม่จำเป็นออก */
-.sidebar, .form-label-custom, .form-control-custom, .row-custom {
-  /* ลบหรือแก้ไขตามที่จำเป็น */
-}
-
+/* ยก Stepper ลอยขึ้นเล็กน้อย และเว้นระยะล่าง */
 .ws-stepper {
-  margin-top: -3rem !important; /* ปรับให้ Stepper ลอยขึ้นมาเล็กน้อย */
+  margin-top: -3rem !important;  
   margin-bottom: 2rem !important;
 }
 
+/* พื้นที่เนื้อหาหลัก */
 .ws-section {
-  flex-grow: 1; /* ทำให้ส่วนนี้ขยายเพื่อดัน Footer ลงไปด้านล่าง */
+  flex-grow: 1;            
   padding-top: 2rem;
   padding-bottom: 3rem;
 }
 
+/* ปรับหน้าตาการ์ดให้ดู modern */
 .card {
-  box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.15) !important; /* ปรับเงาให้ดูชัดเจนขึ้น */
-  border: none !important;
+  box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.15) !important; /* เงาชัดขึ้น */
+  border: none !important;                               /* ตัดเส้นขอบ */
 }
 
 .d-grid {
   display: grid;
-  gap: 1rem;
+  gap: 1rem;  /* ช่องว่างระหว่างไอเท็ม */
 }
 
-/* สไตล์สำหรับปุ่ม 3 ปุ่มที่เรียงกัน */
+/* กลุ่มปุ่มให้กว้างเท่ากัน เรียงแนวนอน กลางหน้าจอ */
 .button-group-full-width {
   display: flex;
-  gap: 1rem;
-  justify-content: center;
+  gap: 1rem;                /* ระยะห่างระหว่างปุ่ม */
+  justify-content: center;  /* จัดให้อยู่กลาง */
   margin-top: 1.5rem;
 }
 .button-group-full-width .btn {
-  flex: 1;
+  flex: 1;  /* ปุ่มแต่ละอันกว้างเท่ากัน */
 }
 
-/* ถ้าอยากได้ปุ่ม "ย้อนกลับ" ที่มีขอบ */
+/* ปุ่มสไตล์เส้นขอบ (outline) สำหรับ "ย้อนกลับ" หรือปุ่มรอง */
 .ws-btn-outline {
-  border: 1px solid var(--ws-muted);
+  border: 1px solid var(--ws-muted); 
   color: var(--ws-muted);
-  background: transparent;
+  background: transparent;           /* โปร่ง */
 }
 .ws-btn-outline:hover {
-  background: var(--ws-muted);
-  color: #fff;
+  background: var(--ws-muted); 
+  color: #fff;                
 }

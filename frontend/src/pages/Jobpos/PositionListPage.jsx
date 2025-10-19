@@ -14,29 +14,31 @@ import {
 import { useAuth } from '../../context/AuthContext';
 
 function PositionListPage() {
-    const { user } = useAuth();
+    const { user } = useAuth(); // ดึงข้อมูลผู้ใช้ปัจจุบัน (ใช้เช็คสิทธิ์เข้า/ลบ/แก้ไข)
 
-    const [positions, setPositions] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
+    // State หลักของหน้า 
+    const [positions, setPositions] = useState([]); // รายชื่อตำแหน่งทั้งหมด (Global + ของบริษัท)
+    const [loading, setLoading] = useState(true);   // สถานะกำลังโหลด
+    const [error, setError] = useState(null);       // เก็บข้อความ error
 
-    // Add modal
+    // State สำหรับ Modal "เพิ่มตำแหน่ง" 
     const [showAddModal, setShowAddModal] = useState(false);
     const [newPositionName, setNewPositionName] = useState('');
 
-    // Edit modal
+    // State สำหรับ Modal "แก้ไขตำแหน่ง"
     const [showEditModal, setShowEditModal] = useState(false);
-    const [editingPosition, setEditingPosition] = useState(null);
+    const [editingPosition, setEditingPosition] = useState(null); // เก็บตำแหน่งที่กำลังจะแก้ไข
 
+    // โหลดข้อมูลตำแหน่งจาก Backend
     const fetchData = async () => {
         setLoading(true);
         setError(null);
         try {
-            // Backend จะคืน Global + ของบริษัทผู้ใช้แล้ว
+            // Backend คืนค่าตำแหน่งที่มองเห็นได้ (Global + ของบริษัทผู้ใช้)
             const res = await api.get('/positions');
             setPositions(Array.isArray(res.data) ? res.data : []);
         } catch (err) {
-            // รองรับทั้งกรณีมี response และไม่มี
+            // รองรับ error ทั้งแบบมี response และไม่มี
             const msg =
                 err?.response?.data?.message ||
                 err?.message ||
@@ -48,28 +50,30 @@ function PositionListPage() {
         }
     };
 
+    // โหลดข้อมูลเมื่อมี user (กันกรณี context ยังไม่พร้อม)
     useEffect(() => {
         if (user) {
             fetchData();
         }
     }, [user]);
 
-    // ---------- Create ----------
+    // สร้างตำแหน่ง
     const handleShowAddModal = () => {
         setNewPositionName('');
-        setShowAddModal(true);
+        setShowAddModal(true); // เปิดโมดัลเพิ่ม
     };
     const handleCloseAddModal = () => {
-        setShowAddModal(false);
-        setNewPositionName('');
+        setShowAddModal(false); // ปิดโมดัลเพิ่ม
+        setNewPositionName(''); // เคลียร์อินพุต
     };
     const handleCreatePosition = async (e) => {
         e.preventDefault();
         try {
+            // ส่งชื่อที่ trim แล้วไปสร้าง
             await api.post('/positions', { jobpos_name: newPositionName.trim() });
             alert('บันทึกตำแหน่งงานใหม่สำเร็จ!');
             handleCloseAddModal();
-            fetchData();
+            fetchData(); // โหลดใหม่ให้เห็นรายการล่าสุด
         } catch (err) {
             const msg =
                 err?.response?.data?.message ||
@@ -80,13 +84,13 @@ function PositionListPage() {
         }
     };
 
-    // ---------- Update ----------
+    // อัปเดตตำแหน่ง 
     const handleShowEditModal = (position) => {
-        setEditingPosition({ ...position });
-        setShowEditModal(true);
+        setEditingPosition({ ...position }); // เก็บข้อมูลตำแหน่งที่จะให้แก้
+        setShowEditModal(true);              // เปิดโมดัลแก้ไข
     };
     const handleCloseEditModal = () => {
-        setShowEditModal(false);
+        setShowEditModal(false); // ปิดโมดัลแก้ไข
         setEditingPosition(null);
     };
     const handleUpdatePosition = async (e) => {
@@ -98,7 +102,7 @@ function PositionListPage() {
             });
             alert('อัปเดตตำแหน่งงานสำเร็จ!');
             handleCloseEditModal();
-            fetchData();
+            fetchData(); // รีเฟรชข้อมูล
         } catch (err) {
             const msg =
                 err?.response?.data?.message ||
@@ -109,11 +113,11 @@ function PositionListPage() {
         }
     };
 
-    // ---------- Delete ----------
+    //  ลบตำแหน่ง 
     const handleDelete = async (position) => {
         if (!user) return;
 
-        // กันเหนียวฝั่ง UI (Backend กันอยู่แล้ว)
+        // กันไว้ฝั่ง UI (แม้ backend จะกันอยู่แล้ว)
         if (position.company_id === null) {
             alert('คุณไม่มีสิทธิ์ลบตำแหน่งงาน Global');
             return;
@@ -133,7 +137,7 @@ function PositionListPage() {
         try {
             await api.delete(`/positions/${position.jobpos_id}`);
             alert('ลบตำแหน่งงานสำเร็จ');
-            fetchData();
+            fetchData(); // โหลดใหม่ให้รายการอัปเดต
         } catch (err) {
             const msg =
                 err?.response?.data?.message ||
@@ -144,8 +148,8 @@ function PositionListPage() {
         }
     };
 
-    // ---------- Access guard ----------
-    // อนุญาตเฉพาะ HR/ผู้ดูแล: jobpos_id ใน {1,2,3}
+    //  อนุญาตเฉพาะ HR/ผู้ดูแล 
+    // เงื่อนไข: jobpos_id เป็น 1, 2, หรือ 3 (ปรับตามนโยบายระบบ)
     const canAccess =
         !!user && (user.jobpos_id === 1 || user.jobpos_id === 2 || user.jobpos_id === 3);
 
@@ -158,6 +162,7 @@ function PositionListPage() {
         );
     }
 
+    // Loading/Error state 
     if (loading) {
         return <div className="text-center mt-5">กำลังโหลดข้อมูล...</div>;
     }
@@ -171,7 +176,10 @@ function PositionListPage() {
         );
     }
 
-    // ---------- Client-side safety filter and sort ----------
+    // การกรอง & เรียงลำดับที่ฝั่ง client
+    // 1) แสดงเฉพาะตำแหน่งที่เป็น Global (company_id === null) หรือของบริษัทผู้ใช้
+    // 2) จัดลำดับความสำคัญชื่อบางตำแหน่งให้อยู่บนสุด (ประธาน/รองประธาน/Super Admin/HR)
+    // 3) แล้วค่อยเรียง Global มาก่อน จากนั้นค่อยเรียงชื่อ (ตาม locale 'th')
     const sortedPositions = positions
         .filter((pos) => {
             if (!user) return false;
@@ -213,7 +221,7 @@ function PositionListPage() {
                 return 1;
             }
 
-            // Remaining: Sort by global positions first (company_id === null)
+            // Global มาก่อน (company_id === null)
             if (a.company_id === null && b.company_id !== null) {
                 return -1;
             }
@@ -221,12 +229,13 @@ function PositionListPage() {
                 return 1;
             }
 
-            // Finally: Sort alphabetically for all other positions
+            // อื่น ๆ เรียงตามตัวอักษร (ภาษไทย)
             return aName.localeCompare(bName, 'th');
         });
 
     return (
         <div>
+            {/* ส่วนหัว + ปุ่มเพิ่มตำแหน่ง */}
             <div className="d-flex justify-content-between align-items-center mb-3">
                 <h4 className="fw-bold text-dark" style={{ fontSize: '1.8rem' }}>ตำแหน่งงาน</h4>
                 <Button variant="outline-primary" onClick={handleShowAddModal}>
@@ -235,9 +244,10 @@ function PositionListPage() {
                 </Button>
             </div>
 
-            {/* เพิ่มส่วนนี้เพื่อสร้างกรอบครอบทั้งหมด */}
+            {/* กรอบการ์ดครอบเนื้อหา */}
             <div className="card shadow-sm mt-4">
                 <div className="card-body p-4">
+                    {/* ถ้าไม่มีข้อมูล */}
                     {sortedPositions.length === 0 && (
                         <Alert variant="info" className="text-center">
                             <FontAwesomeIcon icon={faInfoCircle} className="me-2" />
@@ -245,6 +255,7 @@ function PositionListPage() {
                         </Alert>
                     )}
 
+                    {/* ตารางรายการตำแหน่ง */}
                     {sortedPositions.length > 0 && (
                         <div className="table-responsive">
                             <table className="table table-hover table-bordered text-center align-middle">
@@ -259,6 +270,7 @@ function PositionListPage() {
                                         <tr key={pos.jobpos_id}>
                                             <td>{pos.jobpos_name}</td>
                                             <td>
+                                                {/* ปุ่มดูพนักงานในตำแหน่ง */}
                                                 <Link
                                                     to={`/positions/view/${pos.jobpos_id}`}
                                                     className="btn btn-info btn-sm me-2 text-white"
@@ -267,23 +279,25 @@ function PositionListPage() {
                                                     <FontAwesomeIcon icon={faEye} /> ดู
                                                 </Link>
 
+                                                {/* ปุ่มแก้ไข — ปิดการแก้ไขสำหรับ Global */}
                                                 <Button
                                                     variant="warning"
                                                     size="sm"
                                                     className="me-2 text-white"
                                                     title="แก้ไข"
                                                     onClick={() => handleShowEditModal(pos)}
-                                                    disabled={pos.company_id === null} // กันแก้ Global
+                                                    disabled={pos.company_id === null}
                                                 >
                                                     <FontAwesomeIcon icon={faEdit} /> แก้ไข
                                                 </Button>
 
+                                                {/* ปุ่มลบ — ปิดการลบสำหรับ Global */}
                                                 <Button
                                                     variant="danger"
                                                     size="sm"
                                                     title="ลบ"
                                                     onClick={() => handleDelete(pos)}
-                                                    disabled={pos.company_id === null} // กันลบ Global
+                                                    disabled={pos.company_id === null}
                                                 >
                                                     <FontAwesomeIcon icon={faTrash} /> ลบ
                                                 </Button>

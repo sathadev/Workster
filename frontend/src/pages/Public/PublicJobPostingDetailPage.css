@@ -1,46 +1,58 @@
+/* โหลดฟอนต์ Noto Sans Thai จาก Google Fonts เพื่อใช้ทั้งเว็บ */
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@100..900&display=swap');
 
+/* ตั้งค่าฟอนต์หลัก + สีพื้นหลังของทั้งหน้า */
 html, body {
-  font-family: "Noto Sans Thai", sans-serif;
-  background-color: #f8f9fa;
+  font-family: "Noto Sans Thai", sans-serif; 
+  background-color: #f8f9fa;           
 }
 
+/* แถบด้านข้าง (Sidebar) */
 .sidebar {
-  background-color: #f8f9fa;
-  min-height: 100vh;
-  padding-top: 20px;
+  background-color: #f8f9fa; 
+  min-height: 100vh;         /* สูงเต็มหน้าจอแนวตั้ง */
+  padding-top: 20px;         /* เว้นระยะด้านบนไม่ให้ติดขอบ */
 }
 
+/* ลิงก์ใน Sidebar ให้เต็มบรรทัดและคลิกง่าย */
 .sidebar a {
-  display: block;
-  padding: 10px 20px;
-  color: #000;
-  text-decoration: none;
+  display: block;            /* ขยายกว้างเต็มแถว */
+  padding: 10px 20px;      
+  color: #000;           
+  text-decoration: none;     /* ตัดเส้นใต้ลิงก์ */
 }
 
+/* เอฟเฟกต์เมื่อโฮเวอร์ที่ลิงก์ใน Sidebar */
 .sidebar a:hover {
-  background-color: #e2e6ea;
+  background-color: #e2e6ea; 
   border-radius: 5px;
 }
 
-/* Custom styles for detail page sections */
+/* Job Detail Section (หน้ารายละเอียดงาน)  */
+
+/* หัวข้อย่อยของแต่ละส่วนในหน้ารายละเอียดงาน */
 .job-detail-section h5 {
-  font-weight: bold;
-  margin-bottom: 1rem;
-}
-.job-detail-section p, .job-detail-section li {
-  color: #555;
+  font-weight: bold;   /* ตัวหนาเพื่อเน้นหัวข้อ */
+  margin-bottom: 1rem; /* เว้นช่องว่างใต้หัวข้อ */
 }
 
-.job-detail-card {
-  border-radius: 1rem;
-  margin-bottom: 1.5rem;
-  background-color: #fff;
-  border: 1px solid #e0e0e0;
-  transition: border-color 0.2s, box-shadow 0.2s;
+/* ข้อความย่อหน้าและรายการ ในหน้ารายละเอียดงาน */
+.job-detail-section p, .job-detail-section li {
+  color: #555;        
 }
+
+/* การ์ดแต่ละบล็อกของรายละเอียดงาน */
+.job-detail-card {
+  border-radius: 1rem;                         
+  margin-bottom: 1.5rem;                       
+  background-color: #fff;                 
+  border: 1px solid #e0e0e0;                 
+  transition: border-color 0.2s, box-shadow 0.2s; 
+}
+
+/* เอฟเฟกต์โฮเวอร์การ์ด: เน้นเส้นขอบ + เงา */
 .job-detail-card:hover {
-  border-color: #8ab4f8;
-  box-shadow: 0 4px 12px rgba(138, 180, 248, 0.25);
-  cursor: pointer;
-} 
+  border-color: #8ab4f8;                                  
+  box-shadow: 0 4px 12px rgba(138, 180, 248, 0.25);       
+  cursor: pointer;   /* แสดงเป็นคลิกได้ */
+}

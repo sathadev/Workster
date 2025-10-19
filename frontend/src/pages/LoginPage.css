@@ -1,52 +1,59 @@
 /* frontend/src/pages/LoginPage.css */
+
+/* พื้นหลังหน้า Login แบบเต็มจอ + จัดกึ่งกลางทั้งแนวตั้ง/แนวนอน */
 .login-body {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-    background: linear-gradient(to right, #1E56A0, #3E8DCF); /* ใช้ gradient background คล้าย hero section */
-    font-family: 'Noto Sans Thai', sans-serif; /* ให้แน่ใจว่าใช้ Noto Sans Thai ที่นี่ด้วย */
+    display: flex;                                   
+    justify-content: center;                         /* จัดกึ่งกลางแนวนอน */
+    align-items: center;                             /* จัดกึ่งกลางแนวตั้ง */
+    min-height: 100vh;                               /* สูงเต็มหน้าจอ */
+    background: linear-gradient(to right, #1E56A0, #3E8DCF); 
+    font-family: 'Noto Sans Thai', sans-serif;       
 }
 
+/* กล่องฟอร์มล็อกอิน */
 .login-container {
-    width: 100%;
-    max-width: 400px;
-    text-align: center;
-    background-color: rgba(255, 255, 255, 0.95); /* เพิ่มความโปร่งใสเล็กน้อย */
-    padding: 2.5rem;
-    border-radius: 1rem;
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2); /* ปรับเงาให้ดูโดดเด่นขึ้น */
+    width: 100%;                                     
+    max-width: 400px;                                
+    text-align: center;                              
+    background-color: rgba(255, 255, 255, 0.95);     
+    padding: 2.5rem;                                 
+    border-radius: 1rem;                             
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);      
 }
 
+/* โลโก้ด้านบนฟอร์ม */
 .login-logo {
-    width: 160px; /* ขยายโลโก้ให้ใหญ่ขึ้นเล็กน้อย */
-    margin-bottom: 1rem; /* เพิ่มระยะห่างด้านล่าง */
+    width: 160px;            
+    margin-bottom: 1rem;     
 }
 
+/* อินพุตในฟอร์ม (อีเมล/รหัสผ่าน) */
 .form-control {
-    border-radius: 0.5rem;
-    margin-bottom: 1rem;
-    padding: 0.75rem 1rem;
-    font-size: 1rem; /* ขนาดฟอนต์ใน input */
+    border-radius: 0.5rem;   
+    margin-bottom: 1rem;     
+    padding: 0.75rem 1rem;   
+    font-size: 1rem;        
 }
 
+/* ปุ่ม “เข้าสู่ระบบ” */
 .btn-login {
-    background-color: #007bff; /* ใช้สี Primary Blue ของ Bootstrap */
-    color: white;
-    border-radius: 0.5rem;
-    width: 100%;
-    padding: 0.75rem;
-    font-weight: bold;
-    border: none;
-    font-size: 1.1rem; /* ขนาดฟอนต์ของปุ่ม */
-    transition: background-color 0.3s ease;
+    background-color: #007bff;      
+    color: white;                    
+    border-radius: 0.5rem;           
+    width: 100%;                     
+    padding: 0.75rem;                
+    font-weight: bold;               
+    border: none;                     /* ไม่ใช้เส้นขอบ */
+    font-size: 1.1rem;                
+    transition: background-color 0.3s ease; 
 }
 
+/* สีตอนโฮเวอร์ปุ่ม */
 .btn-login:hover {
-    background-color: #0056b3;
+    background-color: #0056b3;        
 }
 
-/* Adjust font size for error message */
+/* ข้อความแจ้งเตือน error ให้ตัวอักษรอ่านง่ายขึ้นนิดหน่อย */
 .login-container .alert-danger {
-    font-size: 0.95rem;
+    font-size: 0.95rem;               
 }

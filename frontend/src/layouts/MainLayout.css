@@ -1,36 +1,36 @@
 /* frontend/src/layouts/MainLayout.css */
 
-/* --- โครงสร้างหลักของทั้งหน้า --- */
+/* โครงสร้างหลักของทั้งหน้า */
 .app-container {
     display: flex;
     flex-direction: column; /* จัดเรียงแนวตั้ง (Navbar บน, เนื้อหาล่าง) */
     min-height: 100vh;      /* ความสูงเต็มหน้าจอเสมอ */
 }
 
-/* --- ส่วนของ Navbar (ถ้ามี Navbar แยกใน MainLayout) --- */
+/* ส่วนของ Navbar (ถ้ามี Navbar แยกใน MainLayout)*/
 .app-navbar {
     flex-shrink: 0; /* ไม่ให้ Navbar หดตัว */
-    background-color: #212529; /* ใช้สีนี้สำหรับ Navbar background */
+    background-color: #212529; 
     padding: 10px;
 }
 
-/* --- ส่วนของเนื้อหาหลัก (ที่ครอบ Sidebar และ Content) --- */
+/* ส่วนของเนื้อหาหลัก (ที่ครอบ Sidebar และ Content)*/
 .main-layout {
-    display: flex;      /* จัดเรียงแนวนอน (Sidebar ซ้าย, Content ขวา) */
+    display: flex;      
     flex-grow: 1;      /* ให้ส่วนนี้ขยายเต็มพื้นที่แนวตั้งที่เหลือ */
 }
 
 .sidebar {
     flex: 0 0 250px; /* ความกว้างคงที่ 250px */
-    background-color: #2A6CA6 !important; /* ปรับสีพื้นหลัง Sidebar เป็นสีน้ำเงินที่สว่างขึ้น */
-    padding: 1.5rem 1rem; /* คง padding เดิม */
+    background-color: #2A6CA6 !important; 
+    padding: 1.5rem 1rem; 
     border-right: none; /* ลบเส้นขอบด้านขวา เพื่อให้ดูเป็นชิ้นเดียวกัน */
-    box-shadow: 2px 0 5px rgba(0,0,0,0.1); /* เพิ่มเงาเล็กน้อย */
+    box-shadow: 2px 0 5px rgba(0,0,0,0.1); 
 
     position: sticky;      /* ทำให้มัน "ติด" อยู่กับที่ */
     top: 0;                /* ให้มันติดอยู่ที่ขอบบนสุด */
     align-self: flex-start; /* จัดตำแหน่งให้มันเริ่มจากบนสุดของ container */
-    height: 100vh;         /* ให้ความสูงเต็มหน้าจอของ viewport */
+    height: 100vh;         
     overflow-y: auto;      /* ให้มี scrollbar ถ้าเนื้อหาใน sidebar ยาวเกิน */
     -ms-overflow-style: none;  /* สำหรับ IE and Edge */
     scrollbar-width: none;  /* สำหรับ Firefox */
@@ -44,11 +44,11 @@
 .content {
     flex-grow: 1;
     padding: 2rem;
-    background-color: #ffffff; /* สีพื้นหลังเนื้อหาหลักเป็นสีขาว */
+    background-color: #ffffff;
     overflow-y: auto; /* ทำให้เฉพาะส่วนเนื้อหานี้มี scrollbar เมื่อเนื้อหายาวเกิน */
 }
 
-/* --- สไตล์ของลิงก์ใน Sidebar (ปรับแก้ตามธีมหลัก) --- */
+/* สไตล์ของลิงก์ใน Sidebar (ปรับแก้ตามธีมหลัก) */
 .sidebar-link {
     display: flex; /* ใช้ flex เพื่อจัดไอคอนและข้อความ */
     align-items: center; /* จัดแนวตั้งกึ่งกลาง */
@@ -57,35 +57,35 @@
     text-decoration: none;
     border-radius: 0.375rem; /* คงความโค้งมน */
     margin-bottom: 0.5rem;
-    font-family: "Noto Sans Thai", sans-serif; /* ใช้ Noto Sans Thai */
-    font-size: 1.05rem; /* ปรับขนาดฟอนต์ลิงก์ */
-    font-weight: 500; /* ปรับน้ำหนักฟอนต์ */
+    font-family: "Noto Sans Thai", sans-serif; 
+    font-size: 1.05rem; 
+    font-weight: 500; 
     transition: background-color 0.2s ease, color 0.2s ease;
-    background-color: transparent; /* ให้พื้นหลังเป็นสีเดียวกับ Sidebar ในสถานะปกติ */
+    background-color: transparent; 
 }
 
 .sidebar-link:hover {
-    background-color: rgba(255, 255, 255, 0.15); /* สีพื้นหลังโปร่งแสงเมื่อ hover (สว่างกว่าเดิมเล็กน้อย) */
-    color: #fff; /* สีข้อความยังคงเป็นสีขาว */
+    background-color: rgba(255, 255, 255, 0.15); 
+    color: #fff; 
 }
 
 .sidebar-link.active {
-    background-color: #5BA4E5; /* สีฟ้าอ่อนที่สอดคล้องกับ gradient ใน Landing Page */
-    color: #1E56A0 !important; /* สีข้อความจะเป็นน้ำเงินเข้ม (เพื่อให้ตัดกัน) */
-    font-weight: 600; /* น้ำหนักฟอนต์มากขึ้นเมื่อ active */
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1); /* เพิ่มเงาเล็กน้อยเมื่อ active */
+    background-color: #5BA4E5; 
+    color: #1E56A0 !important; 
+    font-weight: 600; 
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1); 
 }
 
 /* หัวข้อกลุ่มใน Sidebar (เช่น "รายการ HR") */
 .sidebar-header {
-    font-family: "Noto Sans Thai", sans-serif; /* ใช้ Noto Sans Thai */
-    font-size: 0.95rem; /* ขนาดฟอนต์เล็กกว่าลิงก์ปกติ */
-    color: #E0E0E0; /* สีเทาอ่อนที่สว่างขึ้น */
+    font-family: "Noto Sans Thai", sans-serif; 
+    font-size: 0.95rem; 
+    color: #E0E0E0; 
     text-transform: uppercase; /* ตัวพิมพ์ใหญ่ */
-    font-weight: 600; /* ปรับน้ำหนักฟอนต์ */
+    font-weight: 600; 
     margin-top: 1.5rem;
     margin-bottom: 0.5rem;
-    padding: 0 1rem; /* คง padding */
+    padding: 0 1rem; 
     letter-spacing: 0.05em; /* เพิ่มระยะห่างตัวอักษร */
 }
 
@@ -93,14 +93,14 @@
 .sidebar-link::before {
     content: "•";
     margin-right: 10px;
-    color: #fff; /* สีจุดเป็นสีขาวในสถานะปกติ (มองเห็นได้บนพื้นหลังน้ำเงินเข้ม) */
+    color: #fff; 
     font-size: 1.2em;
     line-height: 1;
 }
 
 /* ปรับสไตล์เมื่อ Active ให้จุดเปลี่ยนสีด้วย */
 .sidebar-link.active::before {
-    color: #1E56A0; /* สีจุดเป็นน้ำเงินเข้มเมื่อ active */
+    color: #1E56A0; 
 }
 
 /* Responsive adjustments (ถ้าต้องการ) */
@@ -110,7 +110,7 @@
         height: auto; /* ความสูงปรับตามเนื้อหา */
         position: relative; /* ไม่ sticky บนมือถือ */
         border-right: none;
-        border-bottom: 1px solid rgba(255,255,255,0.1); /* เพิ่มเส้นขอบด้านล่าง */
+        border-bottom: 1px solid rgba(255,255,255,0.1); 
         padding-bottom: 1rem;
     }
     .main-layout {
@@ -120,6 +120,6 @@
         padding: 1rem; /* ลด padding บนมือถือ */
     }
     .sidebar-link, .sidebar-header {
-        font-size: 1rem; /* ปรับขนาดฟอนต์ให้เหมาะสมกับมือถือ */
+        font-size: 1rem;
     }
 }

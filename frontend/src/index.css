@@ -1,9 +1,8 @@
 /* frontend/src/index.css หรือ App.css (ไฟล์ CSS หลักของโปรเจกต์) */
-
-/* --- 1. Import Font --- */
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@300;400;500;700&display=swap');
 
-/* --- 2. CSS Reset และตั้งค่า Global --- */
+/* CSS Reset และตั้งค่า Global */
+/* รีเซ็ต margin/padding และให้พื้นที่สูง/กว้างเต็มจอ */
 html,
 body,
 #root {
@@ -14,60 +13,58 @@ body,
 }
 
 body {
-    font-family: "Noto Sans Thai", sans-serif;
-    background-color: #1E56A0; /* สีพื้นหลังอ่อนๆ คล้าย Landing Page */
-    color: #333; /* สีข้อความหลัก */
-    font-size: 1rem; /* ขนาดฟอนต์เริ่มต้น (เทียบเท่า 16px) */
-    line-height: 1.6; /* ปรับ line-height เพื่อให้อ่านง่ายขึ้น */
+    font-family: "Noto Sans Thai", sans-serif;  
+    background-color: #1E56A0;                  
+    color: #333;                                 
+    font-size: 1rem;                             
+    line-height: 1.6;                          
 }
 
-/* ตั้งค่าสีและฟอนต์สำหรับ Heading Elements (h1-h6) ทั่วทั้งแอป */
+/* ตั้งสไตล์หัวข้อ h1-h6 ให้โทนเดียวกันทั้งแอป */
 h1, h2, h3, h4, h5, h6 {
     font-family: "Noto Sans Thai", sans-serif;
-    font-weight: 700; /* ใช้ font-weight 700 เหมือน hero-title ใน Landing Page */
-     
+    font-weight: 700; 
 }
 
-/* ปรับขนาด Heading ที่ใช้บ่อยในหน้าย่อย (เช่น H4) */
+/* ขนาด h4 ที่ใช้บ่อยในหน้าต่าง ๆ */
 h4 {
-    font-size: 1.8rem; /* ปรับจาก 2rem เป็น 1.8rem ตามที่คุณต้องการ */
-    color: #333; /* อาจใช้สีดำเข้มเพื่อให้ตัดกับพื้นหลังขาว */
+    font-size: 1.8rem; 
+    color: #333;       
 }
 
-/* กำหนดสีและขนาดฟอนต์สำหรับข้อความทั่วไปและข้อความรอง */
+/* ข้อความทั่วไป/ข้อความรอง */
 p {
-    font-size: 1rem;
-
+    font-size: 1rem;   
 }
 
 .text-muted, .text-secondary {
-    font-size: 0.95rem;
-   
+    font-size: 0.95rem; 
 }
 
-/* Custom classes เพื่อให้ใช้ใน React ได้ */
+/* คลาสช่วยทำพื้นหลังไล่สี (ใช้ซ้ำหลายหน้า) */
 .bg-gradient-primary-custom {
-    background: linear-gradient(to right, #1E56A0, #3E8DCF); /* สี gradient ของ hero section */
+    background: linear-gradient(to right, #1E56A0, #3E8DCF); 
 }
 
+/* คลาสช่วย: hover ลิงก์ให้เป็นสีน้ำเงิน Bootstrap */
 .link-primary-hover:hover {
-    color: #007bff !important; /* สีน้ำเงิน primary ของ Bootstrap สำหรับ hover link */
+    color: #007bff !important;
 }
 
-/* Button default styles - Bootstrap handles most, but can fine-tune */
+/* ปรับฟอนต์/น้ำหนักปุ่มให้เข้าธีม (Bootstrap จัดการหลัก ๆ อยู่แล้ว) */
 .btn {
     font-family: "Noto Sans Thai", sans-serif;
     font-weight: 500;
 }
-.btn-primary {
-    background-color: #007bff; /* สีน้ำเงินหลัก */
+.btn-primary {        /* ปุ่มหลัก */
+    background-color: #007bff;
     border-color: #007bff;
 }
-.btn-primary:hover {
+.btn-primary:hover {   /* สีตอนโฮเวอร์ */
     background-color: #0056b3;
     border-color: #0056b3;
 }
-.btn-secondary {
+.btn-secondary {   /* ปุ่มรอง */
     background-color: #6c757d;
     border-color: #6c757d;
 }
@@ -75,7 +72,7 @@ p {
     background-color: #5a6268;
     border-color: #545b62;
 }
-.btn-outline-secondary {
+.btn-outline-secondary {  /* ปุ่มขอบเทา */
     color: #6c757d;
     border-color: #6c757d;
 }
@@ -83,7 +80,7 @@ p {
     background-color: #6c757d;
     color: #fff;
 }
-.btn-success {
+.btn-success {     /* ปุ่มสำเร็จ/ยืนยัน */
     background-color: #28a745;
     border-color: #28a745;
 }
@@ -92,65 +89,53 @@ p {
     border-color: #1e7e34;
 }
 
-/* --- Sidebar Styles (นี้คือ Base Style, MainLayout.css อาจ override) --- */
+/* Sidebar Styles (ฐาน: MainLayout.css อาจ override เพิ่ม) */
 .sidebar {
-    background-color: #1E56A0; /* สีพื้นหลัง Sidebar เป็นน้ำเงินเข้ม */
-    min-height: 100vh;
-    padding-top: 20px;
-    box-shadow: 2px 0 5px rgba(0,0,0,0.05); /* เพิ่มเงาเล็กน้อย */
-
-    /* สไตล์จาก MainLayout.css */
-    /* flex: 0 0 250px;
-    border-right: none;
-    position: sticky;      
-    top: 0;                
-    align-self: flex-start;
-    height: 100vh;         
-    overflow-y: auto;
-    -ms-overflow-style: none;
-    scrollbar-width: none; */
+    background-color: #1E56A0;      
+    min-height: 100vh;              
+    padding-top: 20px;              
+    box-shadow: 2px 0 5px rgba(0,0,0,0.05); 
 }
 
-/* ซ่อน scrollbar ใน Webkit browsers (Chrome, Safari) */
+/* ซ่อนสกอลล์บาร์ของ Sidebar บน Chrome/Safari */
 .sidebar::-webkit-scrollbar {
     display: none;
 }
 
-/* ชื่อแบรนด์/โลโก้ WorkSter ใน Sidebar */
+/* ชื่อแบรนด์/โลโก้ใน Sidebar */
 .sidebar .navbar-brand {
     font-weight: 700;
     font-size: 1.8rem;
-    color: #fff; /* ให้สีขาวตาม Landing Page */
+    color: #fff;          
     margin-bottom: 20px;
     padding-left: 20px;
     display: block;
 }
 .sidebar .navbar-brand a {
     text-decoration: none;
-    color: inherit;
+    color: inherit;        
 }
 
-/* หัวข้อกลุ่มใน Sidebar (เช่น "รายการ HR") */
+/* หัวข้อกลุ่มเมนูใน Sidebar (เช่น “รายการ HR”) */
 .sidebar .sidebar-header {
     font-family: "Noto Sans Thai", sans-serif;
     font-size: 1rem;
-    color: #a2d3ff; /* <<<<< ปรับสีเป็น #E0E0E0 (เทาอ่อนมาก) ตามภาพล่าสุด */
-    text-transform: uppercase;
+    color: #a2d3ff;                    
+    text-transform: uppercase;       
     font-weight: 600;
     margin-top: 1.5rem;
     margin-bottom: 0.5rem;
     padding: 0.1rem;
-    letter-spacing: 0.05em;
-    border-bottom: 2px solid #dee2e6; /* ปรับกลับเป็นกรอบ 2px ตามที่คุณต้องการ */
-
+    letter-spacing: 0.05em;            /* เว้นตัวอักษรเล็กน้อย */
+    border-bottom: 2px solid #dee2e6;  /* เส้นคั่นชัดเจน */
 }
 
-/* ลิงก์ใน Sidebar (ไม่ได้ active/hover) */
+/* ลิงก์เมนูใน Sidebar (ปกติ) */
 .sidebar a {
     display: flex;
     align-items: center;
     padding: 0.75rem 1rem;
-    color: #fff; /* สีข้อความลิงก์เป็นสีขาว */
+    color: #fff;                   
     text-decoration: none;
     border-radius: 0.375rem;
     margin-bottom: 0.5rem;
@@ -160,124 +145,123 @@ p {
     transition: background-color 0.2s ease, color 0.2s ease;
 }
 
-/* ลิงก์ใน Sidebar เมื่อ Hover */
+/* ลิงก์เมนูเมื่อ hover */
 .sidebar a:hover {
-    background-color: rgba(255, 255, 255, 0.996); /* สีพื้นหลังโปร่งแสงเมื่อ hover */
-    color: #fff; /* สีข้อความยังคงเป็นสีขาว */
+    background-color: rgba(255, 255, 255, 0.996); 
+    color: #fff;                                   
 }
 
-/* ลิงก์ใน Sidebar ที่ Active */
+/* ลิงก์เมนูที่ active */
 .sidebar a.active {
-    background-color: #ffffff; /* สีฟ้าอ่อนที่สอดคล้องกับ gradient */
-    color: #1E56A0; /* สีข้อความจะเป็นน้ำเงินเข้ม */
+    background-color: #ffffff; 
+    color: #1E56A0;           
     font-weight: 600;
     border-radius: 0.375rem;
     box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 }
 
-/* จุดนำหน้าลิงก์ */
+/* จุดนำหน้าลิงก์เมนู (bullet) */
 .sidebar a::before {
     content: "•";
     margin-right: 10px;
-    color: #fff; /* สีจุดเป็นสีขาวในสถานะปกติ (มองเห็นได้บนพื้นหลังน้ำเงินเข้ม) */
+    color: #fff;        
     font-size: 1.2em;
     line-height: 1;
 }
 
-/* ปรับสไตล์เมื่อ Active ให้จุดเปลี่ยนสีด้วย */
+/* จุดนำหน้าลิงก์เมื่อ active ให้เปลี่ยนสีตามลิงก์ */
 .sidebar a.active::before {
-    color: #1E56A0; /* สีจุดเป็นน้ำเงินเข้มเมื่อ active */
+    color: #1E56A0;     
 }
 
-
-/* --- Card Background Colors for Dashboard and Employee Detail Summary --- */
+/* สีการ์ดสรุป (Dashboard/สรุปพนักงาน)*/
 .card-green {
-    background: linear-gradient(135deg, #28a745, #218838); /* เขียว */
+    background: linear-gradient(135deg, #28a745, #218838); 
     color: #ffffff !important;
 }
 .card-yellow {
-    background: linear-gradient(135deg, #ffc107, #e0a800); /* เหลือง */
-    color: #333 !important; /* ทำให้ตัวหนังสือสีเข้ม อ่านง่ายบนพื้นสีเหลือง */
+    background: linear-gradient(135deg, #ffc107, #e0a800); 
+    color: #333 !important; 
 }
 .card-red {
-    background: linear-gradient(135deg, #dc3545, #c82333); /* แดง */
+    background: linear-gradient(135deg, #dc3545, #c82333); 
     color: #ffffff !important;
 }
 
-/* --- Table Styles (ปรับกลับเป็นกรอบ 2px และคงฟอนต์/สีที่ปรับแล้ว) --- */
+/* ตาราง: เส้นรอบชัด โทนอ่านง่าย */
 .table {
-    border: 2px solid #dee2e6; /* ปรับกลับเป็นกรอบ 2px ตามที่คุณต้องการ */
-    border-radius: 0.5rem; /* คงความโค้งมน */
-    font-family: "Noto Sans Thai", sans-serif; /* ให้แน่ใจว่าใช้ฟอนต์ไทยในตาราง */
-    color: #333; /* สีข้อความในตาราง */
-    border-collapse: collapse; /* เพิ่ม border-collapse เพื่อควบคุมเส้นขอบเซลล์ */
+    border: 2px solid #dee2e6;     
+    border-radius: 0.5rem;         
+    font-family: "Noto Sans Thai", sans-serif;
+    color: #333;
+    border-collapse: collapse;     /* รวมเส้นขอบให้เนียน */
 }
 
-/* เส้นขอบใต้หัวข้อ */
+/* แถวหัวพิเศษ (เช่น .profile) ใต้หัวตาราง */
 .table .profile {
-    border-bottom: 2px solid #dee2e6; /* ปรับกลับเป็นกรอบ 2px ตามที่คุณต้องการ */
+    border-bottom: 2px solid #dee2e6; /* เส้นคั่นหนา */
     text-align: center;
-    font-weight: 600; /* เพิ่มน้ำหนักฟอนต์ */
-    color: #333; /* สีข้อความ */
-    font-size: 1.05rem; /* ขนาดฟอนต์ */
+    font-weight: 600;
+    color: #333;
+    font-size: 1.05rem;
 }
 
-/* ลบเส้นขอบในเซลล์ */
+/* ลบเส้นขอบในเซลล์ + ปรับ padding/ขนาดตัวอักษร */
 .table td,
 .table th {
-    border: none; /* ไม่มีเส้นขอบในเซลล์ (ตามที่คุณต้องการ) */
-    padding: 0.75rem; /* ปรับ padding */
-    font-size: 0.98rem; /* ขนาดฟอนต์สำหรับเนื้อหาตาราง */
+    border: none;
+    padding: 0.75rem;
+    font-size: 0.98rem;
 }
 
-/* Header ของตาราง */
+/* ส่วนหัวตาราง (thead) */
 .table thead th {
-    background-color: #e9ecef; /* สีพื้นหลัง Header */
+    background-color: #e9ecef;  
     color: #333;
     font-weight: 600;
     font-size: 1.05rem;
-    border-bottom: 1px solid #dee2e6; /* เส้นขอบด้านล่าง header */
+    border-bottom: 1px solid #dee2e6;
 }
 
-/* จัดรูปภาพให้เป็นวงกลม และให้ครอบคลุมพื้นที่ */
+/* รูปโปรไฟล์ในตารางให้เป็นวงกลม */
 .profile-image {
     width: 40px;
     height: 40px;
-    object-fit: cover;
+    object-fit: cover;      /* ครอบรูปโดยไม่บิดเบี้ยว */
     border-radius: 50%;
-    border: 1px solid #dee2e6; /* เพิ่มขอบเล็กน้อย */
+    border: 1px solid #dee2e6; 
 }
 
-/* จัดให้อยู่ตรงกลาง */
+/* จัด cell ให้ภาพอยู่กลางทั้งแนวตั้ง/แนวนอน */
 .profile-cell {
     display: flex;
     justify-content: center;
     align-items: center;
 }
 
-/* Navbar Brand Link Styling */
+/* โลโก้ Navbar (บทความ/ชื่อระบบ) */
 .navbar-brand {
     font-weight: 700;
     font-size: 1.8rem;
-    color: #fff; /* ให้สีขาวตาม Landing Page */
+    color: #fff;
 }
 .navbar-brand a {
     text-decoration: none;
     color: inherit;
 }
 
-/* Dropdown Toggle for User Profile */
+/* ปิดลูกศรของ dropdown ในปุ่มโปรไฟล์ */
 .dropdown-toggle::after {
-    display: none; /* ลบลูกศร */
+    display: none;
 }
 
-/* Override Bootstrap's default form-control focus outline */
+/* เอฟเฟกต์ focus ของ input ให้เป็นโทน Bootstrap primary */
 .form-control:focus {
-    border-color: #80bdff; /* Bootstrap's primary blue */
+    border-color: #80bdff;
     box-shadow: 0 0 0 0.25rem rgba(0, 123, 255, 0.25);
 }
 
-/* Custom Modal Styles */
+/* Modal: ใช้ฟอนต์/ขนาดให้สม่ำเสมอ */
 .modal-header {
     font-family: "Noto Sans Thai", sans-serif;
     font-weight: 600;
@@ -291,7 +275,7 @@ p {
     font-family: "Noto Sans Thai", sans-serif;
 }
 
-/* --- สไตล์สำหรับ EmployeeListPage (รวมจาก EmployeeListPage.css) --- */
+/* --- สไตล์ส่วนค้นหา (ย้ายมา global เพื่อใช้ซ้ำ) --- */
 .search-form-custom {
     display: flex;
     align-items: center;
@@ -327,18 +311,20 @@ p {
     background-color: #e9ecef;
     color: #333;
 }
+/* ให้ input-group ภายใน .search-form สูงเสมอกัน */
 .search-form .input-group {
     align-items: stretch;
 }
 .search-form .form-control,
 .search-form .btn {
-    /* height: 38px;  <<<<< จะถูก override ด้วย global .form-control/.form-select/.input-group-text */
     display: inline-flex;
     align-items: center;
     justify-content: center;
     font-family: "Noto Sans Thai", sans-serif;
     font-size: 1rem;
 }
+
+/* ปรับบนมือถือให้กระชับ */
 @media (max-width: 768px) {
     .search-form-custom {
         max-width: 100%;
@@ -350,34 +336,31 @@ p {
     }
 }
 
-/* --- New: Global Form Element Height Consistency --- */
-/* กำหนดความสูงมาตรฐานสำหรับ input, select, และ input-group-text ทั่วทั้งแอป */
-/* เพื่อให้ทุกช่องมีความสูงเท่ากันเมื่ออยู่ข้างกัน */
+/*  Global: ทำให้ input/select/ปุ่มใน input-group สูงเท่ากันทั้งแอป */
 .form-control,
 .form-select,
 .input-group-text {
-    height: 38px; /* ความสูงมาตรฐานของ Bootstrap form-control */
-    font-family: "Noto Sans Thai", sans-serif; /* ให้แน่ใจว่าใช้ฟอนต์ไทย */
-    font-size: 1rem; /* ขนาดฟอนต์มาตรฐาน */
-    
+    height: 38px;                         
+    font-family: "Noto Sans Thai", sans-serif;
+    font-size: 1rem;
 }
 
-/* หากปุ่มใน input-group มีความสูงต่างกัน สามารถกำหนดเฉพาะที่นี่ได้ */
+/* ปุ่มที่อยู่ใน input-group ให้สูงเท่าช่องกรอก */
 .input-group .btn {
-    height: 38px; /* กำหนดความสูงให้ปุ่มใน input-group ด้วย */
+    height: 38px;
     display: flex;
     align-items: center;
     justify-content: center;
 }
 
-/* Responsive adjustments for overall form elements */
+/* มือถือ: ลดความสูง+ขนาดให้พอดีหน้าจอ */
 @media (max-width: 768px) {
     .form-control,
     .form-select,
     .input-group-text,
     .input-group .btn {
-        height: 36px; /* ลดความสูงบนมือถือเล็กน้อย */
+        height: 36px;
         font-size: 0.95rem;
-        padding: 0.25rem 0.5rem; /* ลด padding */
+        padding: 0.25rem 0.5rem;
     }
 }

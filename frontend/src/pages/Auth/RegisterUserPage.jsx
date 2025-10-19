@@ -4,135 +4,88 @@ import { useNavigate, NavLink } from "react-router-dom";
 import api from "../../api/axios";
 import { Modal, Button, Form, Spinner, Alert } from "react-bootstrap";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faCheckCircle,
-  faExclamationTriangle,
-} from "@fortawesome/free-solid-svg-icons";
+import { faCheckCircle, faExclamationTriangle } from "@fortawesome/free-solid-svg-icons";
 
 import "./RegisterUserPage.css";
-import thaiGeoJson from "../../data/thai-provinces.json";
+import thaiGeoJson from "../../data/thai-provinces.json"; // ฐานข้อมูลจังหวัด/อำเภอ/ตำบลแบบออฟไลน์
 
 function RegisterUserPage() {
   const navigate = useNavigate();
 
-  // --- State สำหรับข้อมูลฟอร์มทั้งหมด ---
+  // ข้อมูลฟอร์มทั้งหมด (3 สเต็ป)
   const [formData, setFormData] = useState({
-    username: "",
-    email: "",
-    password: "",
-    fullName: "",
-    phone: "",
-    empAddressNo: "",
-    empMoo: "",
-    empBuilding: "",
-    empStreet: "",
-    empSoi: "",
-    empSubdistrict: "",
-    empDistrict: "",
-    empProvince: "",
-    empZipCode: "",
-    birthday: "", // ✅ เพิ่มตรงนี้
+    // Step 1: บัญชีเข้าใช้
+    username: "", email: "", password: "",
+    // Step 2: ข้อมูลผู้ใช้ + ที่อยู่พนักงาน
+    fullName: "", phone: "", birthday: "",
+    empAddressNo: "", empMoo: "", empBuilding: "", empStreet: "", empSoi: "",
+    empSubdistrict: "", empDistrict: "", empProvince: "", empZipCode: "",
+    // Step 3: ข้อมูลบริษัท + ที่อยู่บริษัท
     companyName: "",
-    companyAddressNo: "",
-    companyMoo: "",
-    companyBuilding: "",
-    companyStreet: "",
-    companySoi: "",
-    companySubdistrict: "",
-    companyDistrict: "",
-    companyProvince: "",
-    companyZipCode: "",
-    companyPhone: "",
-    companyEmail: "",
-    companyDescription: "",
+    companyAddressNo: "", companyMoo: "", companyBuilding: "", companyStreet: "", companySoi: "",
+    companySubdistrict: "", companyDistrict: "", companyProvince: "", companyZipCode: "",
+    companyPhone: "", companyEmail: "", companyDescription: "",
   });
 
-  // --- State สำหรับ UI ---
-  const [currentStep, setCurrentStep] = useState(1);
-  const [thaiGeoData, setThaiGeoData] = useState([]);
+  // สเตตควบคุม UI และสถานะต่าง ๆ
+  const [currentStep, setCurrentStep] = useState(1);           // สเต็ปฟอร์มปัจจุบัน (1→2→3)
+  const [thaiGeoData, setThaiGeoData] = useState([]);          // ข้อมูลจังหวัด/อำเภอ/ตำบล
   const [isLoadingGeoData, setIsLoadingGeoData] = useState(true);
   const [geoDataError, setGeoDataError] = useState(null);
-  const [formError, setFormError] = useState(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [formError, setFormError] = useState(null);            // ข้อผิดพลาดการกรอกฟอร์ม
+  const [isSubmitting, setIsSubmitting] = useState(false);     // กำลังส่งข้อมูลสมัคร?
   const [showSuccessModal, setShowSuccessModal] = useState(false);
 
-  // --- States สำหรับ Dropdown Cascading ---
+  // state สำหรับ “รหัส” จังหวัด/อำเภอ/ตำบล (ใช้เลือก options แบบพึ่งพากัน)
   const [selectedEmpProvinceId, setSelectedEmpProvinceId] = useState("");
   const [selectedEmpDistrictId, setSelectedEmpDistrictId] = useState("");
   const [selectedEmpSubdistrictId, setSelectedEmpSubdistrictId] = useState("");
 
-  const [selectedCompanyProvinceId, setSelectedCompanyProvinceId] =
-    useState("");
-  const [selectedCompanyDistrictId, setSelectedCompanyDistrictId] =
-    useState("");
-  const [selectedCompanySubdistrictId, setSelectedCompanySubdistrictId] =
-    useState("");
+  const [selectedCompanyProvinceId, setSelectedCompanyProvinceId] = useState("");
+  const [selectedCompanyDistrictId, setSelectedCompanyDistrictId] = useState("");
+  const [selectedCompanySubdistrictId, setSelectedCompanySubdistrictId] = useState("");
 
-  // --- Options ---
-  const empProvinceOptions = useMemo(() => {
-    return thaiGeoData.map((p) => ({ id: String(p.id), name_th: p.name_th }));
-  }, [thaiGeoData]);
+  // สร้างรายการตัวเลือก (options) ด้วย useMemo เพื่อไม่คำนวณซ้ำเกินจำเป็น
+  const empProvinceOptions = useMemo(
+    () => thaiGeoData.map((p) => ({ id: String(p.id), name_th: p.name_th })),
+    [thaiGeoData]
+  );
 
   const empDistrictOptions = useMemo(() => {
     if (!selectedEmpProvinceId) return [];
-    const selectedProvince = thaiGeoData.find(
-      (p) => String(p.id) === String(selectedEmpProvinceId)
-    );
-    return (selectedProvince?.districts || []).map((a) => ({
-      id: String(a.id),
-      name_th: a.name_th,
-    }));
+    const selectedProvince = thaiGeoData.find((p) => String(p.id) === String(selectedEmpProvinceId));
+    return (selectedProvince?.districts || []).map((a) => ({ id: String(a.id), name_th: a.name_th }));
   }, [selectedEmpProvinceId, thaiGeoData]);
 
   const empSubdistrictOptions = useMemo(() => {
     if (!selectedEmpDistrictId) return [];
-    const selectedProvince = thaiGeoData.find(
-      (p) => String(p.id) === String(selectedEmpProvinceId)
-    );
-    const selectedDistrict = selectedProvince?.districts?.find(
-      (a) => String(a.id) === String(selectedEmpDistrictId)
-    );
-    return (selectedDistrict?.sub_districts || []).map((t) => ({
-      id: String(t.id),
-      name_th: t.name_th,
-      zip_code: t.zip_code,
-    }));
+    const selectedProvince = thaiGeoData.find((p) => String(p.id) === String(selectedEmpProvinceId));
+    const selectedDistrict = selectedProvince?.districts?.find((a) => String(a.id) === String(selectedEmpDistrictId));
+    return (selectedDistrict?.sub_districts || []).map((t) => ({ id: String(t.id), name_th: t.name_th, zip_code: t.zip_code }));
   }, [selectedEmpDistrictId, selectedEmpProvinceId, thaiGeoData]);
 
-  const companyProvinceOptions = useMemo(() => {
-    return thaiGeoData.map((p) => ({ id: String(p.id), name_th: p.name_th }));
-  }, [thaiGeoData]);
+  const companyProvinceOptions = useMemo(
+    () => thaiGeoData.map((p) => ({ id: String(p.id), name_th: p.name_th })),
+    [thaiGeoData]
+  );
 
   const companyDistrictOptions = useMemo(() => {
     if (!selectedCompanyProvinceId) return [];
-    const selectedProvince = thaiGeoData.find(
-      (p) => String(p.id) === String(selectedCompanyProvinceId)
-    );
-    return (selectedProvince?.districts || []).map((a) => ({
-      id: String(a.id),
-      name_th: a.name_th,
-    }));
+    const selectedProvince = thaiGeoData.find((p) => String(p.id) === String(selectedCompanyProvinceId));
+    return (selectedProvince?.districts || []).map((a) => ({ id: String(a.id), name_th: a.name_th }));
   }, [selectedCompanyProvinceId, thaiGeoData]);
 
   const companySubdistrictOptions = useMemo(() => {
     if (!selectedCompanyDistrictId) return [];
-    const selectedProvince = thaiGeoData.find(
-      (p) => String(p.id) === String(selectedCompanyProvinceId)
-    );
-    const selectedDistrict = selectedProvince?.districts?.find(
-      (a) => String(a.id) === String(selectedCompanyDistrictId)
-    );
-    return (selectedDistrict?.sub_districts || []).map((t) => ({
-      id: String(t.id),
-      name_th: t.name_th,
-      zip_code: t.zip_code,
-    }));
+    const selectedProvince = thaiGeoData.find((p) => String(p.id) === String(selectedCompanyProvinceId));
+    const selectedDistrict = selectedProvince?.districts?.find((a) => String(a.id) === String(selectedCompanyDistrictId));
+    return (selectedDistrict?.sub_districts || []).map((t) => ({ id: String(t.id), name_th: t.name_th, zip_code: t.zip_code }));
   }, [selectedCompanyDistrictId, selectedCompanyProvinceId, thaiGeoData]);
 
-  // --- โหลดข้อมูลจังหวัด/อำเภอ/ตำบล ---
+  // โหลดข้อมูลจังหวัด/อำเภอ/ตำบลจากไฟล์ JSON
   useEffect(() => {
     try {
-      setThaiGeoData(thaiGeoJson); 
+      setThaiGeoData(thaiGeoJson);
       setIsLoadingGeoData(false);
     } catch (error) {
       console.error("Error loading local JSON:", error);
@@ -141,147 +94,98 @@ function RegisterUserPage() {
     }
   }, []);
 
-  // --- Reset ID เมื่อ Options เปลี่ยน ---
+  //  รีเซ็ต id อำเภอ/ตำบล เมื่อ options เปลี่ยน (ฝั่งพนักงาน)
   useEffect(() => {
-    if (
-      selectedEmpDistrictId &&
-      !empDistrictOptions.some((d) => d.id === selectedEmpDistrictId)
-    ) {
+    // ถ้าอำเภอที่เคยเลือก ไม่อยู่ใน options ใหม่ → เคลียร์
+    if (selectedEmpDistrictId && !empDistrictOptions.some((d) => d.id === selectedEmpDistrictId)) {
       setSelectedEmpDistrictId("");
-      setFormData((prev) => ({
-        ...prev,
-        empDistrict: "",
-        empSubdistrict: "",
-        empZipCode: "",
-      }));
+      setFormData((prev) => ({ ...prev, empDistrict: "", empSubdistrict: "", empZipCode: "" }));
     }
-    if (
-      selectedEmpSubdistrictId &&
-      !empSubdistrictOptions.some((t) => t.id === selectedEmpSubdistrictId)
-    ) {
+    // ถ้าตำบลที่เคยเลือก ไม่อยู่ใน options ใหม่ → เคลียร์
+    if (selectedEmpSubdistrictId && !empSubdistrictOptions.some((t) => t.id === selectedEmpSubdistrictId)) {
       setSelectedEmpSubdistrictId("");
       setFormData((prev) => ({ ...prev, empSubdistrict: "", empZipCode: "" }));
     }
-  }, [
-    empDistrictOptions,
-    empSubdistrictOptions,
-    selectedEmpDistrictId,
-    selectedEmpSubdistrictId,
-  ]);
+  }, [empDistrictOptions, empSubdistrictOptions, selectedEmpDistrictId, selectedEmpSubdistrictId]);
 
+  // รีเซ็ต id อำเภอ/ตำบล เมื่อ options เปลี่ยน (ฝั่งบริษัท)
   useEffect(() => {
-    if (
-      selectedCompanyDistrictId &&
-      !companyDistrictOptions.some((d) => d.id === selectedCompanyDistrictId)
-    ) {
+    if (selectedCompanyDistrictId && !companyDistrictOptions.some((d) => d.id === selectedCompanyDistrictId)) {
       setSelectedCompanyDistrictId("");
-      setFormData((prev) => ({
-        ...prev,
-        companyDistrict: "",
-        companySubdistrict: "",
-        companyZipCode: "",
-      }));
+      setFormData((prev) => ({ ...prev, companyDistrict: "", companySubdistrict: "", companyZipCode: "" }));
     }
-    if (
-      selectedCompanySubdistrictId &&
-      !companySubdistrictOptions.some(
-        (t) => t.id === selectedCompanySubdistrictId
-      )
-    ) {
+    if (selectedCompanySubdistrictId && !companySubdistrictOptions.some((t) => t.id === selectedCompanySubdistrictId)) {
       setSelectedCompanySubdistrictId("");
-      setFormData((prev) => ({
-        ...prev,
-        companySubdistrict: "",
-        companyZipCode: "",
-      }));
+      setFormData((prev) => ({ ...prev, companySubdistrict: "", companyZipCode: "" }));
     }
-  }, [
-    companyDistrictOptions,
-    companySubdistrictOptions,
-    selectedCompanyDistrictId,
-    selectedCompanySubdistrictId,
-  ]);
+  }, [companyDistrictOptions, companySubdistrictOptions, selectedCompanyDistrictId, selectedCompanySubdistrictId]);
 
-  // --- Handlers ---
+  // เปลี่ยนค่าฟิลด์ทั่วไป (ผูกกับ name)
   const handleChange = useCallback((e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   }, []);
 
+  // เปลี่ยนจังหวัด/อำเภอ/ตำบล (ฝั่งพนักงาน) → อัปเดตทั้ง id ที่เลือก และชื่อจริงใน formData
   const handleEmpAddressSelectChange = (e) => {
     const { name, value } = e.target;
+
     if (name === "empProvince") {
       setSelectedEmpProvinceId(String(value));
-      const selectedProvince = empProvinceOptions.find(
-        (p) => p.id === String(value)
-      );
+      const selectedProvince = empProvinceOptions.find((p) => p.id === String(value));
       setFormData((prev) => ({
         ...prev,
-        empProvince: selectedProvince?.name_th || "",
-        empDistrict: "",
-        empSubdistrict: "",
-        empZipCode: "",
+        empProvince: selectedProvince?.name_th || "", // เก็บ “ชื่อจังหวัด” ไว้ส่งให้ backend
+        empDistrict: "", empSubdistrict: "", empZipCode: "",
       }));
-      setSelectedEmpDistrictId("");
+      setSelectedEmpDistrictId("");  // reset chain
       setSelectedEmpSubdistrictId("");
     } else if (name === "empDistrict") {
       setSelectedEmpDistrictId(String(value));
-      const selectedDistrict = empDistrictOptions.find(
-        (d) => d.id === String(value)
-      );
+      const selectedDistrict = empDistrictOptions.find((d) => d.id === String(value));
       setFormData((prev) => ({
         ...prev,
         empDistrict: selectedDistrict?.name_th || "",
-        empSubdistrict: "",
-        empZipCode: "",
+        empSubdistrict: "", empZipCode: "",
       }));
       setSelectedEmpSubdistrictId("");
     } else if (name === "empSubdistrict") {
       setSelectedEmpSubdistrictId(String(value));
-      const selectedSubdistrictObj = empSubdistrictOptions.find(
-        (t) => t.id === String(value)
-      );
+      const selectedSubdistrictObj = empSubdistrictOptions.find((t) => t.id === String(value));
       setFormData((prev) => ({
         ...prev,
         empSubdistrict: selectedSubdistrictObj?.name_th || "",
-        empZipCode: selectedSubdistrictObj?.zip_code || "",
+        empZipCode: selectedSubdistrictObj?.zip_code || "", // zip auto-fill
       }));
     }
   };
 
+  // เปลี่ยนจังหวัด/อำเภอ/ตำบล (ฝั่งบริษัท)
   const handleCompanyAddressSelectChange = (e) => {
     const { name, value } = e.target;
+
     if (name === "companyProvince") {
       setSelectedCompanyProvinceId(String(value));
-      const selectedProvince = companyProvinceOptions.find(
-        (p) => p.id === String(value)
-      );
+      const selectedProvince = companyProvinceOptions.find((p) => p.id === String(value));
       setFormData((prev) => ({
         ...prev,
         companyProvince: selectedProvince?.name_th || "",
-        companyDistrict: "",
-        companySubdistrict: "",
-        companyZipCode: "",
+        companyDistrict: "", companySubdistrict: "", companyZipCode: "",
       }));
       setSelectedCompanyDistrictId("");
       setSelectedCompanySubdistrictId("");
     } else if (name === "companyDistrict") {
       setSelectedCompanyDistrictId(String(value));
-      const selectedDistrict = companyDistrictOptions.find(
-        (d) => d.id === String(value)
-      );
+      const selectedDistrict = companyDistrictOptions.find((d) => d.id === String(value));
       setFormData((prev) => ({
         ...prev,
         companyDistrict: selectedDistrict?.name_th || "",
-        companySubdistrict: "",
-        companyZipCode: "",
+        companySubdistrict: "", companyZipCode: "",
       }));
       setSelectedCompanySubdistrictId("");
     } else if (name === "companySubdistrict") {
       setSelectedCompanySubdistrictId(String(value));
-      const selectedSubdistrictObj = companySubdistrictOptions.find(
-        (t) => t.id === String(value)
-      );
+      const selectedSubdistrictObj = companySubdistrictOptions.find((t) => t.id === String(value));
       setFormData((prev) => ({
         ...prev,
         companySubdistrict: selectedSubdistrictObj?.name_th || "",
@@ -289,6 +193,8 @@ function RegisterUserPage() {
       }));
     }
   };
+
+  // ไปสเต็ปถัดไป (ตรวจความครบถ้วนขั้นต่ำของแต่ละสเต็ป)
   const handleNextStep = useCallback(() => {
     setFormError(null);
     let isValid = true;
@@ -299,136 +205,76 @@ function RegisterUserPage() {
         setFormError("กรุณากรอก Username, Email และ Password ให้ครบถ้วน");
       }
     } else if (currentStep === 2) {
-      if (
-        !formData.fullName ||
-        !formData.phone ||
-        !formData.birthday ||
-        !formData.empAddressNo ||
-        !formData.empSubdistrict ||
-        !formData.empDistrict ||
-        !formData.empProvince ||
-        !formData.empZipCode
-      ) {
+      if (!formData.fullName || !formData.phone || !formData.birthday ||
+          !formData.empAddressNo || !formData.empSubdistrict ||
+          !formData.empDistrict || !formData.empProvince || !formData.empZipCode) {
         isValid = false;
-        setFormError(
-          "กรุณากรอกข้อมูลชื่อ, เบอร์โทร, วันเกิด และที่อยู่ของพนักงานให้ครบถ้วน"
-        );
+        setFormError("กรุณากรอกข้อมูลชื่อ, เบอร์โทร, วันเกิด และที่อยู่ของพนักงานให้ครบถ้วน");
       }
     }
 
     if (isValid) setCurrentStep((prev) => prev + 1);
   }, [currentStep, formData]);
 
+  // ย้อนกลับสเต็ป
   const handlePreviousStep = useCallback(() => {
     setFormError(null);
     setCurrentStep((prev) => prev - 1);
   }, []);
 
+  // ส่งฟอร์ม (สเต็ปที่ 3)
   const handleSubmit = async (e) => {
     e.preventDefault();
     setFormError(null);
     setIsSubmitting(true);
 
-    if (
-      !formData.companyName ||
-      !formData.companySubdistrict ||
-      !formData.companyDistrict ||
-      !formData.companyProvince ||
-      !formData.companyZipCode ||
-      !formData.fullName ||
-      !formData.phone ||
-      !formData.empAddressNo ||
-      !formData.empSubdistrict ||
-      !formData.empDistrict ||
-      !formData.empProvince ||
-      !formData.empZipCode ||
-      !formData.username ||
-      !formData.email ||
-      !formData.password
-    ) {
+    //  เช็กความครบก่อนส่ง
+    if (!formData.companyName ||
+        !formData.companySubdistrict || !formData.companyDistrict || !formData.companyProvince || !formData.companyZipCode ||
+        !formData.fullName || !formData.phone ||
+        !formData.empAddressNo || !formData.empSubdistrict || !formData.empDistrict || !formData.empProvince || !formData.empZipCode ||
+        !formData.username || !formData.email || !formData.password) {
       setFormError("กรุณากรอกข้อมูลให้ครบถ้วนทุกช่อง");
       setIsSubmitting(false);
       return;
     }
 
     try {
-      const emp_address_string = [
-        formData.empAddressNo,
-        formData.empMoo ? `หมู่ ${formData.empMoo}` : "",
-        formData.empBuilding,
-        formData.empStreet,
-        formData.empSoi,
-        formData.empSubdistrict,
-        formData.empDistrict,
-        formData.empProvince,
-        formData.empZipCode,
-      ]
-        .filter(Boolean)
-        .join(" ");
-
+      // สร้าง payload สำหรับสมัคร (รวมข้อมูล User + Company)
       const combinedPayload = {
-        username: formData.username,
-        email: formData.email,
-        password: formData.password,
-        fullName: formData.fullName,
-        phone: formData.phone,
-        birthday: formData.birthday,
-        empAddressNo: formData.empAddressNo,
-        empMoo: formData.empMoo,
-        empBuilding: formData.empBuilding,
-        empStreet: formData.empStreet,
-        empSoi: formData.empSoi,
-        empSubdistrict: formData.empSubdistrict,
-        empDistrict: formData.empDistrict,
-        empProvince: formData.empProvince,
-        empZipCode: formData.empZipCode,
-
+        // user account
+        username: formData.username, email: formData.email, password: formData.password,
+        // user profile
+        fullName: formData.fullName, phone: formData.phone, birthday: formData.birthday,
+        // user address
+        empAddressNo: formData.empAddressNo, empMoo: formData.empMoo, empBuilding: formData.empBuilding,
+        empStreet: formData.empStreet, empSoi: formData.empSoi, empSubdistrict: formData.empSubdistrict,
+        empDistrict: formData.empDistrict, empProvince: formData.empProvince, empZipCode: formData.empZipCode,
+        // company
         companyName: formData.companyName,
-        companyAddressNo: formData.companyAddressNo,
-        companyMoo: formData.companyMoo,
-        companyBuilding: formData.companyBuilding,
-        companyStreet: formData.companyStreet,
-        companySoi: formData.companySoi,
-        companySubdistrict: formData.companySubdistrict,
-        companyDistrict: formData.companyDistrict,
-        companyProvince: formData.companyProvince,
-        companyZipCode: formData.companyZipCode,
-        companyPhone: formData.companyPhone,
-        companyEmail: formData.companyEmail,
-        companyDescription: formData.companyDescription,
+        companyAddressNo: formData.companyAddressNo, companyMoo: formData.companyMoo,
+        companyBuilding: formData.companyBuilding, companyStreet: formData.companyStreet, companySoi: formData.companySoi,
+        companySubdistrict: formData.companySubdistrict, companyDistrict: formData.companyDistrict,
+        companyProvince: formData.companyProvince, companyZipCode: formData.companyZipCode,
+        companyPhone: formData.companyPhone, companyEmail: formData.companyEmail, companyDescription: formData.companyDescription,
       };
 
-      console.log(
-        "Sending combined public registration payload:",
-        combinedPayload
-      );
-      const response = await api.post(
-        "/auth/public-register-company-admin",
-        combinedPayload
-      );
+      // ส่งไปยัง API สมัครแบบ public (สร้าง admin บริษัท)
+      const response = await api.post("/auth/public-register-company-admin", combinedPayload);
 
-      console.log("Registration successful:", response.data);
+      // สำเร็จ → เปิด modal + นำทางไป login ใน 2 วิ
       setFormError(null);
       setShowSuccessModal(true);
-      setTimeout(() => {
-        navigate("/login");
-      }, 2000);
+      setTimeout(() => navigate("/login"), 2000);
     } catch (err) {
-      console.error(
-        "Registration failed:",
-        err.response?.data || err.message || err
-      );
-      setFormError(
-        err.response?.data?.message ||
-          err.message ||
-          "เกิดข้อผิดพลาดในการสมัคร กรุณาลองอีกครั้ง"
-      );
+      // แสดงข้อความผิดพลาดที่อ่านง่าย
+      setFormError(err.response?.data?.message || err.message || "เกิดข้อผิดพลาดในการสมัคร กรุณาลองอีกครั้ง");
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  // --- UI Loading / Error ---
+  // UI: โหลดข้อมูลจังหวัดอยู่
   if (isLoadingGeoData) {
     return (
       <div className="text-center mt-5">
@@ -440,6 +286,7 @@ function RegisterUserPage() {
     );
   }
 
+  // UI: โหลดข้อมูลจังหวัดล้มเหลว
   if (geoDataError) {
     return (
       <Alert variant="danger" className="m-4 text-center">
@@ -451,314 +298,150 @@ function RegisterUserPage() {
 
   return (
     <>
+      {/* สไตล์เฉพาะหน้า (inline style block) */}
       <style>{`
-                :root{
-                    --ws-primary:#1E56A0;
-                    --ws-accent:#3E8DCF;
-                    --ws-text:#333333;
-                    --ws-muted:#6c757d;
-                    --ws-shadow:0 10px 30px rgba(0,0,0,0.08);
-                    --ws-shadow-lg:0 15px 40px rgba(0,0,0,0.12);
-                    --ws-radius-lg:0.75rem;
-                    --ws-radius-md:0.5rem;
-                }
-                body{font-family:'Noto Sans Thai', sans-serif}
-                .ws-navbar{background-color:#212529}
-                .ws-hero{
-                    background:linear-gradient(90deg,var(--ws-primary),var(--ws-accent));
-                    color:#fff; padding:4.5rem 0 3.5rem; text-align:center;
-                }
-                .ws-hero .title{font-size:2.2rem; font-weight:700; text-shadow:2px 2px 4px rgba(0,0,0,.25)}
-                .ws-hero .subtitle{opacity:.95; max-width:920px; margin:0.75rem auto 0}
-                .ws-card{
-                    border:none; border-radius:var(--ws-radius-lg);
-                    box-shadow:var(--ws-shadow);
-                }
-                .ws-card .card-title{font-weight:700; color:var(--ws-primary)}
-                .ws-btn{
-                    border-radius:999px; padding:.65rem 1.25rem; font-weight:600;
-                    transition:transform .15s ease, box-shadow .15s ease;
-                }
-                .ws-btn:hover{transform:translateY(-1px); box-shadow:0 8px 22px rgba(0,0,0,.12)}
-                .ws-btn-primary{background:#007bff; border-color:#007bff}
-                .ws-btn-primary:hover{background:#0056b3; border-color:#0056b3}
-                .ws-btn-outline{border:2px solid var(--ws-primary); color:var(--ws-primary); background:transparent}
-                .ws-btn-outline:hover{background:var(--ws-primary); color:#fff}
-                .ws-stepper{
-                    display:flex; gap:.75rem; justify-content:center; align-items:center; margin:-2.25rem auto 2rem;
-                    position:relative; z-index:2;
-                }
-                .ws-step{
-                    display:flex; align-items:center; gap:.5rem;
-                    background:#fff; color:var(--ws-text);
-                    padding:.5rem .85rem; border-radius:999px; box-shadow:var(--ws-shadow);
-                    font-weight:600; font-size:.95rem;
-                }
-                .ws-step.active{
-                    background:var(--ws-primary);
-                    color:#fff;
-                    border: 2px solid #fff; /* เพิ่มขอบสีขาวที่นี่ */
-                }
-                .ws-section{padding:2rem 0 3rem}
-                .form-label-custom{font-weight:600}
-                .row-custom{margin-bottom:1rem}
-                .ws-required::after{content:" *"; color:#dc3545}
-                @media(max-width:768px){
-                    .ws-hero{padding:3.5rem 0 2.5rem}
-                    .ws-hero .title{font-size:1.85rem}
-                }
-            `}</style>
+        :root{
+          --ws-primary:#1E56A0; --ws-accent:#3E8DCF; --ws-text:#333333;
+          --ws-muted:#6c757d; --ws-shadow:0 10px 30px rgba(0,0,0,0.08);
+          --ws-shadow-lg:0 15px 40px rgba(0,0,0,0.12);
+          --ws-radius-lg:0.75rem; --ws-radius-md:0.5rem;
+        }
+        body{font-family:'Noto Sans Thai', sans-serif}
+        .ws-navbar{background-color:#212529}
+        .ws-hero{background:linear-gradient(90deg,var(--ws-primary),var(--ws-accent)); color:#fff; padding:4.5rem 0 3.5rem; text-align:center;}
+        .ws-hero .title{font-size:2.2rem; font-weight:700; text-shadow:2px 2px 4px rgba(0,0,0,.25)}
+        .ws-hero .subtitle{opacity:.95; max-width:920px; margin:0.75rem auto 0}
+        .ws-card{border:none; border-radius:var(--ws-radius-lg); box-shadow:var(--ws-shadow);}
+        .ws-card .card-title{font-weight:700; color:var(--ws-primary)}
+        .ws-btn{border-radius:999px; padding:.65rem 1.25rem; font-weight:600; transition:transform .15s ease, box-shadow .15s ease;}
+        .ws-btn:hover{transform:translateY(-1px); box-shadow:0 8px 22px rgba(0,0,0,.12)}
+        .ws-btn-primary{background:#007bff; border-color:#007bff}
+        .ws-btn-primary:hover{background:#0056b3; border-color:#0056b3}
+        .ws-btn-outline{border:2px solid var(--ws-primary); color:var(--ws-primary); background:transparent}
+        .ws-btn-outline:hover{background:var(--ws-primary); color:#fff}
+        .ws-stepper{display:flex; gap:.75rem; justify-content:center; align-items:center; margin:-2.25rem auto 2rem; position:relative; z-index:2;}
+        .ws-step{display:flex; align-items:center; gap:.5rem; background:#fff; color:var(--ws-text); padding:.5rem .85rem; border-radius:999px; box-shadow:var(--ws-shadow); font-weight:600; font-size:.95rem;}
+        .ws-step.active{background:var(--ws-primary); color:#fff; border: 2px solid #fff;}
+        .ws-section{padding:2rem 0 3rem}
+        .form-label-custom{font-weight:600}
+        .row-custom{margin-bottom:1rem}
+        .ws-required::after{content:" *"; color:#dc3545}
+        @media(max-width:768px){
+          .ws-hero{padding:3.5rem 0 2.5rem}
+          .ws-hero .title{font-size:1.85rem}
+        }
+      `}</style>
 
-      {/* Navbar */}
+      {/* Navbar ส่วนบน */}
       <nav className="navbar navbar-expand-lg navbar-dark ws-navbar sticky-top">
         <div className="container">
-          <NavLink className="navbar-brand" to="/" aria-label="WorkSter Home">
-            WorkSter
-          </NavLink>
-          <button
-            className="navbar-toggler"
-            type="button"
-            data-bs-toggle="collapse"
-            data-bs-target="#regNav"
-            aria-controls="regNav"
-            aria-expanded="false"
-            aria-label="Toggle navigation"
-          >
+          <NavLink className="navbar-brand" to="/" aria-label="WorkSter Home">WorkSter</NavLink>
+          <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#regNav" aria-controls="regNav" aria-expanded="false" aria-label="Toggle navigation">
             <span className="navbar-toggler-icon"></span>
           </button>
           <div id="regNav" className="collapse navbar-collapse">
             <ul className="navbar-nav ms-auto align-items-lg-center">
               <li className="nav-item me-lg-2">
-                <NavLink to="/login" className="btn btn-outline-light ws-btn">
-                  เข้าสู่ระบบ
-                </NavLink>
+                <NavLink to="/login" className="btn btn-outline-light ws-btn">เข้าสู่ระบบ</NavLink>
               </li>
             </ul>
           </div>
         </div>
       </nav>
 
-      {/* Hero */}
+      {/* Hero ส่วนหัว */}
       <section className="ws-hero">
         <div className="container">
           <h1 className="title">สมัครบัญชีผู้ใช้ / บริษัท</h1>
-          <p className="subtitle">
-            สร้างบัญชีผู้ดูแลระบบบริษัทของคุณ เพื่อเริ่มใช้งาน WorkSter — ระบบ
-            HRM ครบวงจร
-          </p>
+          <p className="subtitle">สร้างบัญชีผู้ดูแลระบบบริษัทของคุณ เพื่อเริ่มใช้งาน WorkSter — ระบบ HRM ครบวงจร</p>
         </div>
       </section>
 
-      {/* Stepper */}
+      {/*Stepper แสดงขั้นตอน */}
       <div className="ws-stepper container">
-        <div className={`ws-step ${currentStep === 1 ? "active" : ""}`}>
-          <span>1</span>
-          <span>บัญชีเข้าใช้</span>
-        </div>
-        <div className={`ws-step ${currentStep === 2 ? "active" : ""}`}>
-          <span>2</span>
-          <span>ข้อมูลผู้ใช้</span>
-        </div>
-        <div className={`ws-step ${currentStep === 3 ? "active" : ""}`}>
-          <span>3</span>
-          <span>ข้อมูลบริษัท</span>
-        </div>
+        <div className={`ws-step ${currentStep === 1 ? "active" : ""}`}><span>1</span><span>บัญชีเข้าใช้</span></div>
+        <div className={`ws-step ${currentStep === 2 ? "active" : ""}`}><span>2</span><span>ข้อมูลผู้ใช้</span></div>
+        <div className={`ws-step ${currentStep === 3 ? "active" : ""}`}><span>3</span><span>ข้อมูลบริษัท</span></div>
       </div>
 
-      {/* Section */}
+      {/* โซนฟอร์มหลัก (3 สเต็ป) */}
       <section className="ws-section">
         <div className="container">
           <div className="row justify-content-center">
             <div className="col-lg-8 col-xl-7">
+
+              {/* แจ้งเตือน error การกรอก */}
               {formError && (
                 <Alert variant="danger" className="mb-3">
-                  <FontAwesomeIcon
-                    icon={faExclamationTriangle}
-                    className="me-2"
-                  />
+                  <FontAwesomeIcon icon={faExclamationTriangle} className="me-2" />
                   {formError}
                 </Alert>
               )}
 
+              {/* STEP 1: บัญชีเข้าใช้ */}
               {currentStep === 1 && (
                 <div className="card ws-card p-3 p-md-4">
-                  <h5 className="card-title mb-3">
-                    ขั้นตอนที่ 1: ข้อมูลการเข้าใช้งานระบบ
-                  </h5>
+                  <h5 className="card-title mb-3">ขั้นตอนที่ 1: ข้อมูลการเข้าใช้งานระบบ</h5>
                   <Form>
                     <Form.Group className="row-custom">
-                      <Form.Label
-                        htmlFor="username"
-                        className="form-label-custom ws-required"
-                      >
-                        Username
-                      </Form.Label>
-                      <Form.Control
-                        type="text"
-                        id="username"
-                        name="username"
-                        value={formData.username}
-                        onChange={handleChange}
-                        required
-                      />
+                      <Form.Label htmlFor="username" className="form-label-custom ws-required">Username</Form.Label>
+                      <Form.Control type="text" id="username" name="username" value={formData.username} onChange={handleChange} required />
                     </Form.Group>
                     <Form.Group className="row-custom">
-                      <Form.Label
-                        htmlFor="email"
-                        className="form-label-custom ws-required"
-                      >
-                        Email
-                      </Form.Label>
-                      <Form.Control
-                        type="email"
-                        id="email"
-                        name="email"
-                        value={formData.email}
-                        onChange={handleChange}
-                        required
-                      />
+                      <Form.Label htmlFor="email" className="form-label-custom ws-required">Email</Form.Label>
+                      <Form.Control type="email" id="email" name="email" value={formData.email} onChange={handleChange} required />
                     </Form.Group>
                     <Form.Group className="row-custom">
-                      <Form.Label
-                        htmlFor="password"
-                        className="form-label-custom ws-required"
-                      >
-                        Password
-                      </Form.Label>
-                      <Form.Control
-                        type="password"
-                        id="password"
-                        name="password"
-                        value={formData.password}
-                        onChange={handleChange}
-                        required
-                      />
+                      <Form.Label htmlFor="password" className="form-label-custom ws-required">Password</Form.Label>
+                      <Form.Control type="password" id="password" name="password" value={formData.password} onChange={handleChange} required />
                     </Form.Group>
                     <div className="d-flex justify-content-end mt-3">
-                      <Button
-                        variant="primary"
-                        className="ws-btn ws-btn-primary px-4 py-2"
-                        onClick={handleNextStep}
-                      >
-                        ถัดไป
-                      </Button>
+                      <Button variant="primary" className="ws-btn ws-btn-primary px-4 py-2" onClick={handleNextStep}>ถัดไป</Button>
                     </div>
                   </Form>
                 </div>
               )}
 
+              {/* STEP 2: ข้อมูลผู้ใช้ + ที่อยู่พนักงาน */}
               {currentStep === 2 && (
                 <div className="card ws-card p-3 p-md-4">
-                  <h5 className="card-title mb-3">
-                    ขั้นตอนที่ 2: ข้อมูลผู้ใช้
-                  </h5>
+                  <h5 className="card-title mb-3">ขั้นตอนที่ 2: ข้อมูลผู้ใช้</h5>
                   <Form>
+                    {/* ข้อมูลพื้นฐาน */}
                     <Form.Group className="row-custom">
-                      <Form.Label
-                        htmlFor="fullName"
-                        className="form-label-custom ws-required"
-                      >
-                        ชื่อ - นามสกุล
-                      </Form.Label>
-                      <Form.Control
-                        type="text"
-                        id="fullName"
-                        name="fullName"
-                        value={formData.fullName}
-                        onChange={handleChange}
-                        required
-                      />
+                      <Form.Label htmlFor="fullName" className="form-label-custom ws-required">ชื่อ - นามสกุล</Form.Label>
+                      <Form.Control type="text" id="fullName" name="fullName" value={formData.fullName} onChange={handleChange} required />
                     </Form.Group>
                     <Form.Group className="row-custom">
-                      <Form.Label
-                        htmlFor="phone"
-                        className="form-label-custom ws-required"
-                      >
-                        เบอร์โทร
-                      </Form.Label>
-                      <Form.Control
-                        type="tel"
-                        id="phone"
-                        name="phone"
-                        value={formData.phone}
-                        onChange={handleChange}
-                        required
-                      />
+                      <Form.Label htmlFor="phone" className="form-label-custom ws-required">เบอร์โทร</Form.Label>
+                      <Form.Control type="tel" id="phone" name="phone" value={formData.phone} onChange={handleChange} required />
                     </Form.Group>
                     <Form.Group className="row-custom">
-                      <Form.Label
-                        htmlFor="birthday"
-                        className="form-label-custom ws-required"
-                      >
-                        วันเกิด
-                      </Form.Label>
-                      <Form.Control
-                        type="date"
-                        id="birthday"
-                        name="birthday"
-                        value={formData.birthday}
-                        onChange={handleChange}
-                        required
-                      />
+                      <Form.Label htmlFor="birthday" className="form-label-custom ws-required">วันเกิด</Form.Label>
+                      <Form.Control type="date" id="birthday" name="birthday" value={formData.birthday} onChange={handleChange} required />
                     </Form.Group>
 
+                    {/* ที่อยู่พนักงาน */}
                     <hr className="my-3" />
-                    <h6
-                      className="mb-3"
-                      style={{ color: "var(--ws-primary)", fontWeight: 700 }}
-                    >
-                      ข้อมูลที่อยู่
-                    </h6>
+                    <h6 className="mb-3" style={{ color: "var(--ws-primary)", fontWeight: 700 }}>ข้อมูลที่อยู่</h6>
 
                     <Form.Group className="row-custom">
-                      <Form.Label
-                        htmlFor="empAddressNo"
-                        className="form-label-custom ws-required"
-                      >
-                        เลขที่
-                      </Form.Label>
-                      <Form.Control
-                        type="text"
-                        id="empAddressNo"
-                        name="empAddressNo"
-                        value={formData.empAddressNo}
-                        onChange={handleChange}
-                        required
-                      />
+                      <Form.Label htmlFor="empAddressNo" className="form-label-custom ws-required">เลขที่</Form.Label>
+                      <Form.Control type="text" id="empAddressNo" name="empAddressNo" value={formData.empAddressNo} onChange={handleChange} required />
                     </Form.Group>
+
+                    {/* รายละเอียดซอย/ถนน/อาคาร */}
                     <div className="row g-3">
                       <div className="col-md-4">
                         <Form.Group className="row-custom">
-                          <Form.Label
-                            htmlFor="empMoo"
-                            className="form-label-custom"
-                          >
-                            หมู่
-                          </Form.Label>
-                          <Form.Control
-                            type="text"
-                            id="empMoo"
-                            name="empMoo"
-                            value={formData.empMoo}
-                            onChange={handleChange}
-                          />
+                          <Form.Label htmlFor="empMoo" className="form-label-custom">หมู่</Form.Label>
+                          <Form.Control type="text" id="empMoo" name="empMoo" value={formData.empMoo} onChange={handleChange} />
                         </Form.Group>
                       </div>
                       <div className="col-md-8">
                         <Form.Group className="row-custom">
-                          <Form.Label
-                            htmlFor="empBuilding"
-                            className="form-label-custom"
-                          >
-                            อาคาร/หมู่บ้าน
-                          </Form.Label>
-                          <Form.Control
-                            type="text"
-                            id="empBuilding"
-                            name="empBuilding"
-                            value={formData.empBuilding}
-                            onChange={handleChange}
-                          />
+                          <Form.Label htmlFor="empBuilding" className="form-label-custom">อาคาร/หมู่บ้าน</Form.Label>
+                          <Form.Control type="text" id="empBuilding" name="empBuilding" value={formData.empBuilding} onChange={handleChange} />
                         </Form.Group>
                       </div>
                     </div>
@@ -766,228 +449,91 @@ function RegisterUserPage() {
                     <div className="row g-3">
                       <div className="col-md-6">
                         <Form.Group className="row-custom">
-                          <Form.Label
-                            htmlFor="empStreet"
-                            className="form-label-custom"
-                          >
-                            ถนน
-                          </Form.Label>
-                          <Form.Control
-                            type="text"
-                            id="empStreet"
-                            name="empStreet"
-                            value={formData.empStreet}
-                            onChange={handleChange}
-                          />
+                          <Form.Label htmlFor="empStreet" className="form-label-custom">ถนน</Form.Label>
+                          <Form.Control type="text" id="empStreet" name="empStreet" value={formData.empStreet} onChange={handleChange} />
                         </Form.Group>
                       </div>
                       <div className="col-md-6">
                         <Form.Group className="row-custom">
-                          <Form.Label
-                            htmlFor="empSoi"
-                            className="form-label-custom"
-                          >
-                            ซอย
-                          </Form.Label>
-                          <Form.Control
-                            type="text"
-                            id="empSoi"
-                            name="empSoi"
-                            value={formData.empSoi}
-                            onChange={handleChange}
-                          />
+                          <Form.Label htmlFor="empSoi" className="form-label-custom">ซอย</Form.Label>
+                          <Form.Control type="text" id="empSoi" name="empSoi" value={formData.empSoi} onChange={handleChange} />
                         </Form.Group>
                       </div>
                     </div>
 
+                    {/* จังหวัด → อำเภอ → ตำบล (Cascading) */}
                     <div className="row g-3">
                       <div className="col-md-4">
                         <Form.Group className="row-custom">
-                          <Form.Label
-                            htmlFor="empProvince"
-                            className="form-label-custom ws-required"
-                          >
-                            จังหวัด
-                          </Form.Label>
-                          <Form.Select
-                            id="empProvince"
-                            name="empProvince"
-                            value={selectedEmpProvinceId}
-                            onChange={handleEmpAddressSelectChange}
-                            required
-                          >
+                          <Form.Label htmlFor="empProvince" className="form-label-custom ws-required">จังหวัด</Form.Label>
+                          <Form.Select id="empProvince" name="empProvince" value={selectedEmpProvinceId} onChange={handleEmpAddressSelectChange} required>
                             <option value="">เลือกจังหวัด</option>
-                            {empProvinceOptions.map((p) => (
-                              <option key={p.id} value={String(p.id)}>
-                                {p.name_th}
-                              </option>
-                            ))}
+                            {empProvinceOptions.map((p) => <option key={p.id} value={String(p.id)}>{p.name_th}</option>)}
                           </Form.Select>
                         </Form.Group>
                       </div>
                       <div className="col-md-4">
                         <Form.Group className="row-custom">
-                          <Form.Label
-                            htmlFor="empDistrict"
-                            className="form-label-custom ws-required"
-                          >
-                            อำเภอ/เขต
-                          </Form.Label>
-                          <Form.Select
-                            key={selectedEmpProvinceId}
-                            id="empDistrict"
-                            name="empDistrict"
-                            value={selectedEmpDistrictId}
-                            onChange={handleEmpAddressSelectChange}
-                            required
-                            disabled={!selectedEmpProvinceId}
-                          >
+                          <Form.Label htmlFor="empDistrict" className="form-label-custom ws-required">อำเภอ/เขต</Form.Label>
+                          <Form.Select key={selectedEmpProvinceId} id="empDistrict" name="empDistrict" value={selectedEmpDistrictId} onChange={handleEmpAddressSelectChange} required disabled={!selectedEmpProvinceId}>
                             <option value="">เลือกอำเภอ/เขต</option>
-                            {empDistrictOptions.map((d) => (
-                              <option key={d.id} value={String(d.id)}>
-                                {d.name_th}
-                              </option>
-                            ))}
+                            {empDistrictOptions.map((d) => <option key={d.id} value={String(d.id)}>{d.name_th}</option>)}
                           </Form.Select>
                         </Form.Group>
                       </div>
                       <div className="col-md-4">
                         <Form.Group className="row-custom">
-                          <Form.Label
-                            htmlFor="empSubdistrict"
-                            className="form-label-custom ws-required"
-                          >
-                            ตำบล/แขวง
-                          </Form.Label>
-                          <Form.Select
-                            key={selectedEmpDistrictId}
-                            id="empSubdistrict"
-                            name="empSubdistrict"
-                            value={selectedEmpSubdistrictId}
-                            onChange={handleEmpAddressSelectChange}
-                            required
-                            disabled={!selectedEmpDistrictId}
-                          >
+                          <Form.Label htmlFor="empSubdistrict" className="form-label-custom ws-required">ตำบล/แขวง</Form.Label>
+                          <Form.Select key={selectedEmpDistrictId} id="empSubdistrict" name="empSubdistrict" value={selectedEmpSubdistrictId} onChange={handleEmpAddressSelectChange} required disabled={!selectedEmpDistrictId}>
                             <option value="">เลือกตำบล/แขวง</option>
-                            {empSubdistrictOptions.map((t) => (
-                              <option key={t.id} value={String(t.id)}>
-                                {t.name_th}
-                              </option>
-                            ))}
+                            {empSubdistrictOptions.map((t) => <option key={t.id} value={String(t.id)}>{t.name_th}</option>)}
                           </Form.Select>
                         </Form.Group>
                       </div>
                     </div>
 
+                    {/* Zip Code (อ่านอย่างเดียว, auto-fill จากตำบล) */}
                     <Form.Group className="row-custom">
-                      <Form.Label
-                        htmlFor="empZipCode"
-                        className="form-label-custom ws-required"
-                      >
-                        รหัสไปรษณีย์
-                      </Form.Label>
-                      <Form.Control
-                        type="text"
-                        id="empZipCode"
-                        name="empZipCode"
-                        value={formData.empZipCode}
-                        readOnly
-                      />
+                      <Form.Label htmlFor="empZipCode" className="form-label-custom ws-required">รหัสไปรษณีย์</Form.Label>
+                      <Form.Control type="text" id="empZipCode" name="empZipCode" value={formData.empZipCode} readOnly />
                     </Form.Group>
 
                     <div className="d-flex justify-content-between mt-3">
-                      <Button
-                        variant="light"
-                        className="ws-btn ws-btn-outline border-0"
-                        onClick={handlePreviousStep}
-                      >
-                        ย้อนกลับ
-                      </Button>
-                      <Button
-                        variant="primary"
-                        className="ws-btn ws-btn-primary px-4 py-2"
-                        onClick={handleNextStep}
-                      >
-                        ถัดไป
-                      </Button>
+                      <Button variant="light" className="ws-btn ws-btn-outline border-0" onClick={handlePreviousStep}>ย้อนกลับ</Button>
+                      <Button variant="primary" className="ws-btn ws-btn-primary px-4 py-2" onClick={handleNextStep}>ถัดไป</Button>
                     </div>
                   </Form>
                 </div>
               )}
 
+              {/* STEP 3: ข้อมูลบริษัท + ที่อยู่บริษัท */}
               {currentStep === 3 && (
                 <div className="card ws-card p-3 p-md-4">
-                  <h5 className="card-title mb-3">
-                    ขั้นตอนที่ 3: ข้อมูลบริษัท
-                  </h5>
+                  <h5 className="card-title mb-3">ขั้นตอนที่ 3: ข้อมูลบริษัท</h5>
                   <Form onSubmit={handleSubmit}>
                     <Form.Group className="row-custom">
-                      <Form.Label
-                        htmlFor="companyName"
-                        className="form-label-custom ws-required"
-                      >
-                        ชื่อบริษัท
-                      </Form.Label>
-                      <Form.Control
-                        type="text"
-                        id="companyName"
-                        name="companyName"
-                        value={formData.companyName}
-                        onChange={handleChange}
-                        required
-                      />
+                      <Form.Label htmlFor="companyName" className="form-label-custom ws-required">ชื่อบริษัท</Form.Label>
+                      <Form.Control type="text" id="companyName" name="companyName" value={formData.companyName} onChange={handleChange} required />
                     </Form.Group>
 
+                    {/* รายละเอียดที่อยู่บริษัท */}
                     <div className="row g-3">
                       <div className="col-md-4">
                         <Form.Group className="row-custom">
-                          <Form.Label
-                            htmlFor="companyAddressNo"
-                            className="form-label-custom"
-                          >
-                            เลขที่
-                          </Form.Label>
-                          <Form.Control
-                            type="text"
-                            id="companyAddressNo"
-                            name="companyAddressNo"
-                            value={formData.companyAddressNo}
-                            onChange={handleChange}
-                          />
+                          <Form.Label htmlFor="companyAddressNo" className="form-label-custom">เลขที่</Form.Label>
+                          <Form.Control type="text" id="companyAddressNo" name="companyAddressNo" value={formData.companyAddressNo} onChange={handleChange} />
                         </Form.Group>
                       </div>
                       <div className="col-md-4">
                         <Form.Group className="row-custom">
-                          <Form.Label
-                            htmlFor="companyMoo"
-                            className="form-label-custom"
-                          >
-                            หมู่
-                          </Form.Label>
-                          <Form.Control
-                            type="text"
-                            id="companyMoo"
-                            name="companyMoo"
-                            value={formData.companyMoo}
-                            onChange={handleChange}
-                          />
+                          <Form.Label htmlFor="companyMoo" className="form-label-custom">หมู่</Form.Label>
+                          <Form.Control type="text" id="companyMoo" name="companyMoo" value={formData.companyMoo} onChange={handleChange} />
                         </Form.Group>
                       </div>
                       <div className="col-md-4">
                         <Form.Group className="row-custom">
-                          <Form.Label
-                            htmlFor="companyBuilding"
-                            className="form-label-custom"
-                          >
-                            อาคาร/หมู่บ้าน
-                          </Form.Label>
-                          <Form.Control
-                            type="text"
-                            id="companyBuilding"
-                            name="companyBuilding"
-                            value={formData.companyBuilding}
-                            onChange={handleChange}
-                          />
+                          <Form.Label htmlFor="companyBuilding" className="form-label-custom">อาคาร/หมู่บ้าน</Form.Label>
+                          <Form.Control type="text" id="companyBuilding" name="companyBuilding" value={formData.companyBuilding} onChange={handleChange} />
                         </Form.Group>
                       </div>
                     </div>
@@ -995,210 +541,82 @@ function RegisterUserPage() {
                     <div className="row g-3">
                       <div className="col-md-6">
                         <Form.Group className="row-custom">
-                          <Form.Label
-                            htmlFor="companyStreet"
-                            className="form-label-custom"
-                          >
-                            ถนน
-                          </Form.Label>
-                          <Form.Control
-                            type="text"
-                            id="companyStreet"
-                            name="companyStreet"
-                            value={formData.companyStreet}
-                            onChange={handleChange}
-                          />
+                          <Form.Label htmlFor="companyStreet" className="form-label-custom">ถนน</Form.Label>
+                          <Form.Control type="text" id="companyStreet" name="companyStreet" value={formData.companyStreet} onChange={handleChange} />
                         </Form.Group>
                       </div>
                       <div className="col-md-6">
                         <Form.Group className="row-custom">
-                          <Form.Label
-                            htmlFor="companySoi"
-                            className="form-label-custom"
-                          >
-                            ซอย
-                          </Form.Label>
-                          <Form.Control
-                            type="text"
-                            id="companySoi"
-                            name="companySoi"
-                            value={formData.companySoi}
-                            onChange={handleChange}
-                          />
+                          <Form.Label htmlFor="companySoi" className="form-label-custom">ซอย</Form.Label>
+                          <Form.Control type="text" id="companySoi" name="companySoi" value={formData.companySoi} onChange={handleChange} />
                         </Form.Group>
                       </div>
                     </div>
 
+                    {/* จังหวัด → อำเภอ → ตำบล (บริษัท) */}
                     <div className="row g-3">
                       <div className="col-md-4">
                         <Form.Group className="row-custom">
-                          <Form.Label
-                            htmlFor="companyProvince"
-                            className="form-label-custom ws-required"
-                          >
-                            จังหวัด
-                          </Form.Label>
-                          <Form.Select
-                            id="companyProvince"
-                            name="companyProvince"
-                            value={selectedCompanyProvinceId}
-                            onChange={handleCompanyAddressSelectChange}
-                            required
-                          >
+                          <Form.Label htmlFor="companyProvince" className="form-label-custom ws-required">จังหวัด</Form.Label>
+                          <Form.Select id="companyProvince" name="companyProvince" value={selectedCompanyProvinceId} onChange={handleCompanyAddressSelectChange} required>
                             <option value="">เลือกจังหวัด</option>
-                            {companyProvinceOptions.map((p) => (
-                              <option key={p.id} value={String(p.id)}>
-                                {p.name_th}
-                              </option>
-                            ))}
+                            {companyProvinceOptions.map((p) => <option key={p.id} value={String(p.id)}>{p.name_th}</option>)}
                           </Form.Select>
                         </Form.Group>
                       </div>
                       <div className="col-md-4">
                         <Form.Group className="row-custom">
-                          <Form.Label
-                            htmlFor="companyDistrict"
-                            className="form-label-custom ws-required"
-                          >
-                            อำเภอ/เขต
-                          </Form.Label>
-                          <Form.Select
-                            key={selectedCompanyProvinceId}
-                            id="companyDistrict"
-                            name="companyDistrict"
-                            value={selectedCompanyDistrictId}
-                            onChange={handleCompanyAddressSelectChange}
-                            required
-                            disabled={!selectedCompanyProvinceId}
-                          >
+                          <Form.Label htmlFor="companyDistrict" className="form-label-custom ws-required">อำเภอ/เขต</Form.Label>
+                          <Form.Select key={selectedCompanyProvinceId} id="companyDistrict" name="companyDistrict" value={selectedCompanyDistrictId} onChange={handleCompanyAddressSelectChange} required disabled={!selectedCompanyProvinceId}>
                             <option value="">เลือกอำเภอ/เขต</option>
-                            {companyDistrictOptions.map((d) => (
-                              <option key={d.id} value={String(d.id)}>
-                                {d.name_th}
-                              </option>
-                            ))}
+                            {companyDistrictOptions.map((d) => <option key={d.id} value={String(d.id)}>{d.name_th}</option>)}
                           </Form.Select>
                         </Form.Group>
                       </div>
                       <div className="col-md-4">
                         <Form.Group className="row-custom">
-                          <Form.Label
-                            htmlFor="companySubdistrict"
-                            className="form-label-custom ws-required"
-                          >
-                            ตำบล/แขวง
-                          </Form.Label>
-                          <Form.Select
-                            key={selectedCompanyDistrictId}
-                            id="companySubdistrict"
-                            name="companySubdistrict"
-                            value={selectedCompanySubdistrictId}
-                            onChange={handleCompanyAddressSelectChange}
-                            required
-                            disabled={!selectedCompanyDistrictId}
-                          >
+                          <Form.Label htmlFor="companySubdistrict" className="form-label-custom ws-required">ตำบล/แขวง</Form.Label>
+                          <Form.Select key={selectedCompanyDistrictId} id="companySubdistrict" name="companySubdistrict" value={selectedCompanySubdistrictId} onChange={handleCompanyAddressSelectChange} required disabled={!selectedCompanyDistrictId}>
                             <option value="">เลือกตำบล/แขวง</option>
-                            {companySubdistrictOptions.map((t) => (
-                              <option key={t.id} value={String(t.id)}>
-                                {t.name_th}
-                              </option>
-                            ))}
+                            {companySubdistrictOptions.map((t) => <option key={t.id} value={String(t.id)}>{t.name_th}</option>)}
                           </Form.Select>
                         </Form.Group>
                       </div>
                     </div>
 
+                    {/* Zip Code บริษัท (อ่านอย่างเดียว, auto-fill) */}
                     <Form.Group className="row-custom">
-                      <Form.Label
-                        htmlFor="companyZipCode"
-                        className="form-label-custom ws-required"
-                      >
-                        รหัสไปรษณีย์
-                      </Form.Label>
-                      <Form.Control
-                        type="text"
-                        id="companyZipCode"
-                        name="companyZipCode"
-                        value={formData.companyZipCode}
-                        readOnly
-                      />
+                      <Form.Label htmlFor="companyZipCode" className="form-label-custom ws-required">รหัสไปรษณีย์</Form.Label>
+                      <Form.Control type="text" id="companyZipCode" name="companyZipCode" value={formData.companyZipCode} readOnly />
                     </Form.Group>
 
+                    {/* เบอร์/อีเมลบริษัท */}
                     <div className="row g-3">
                       <div className="col-md-6">
                         <Form.Group className="row-custom">
-                          <Form.Label
-                            htmlFor="companyPhone"
-                            className="form-label-custom"
-                          >
-                            เบอร์โทรบริษัท
-                          </Form.Label>
-                          <Form.Control
-                            type="tel"
-                            id="companyPhone"
-                            name="companyPhone"
-                            value={formData.companyPhone}
-                            onChange={handleChange}
-                          />
+                          <Form.Label htmlFor="companyPhone" className="form-label-custom">เบอร์โทรบริษัท</Form.Label>
+                          <Form.Control type="tel" id="companyPhone" name="companyPhone" value={formData.companyPhone} onChange={handleChange} />
                         </Form.Group>
                       </div>
                       <div className="col-md-6">
                         <Form.Group className="row-custom">
-                          <Form.Label
-                            htmlFor="companyEmail"
-                            className="form-label-custom"
-                          >
-                            อีเมลบริษัท
-                          </Form.Label>
-                          <Form.Control
-                            type="email"
-                            id="companyEmail"
-                            name="companyEmail"
-                            value={formData.companyEmail}
-                            onChange={handleChange}
-                          />
+                          <Form.Label htmlFor="companyEmail" className="form-label-custom">อีเมลบริษัท</Form.Label>
+                          <Form.Control type="email" id="companyEmail" name="companyEmail" value={formData.companyEmail} onChange={handleChange} />
                         </Form.Group>
                       </div>
                     </div>
 
+                    {/* รายละเอียดบริษัท*/}
                     <Form.Group className="row-custom">
-                      <Form.Label
-                        htmlFor="companyDescription"
-                        className="form-label-custom"
-                      >
-                        รายละเอียดบริษัท
-                      </Form.Label>
-                      <Form.Control
-                        as="textarea"
-                        id="companyDescription"
-                        name="companyDescription"
-                        rows={3}
-                        value={formData.companyDescription}
-                        onChange={handleChange}
-                      />
+                      <Form.Label htmlFor="companyDescription" className="form-label-custom">รายละเอียดบริษัท</Form.Label>
+                      <Form.Control as="textarea" id="companyDescription" name="companyDescription" rows={3} value={formData.companyDescription} onChange={handleChange} />
                     </Form.Group>
 
+                    {/* ปุ่มควบคุม */}
                     <div className="d-flex justify-content-between mt-3">
-                      <Button
-                        variant="light"
-                        className="ws-btn ws-btn-outline border-0"
-                        onClick={handlePreviousStep}
-                      >
-                        ย้อนกลับ
-                      </Button>
-                      <Button
-                        type="submit"
-                        variant="success"
-                        className="ws-btn ws-btn-primary px-4 py-2"
-                        disabled={isSubmitting}
-                      >
-                        {isSubmitting ? (
-                          <Spinner
-                            animation="border"
-                            size="sm"
-                            className="me-2"
-                          />
-                        ) : null}
+                      <Button variant="light" className="ws-btn ws-btn-outline border-0" onClick={handlePreviousStep}>ย้อนกลับ</Button>
+                      <Button type="submit" variant="success" className="ws-btn ws-btn-primary px-4 py-2" disabled={isSubmitting}>
+                        {isSubmitting ? <Spinner animation="border" size="sm" className="me-2" /> : null}
                         ยืนยันการสมัคร
                       </Button>
                     </div>
@@ -1206,16 +624,10 @@ function RegisterUserPage() {
                 </div>
               )}
 
-              {/* Hint เล็ก ๆ */}
-              <div
-                className="text-center text-muted mt-3"
-                style={{ fontSize: ".9rem" }}
-              >
+              {/* ลิงก์ช่วยเหลือ */}
+              <div className="text-center text-muted mt-3" style={{ fontSize: ".9rem" }}>
                 มีบัญชีแล้ว?{" "}
-                <button
-                  className="btn btn-link p-0 align-baseline"
-                  onClick={() => navigate("/login")}
-                >
+                <button className="btn btn-link p-0 align-baseline" onClick={() => navigate("/login")}>
                   เข้าสู่ระบบ
                 </button>
               </div>
@@ -1224,58 +636,29 @@ function RegisterUserPage() {
         </div>
       </section>
 
-      {/* Success Modal */}
-      <Modal
-        show={showSuccessModal}
-        onHide={() => setShowSuccessModal(false)}
-        centered
-      >
+      {/* Modal สมัครสำเร็จ */}
+      <Modal show={showSuccessModal} onHide={() => setShowSuccessModal(false)} centered>
         <Modal.Header closeButton className="bg-success text-white">
-          <Modal.Title>
-            <FontAwesomeIcon icon={faCheckCircle} className="me-2" />
-            สมัครสำเร็จ!
-          </Modal.Title>
+          <Modal.Title><FontAwesomeIcon icon={faCheckCircle} className="me-2" />สมัครสำเร็จ!</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <p>การสมัครบัญชีผู้ดูแลระบบและข้อมูลบริษัทสำเร็จแล้ว!</p>
           <p>คุณสามารถเข้าสู่ระบบได้ในไม่ช้า</p>
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="success" onClick={() => navigate("/login")}>
-            ไปที่หน้าเข้าสู่ระบบ
-          </Button>
+          <Button variant="success" onClick={() => navigate("/login")}>ไปที่หน้าเข้าสู่ระบบ</Button>
         </Modal.Footer>
       </Modal>
 
-      {/* Footer ให้กลืนกับ Landing */}
+      {/* ฟุตเตอร์ */}
       <footer className="mt-4" style={{ background: "#343a40", color: "#bbb" }}>
         <div className="container py-3">
           <div className="row gy-2 align-items-center">
-            <div className="col-md-6 text-center text-md-start">
-              &copy; 2025 WorkSter. All rights reserved.
-            </div>
+            <div className="col-md-6 text-center text-md-start">&copy; 2025 WorkSter. All rights reserved.</div>
             <div className="col-md-6 text-center text-md-end">
-              <a
-                href="/"
-                className="me-3 text-decoration-none"
-                style={{ color: "#bbb" }}
-              >
-                หน้าหลัก
-              </a>
-              <a
-                href="/public/job-postings"
-                className="me-3 text-decoration-none"
-                style={{ color: "#bbb" }}
-              >
-                ตำแหน่งงาน
-              </a>
-              <a
-                href="mailto:info@workster.com"
-                className="text-decoration-none"
-                style={{ color: "#bbb" }}
-              >
-                ติดต่อเรา
-              </a>
+              <a href="/" className="me-3 text-decoration-none" style={{ color: "#bbb" }}>หน้าหลัก</a>
+              <a href="/public/job-postings" className="me-3 text-decoration-none" style={{ color: "#bbb" }}>ตำแหน่งงาน</a>
+              <a href="mailto:info@workster.com" className="text-decoration-none" style={{ color: "#bbb" }}>ติดต่อเรา</a>
             </div>
           </div>
         </div>
